@@ -1,0 +1,67 @@
+<style>
+.nav-sm .nav.side-menu li a {
+    text-align: center!important;
+    font-weight: 400;
+    font-size: 18px!important;
+    padding: 10px 5px;
+}
+</style>
+<div class="col-md-3 left_col" style="width:90px">
+    <div class="left_col scroll-view">
+        <div class="navbar nav_title" style="border: 0;">
+            <a href="{:url('/index/index')}" class="site_title">
+                <!--<i class="fa fa-paw"></i> -->
+                <img src="__B__/images/logo.png" width="60">
+                <span>巴东国际</span></a>
+        </div>
+        <div class="clearfix"></div>
+
+        <!-- menu profile quick info -->
+        <div class="profile clearfix">
+            <div class="profile_pic">
+                <img src="__IMG__/img.jpg" alt="..." class="img-circle profile_img">
+            </div>
+            <div class="profile_info">
+                <span>欢迎回来,</span>
+                <h2>{$username}</h2>
+                <h2>等级:{$meal_id}星</h2>
+                
+            </div>
+        </div>
+        <!-- /menu profile quick info -->
+        <br />
+        <!-- sidebar menu -->
+        <div id="sidebar-menu" class="main_menu_side hidden-print main_menu">
+            <div class="menu_section">
+                <ul class="nav side-menu">
+                    {php}
+                    $m = new \web\common\model\sys\IndexNavMenuModel();
+                    $categorys= $m->getCategoryParentMenu(0); 
+                    foreach($categorys as $cate1){  
+                    echo '<li><a><i class="'.$cate1['icon'].'"></i>'.$cate1['title'].'<span class="fa fa-chevron-down"></span></a>';
+                    {/php}
+                        <ul class="nav child_menu">
+                            {php}
+                            $i=0;
+                            $categorys2= $m->getCategoryParentMenu($cate1['id']);                  
+                            foreach($categorys2 as $cate2){                                                     
+                                echo '<li><a href="'.url($cate2['controller'].'/'.$cate2['action']).' ">'.$cate2['title'].'</a></li>';  
+                                $i++;
+                            }
+                            {/php}
+                        </ul>
+                    {php}echo '</li>';}{/php}
+                </ul>
+            </div>
+
+
+        </div>
+        <!-- /sidebar menu -->
+
+    </div>
+</div>
+<script src="__B__/js/custom.js"></script>
+<script type="text/javascript">
+
+
+</script>

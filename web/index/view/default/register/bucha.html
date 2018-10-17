@@ -1,0 +1,119 @@
+{extend name="base/index" /}
+{block name="body"}
+<link href="__B__/css/fucking-piss.css" rel="stylesheet">
+<!-- page content -->
+<div class="right_col" role="main">
+    <!-- top tiles -->
+    <div class="row tile_count">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>套餐升级 <span>当前套餐金额:{$current_price}</span> </h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <!-- start form for validation -->
+                        <form id="demo-form" method="post" class="form-material" data-parsley-validate>
+                            
+                            <div class="form-group">
+                                <label class="control-label">套餐</label>
+                                <select name="meal_id" id="meal_id" class="form-control" required>
+                                    {volist name="meals" id="meal"}
+                                    <option value="{$meal.id}">{$meal.title}</option>
+                                    {/volist}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">订阅分</label>
+                                <input type="number" name="sub_amount" id="sub_amount" placeholder="订阅分余额:{$sub_amount}" class="form-control" required />
+
+                            </div>
+                            {if condition="$is_center eq 1"}
+                            <div class="form-group">
+                                <label class="control-label">特全分</label>
+                                <input type="number" name="sp_amount" id="sp_amount" placeholder="特全分余额:{$sp_amount},最高使用:10%" class="form-control" required />
+                                
+                            </div>
+                            {/if}
+                            
+                            <div class="form-group">
+                                <label class="control-label">销售分红</label>
+                                <input type="number" name="bonus_amount" id="bonus_amount" placeholder="销售分红余额:{$bonus_amount},最高使用:50%" class="form-control" required />
+
+                            </div>
+                            
+                            <div class="form-group" style="margin:10px 0;">
+                                <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                    <span class="btn btn-primary" id="resetBtn">清空</span>
+                                    <span class="btn btn-success" id="submitBtn">提交</span>
+                                </div>
+                            </div>
+                        </form>
+                        <!-- end form for validations -->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+
+<script type="text/javascript">
+    var current_price = "{$current_price}"; //当前套餐花费
+    var sub_amount = {$sub_amount};
+    {if condition="$is_center eq 1"}
+        var sp_amount = {$sp_amount};
+    {else/}
+        var sp_amount = 0;
+    {/if}
+    
+    $(function () {
+        loadPrice();
+        
+    })
+    
+    function loadPrice(){
+        var meal_id = $("#meal_id").val();
+        $.getJSON("{:url('load_meal_price')}",{meal_id:meal_id},function(price){
+            price = price - current_price;
+            if(sp_amount > 0){
+                var set_sp_amount = price * 0.1;
+                if(set_sp_amount > sp_amount){
+                    set_sp_amount = sp_amount;
+                }
+                $("#sp_amount").val(set_sp_amount);
+                set_sub_amount = price * 0.9;
+                if(set_sub_amount > sub_amount){
+                    set_sub_amount = sub_amount;
+                }
+                $("#sub_amount").val(set_sub_amount);
+            }else{
+                $("#sub_amount").val(price);
+            }
+        })
+    }
+
+    $("#submitBtn").click(function () {
+        $("#demo-form").ajaxSubmit({
+            beforeSubmit: function () {
+                showLoading("数据提交中...");
+            },
+            success: function (res) {
+                hideLoading();
+                if (res.success) {
+                    alert('升级成功');
+                    location.reload()
+                } else {
+                    alert(res.message);
+                }
+            }
+        })
+    })
+</script>
+{/block}

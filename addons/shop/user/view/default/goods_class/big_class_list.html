@@ -1,0 +1,110 @@
+{extend name="$BASE_LIST" /}
+{block name="body"}
+<div class="right-main">
+    <div class="page_nav" id="js_page_nav"><span class="page_title">{$page_nav}</span></div>
+    <div id="js_main_header" class="ui-form main_header">
+        <ul class="tab_navs" id="js_tab_navs">
+            <li> <a href="{:getUrl('index')}">三级类别</a><i></i></li>
+            <li> <a class="pjax" href="{:getUrl('midClassList')}">二级类别</a><i></i></li>
+            <li class="current"> <a>一级类别</a><i></i></li>
+        </ul>
+        <span class="frm_input_box search append">
+            <a href="javascript:void(0);" id="js_search" class="frm_input_append">
+                <i class="icon wb-search" title="搜索"></i>            
+            </a>
+            <input type="text" id="js_keyword" placeholder="请输入类别名称或编码" value="" class="frm_input" />
+        </span>
+        <span class="right">
+            <button type="button" id="js_addBtn" class="btn btn-primary"><i class="icon wb-plus"></i> 新增分类</button>
+        </span>
+    </div>
+
+    <table id="grid-table" class="table" cellSpacing="0" cellPadding="0">
+            <thead frozen="true">
+            <th data-options="field:'class_name',width:130,align:'center',sortable: true">类别名称</th>        
+            <th data-options="field:'is_show',width:100,align:'center',formatter:formatStatus">状态</th>
+            <!--<th data-options="field:'level',width:120,align:'center'">等级</th>-->
+            </thead>
+            <thead>
+                <tr>                                        
+                    <!--<th data-options="field:'commission_rate',width:100,align:'center'">分佣比例</th>-->
+                    <th data-options="field:'update_time',width:140,align:'center',sortable: true">更新时间</th>
+                    <th data-options="field:'_oper',halign:'center',formatter: formatOper">操作</th>
+                </tr>
+            </thead>
+        </table>
+</div>
+
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    var level = "{$level}";
+    function formatStatus(value, row, index) {
+        if (value == '1')
+            return '<span class="statusEnable">启用</span>';
+        else
+            return '<span class="statusDisable">禁用</span>';
+    }
+    function formatOper(value, row, index) {
+        var html = '<span class="grid-operation">';
+//        html += '<button type="button" onclick="view(' + row['id'] + ',0)" class="btn btn-xs btn-default view-btn"><i class="icon wb-eye"></i>查看</button>';
+        html += '<button type="button" onclick="edit(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>编辑</button>';
+        // html += '<button type="button" onclick="batch(' + row['id'] + ')" class="btn btn-xs btn-default batch-btn ><i class="icon wb-edit"></i>批处理</button>';
+        html += '<button type="button" onclick="del(' + row['id'] + ')" class="btn btn-xs btn-default del-btn "><i class="icon wb-close"></i>删除</button>';
+        html += '</span>';
+        return html;
+    }
+    $(function () {
+        $('#grid-table').datagrid({
+            url: getURL('loadList',"level="+level),
+            method: "GET",
+            height: getGridHeight(),
+            rownumbers: true,
+            singleSelect: true,
+            remoteSort: false,
+            multiSort: true,
+            emptyMsg: '<span>无相关数据</span>',
+            pagination: true,
+            pageSize: 20
+        });
+        //设置分页控件 
+        $('#grid-table').datagrid('getPager').pagination({
+            pageSize: 20, //每页显示的记录条数，默认为10 
+            pageList: [20, 30, 50]
+        });
+    });
+
+    function del(id) {
+        confirm("确认要删除该商品大类吗？", function () {
+            var url = getURL('delBig');
+            $.getJSON(url, {id: id}, function (json) {
+                if (json.success)
+                    reload();
+                else
+                    alert(json.message);
+            });
+        });
+    }
+    $("#js_addBtn").click(function () {
+        var url = getURL('edit');
+        openBarWin('新增商品分类', 700, 430, url, function () {
+            reload();
+        });
+    });
+
+    function edit(id, act) {
+        var url = getURL('edit', 'id=' + id + '&act=' + act);
+        openBarWin('编辑商品类别信息', 700, 430, url, function () {
+            reload();
+        }, ['保存', '取消']);
+    }
+    
+    $("#js_search").click(function () {
+        reload();
+    });
+    function reload() {
+        var keyword = $("#js_keyword").val();
+        $('#grid-table').datagrid('reload', {keyword: keyword});
+    }
+</script>
+{/block}

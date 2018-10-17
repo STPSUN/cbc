@@ -1,0 +1,50 @@
+{extend name="$BASE_POPUP_FORM" /}
+{block name="body"}
+<input type="hidden" id="id" name="id" />
+
+<div class="box-content">
+    <div class="control-row col-2">
+        <div class="control-group">
+            <label class="control-label">标题</label>
+            <div class="controls">
+                <input type="text" name="title" id="title" class="form-control required" />    
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">所需直推市场数</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" data-datatype="positive_integer" name="need_child" id="need_child" class="form-control required" />                       
+                <span class="tips">个</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">所需累计业绩</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" data-datatype="positive_integer" name="sum_total" id="sum_total" class="form-control required" />                       
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">小市场所需业绩</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" data-datatype="positive_integer" name="small_child_total" id="small_child_total" class="form-control required" />                       
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">总业绩分红比率</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" name="bonus_rate" id="bonus_rate" class="form-control required" />                       
+                <span class="tips">%</span>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script type="text/javascript">
+
+
+</script>
+{/block}

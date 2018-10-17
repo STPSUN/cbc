@@ -1,0 +1,198 @@
+{extend name="base/index" /}
+{block name="body"}
+<link href="__B__/css/fucking-piss.css" rel="stylesheet">
+<!-- page content -->
+<div class="right_col" role="main">
+    <!-- top tiles -->
+    <div class="row tile_count">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>注册</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <!-- start form for validation -->
+                <form id="demo-form" method="post" class="form-material" data-parsley-validate>
+                    <div class="row">
+                        <div class="col-md-6 col-sm-6 col-xs-12" style="padding: 0 30px;">
+                            <div class="form-group">
+                                <label class="control-label">用户名</label>
+                                <input type="text" name="username" placeholder="请输入用户名" class="form-control" required />
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">销售经理用户名</label>
+                                <input type="text" class="form-control" placeholder="请输入销售经理用户名" required id="inviter" name="inviter" />
+
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">客服经理用户名</label>
+                                <input type="text" value="{$aid_username}" name="aid_username" placeholder="请输入客服经理用户名" id="aid_username" class="form-control" required />
+                            
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">市场位置</label>
+                                <select name="position" id="position" class="form-control" >
+                                    <option value="0">I</option>
+                                    <option value="1">II</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">姓名</label>
+                                <input type="text" name="real_name" placeholder="请输入姓名" id="real_name" class="form-control" required />
+
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">手机号</label>
+                                <input type="text" name="phone" placeholder="请输入手机号" id="phone" class="form-control" required />
+
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">登录密码</label>
+                                <input type="text" name="password" placeholder="请输入登录密码" class="form-control" required />
+
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">交易密码</label>
+                                <input type="text" name="pay_password" placeholder="请输入6位交易密码" id="pay_password" class="form-control" required />
+
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">套餐</label>
+                                <select name="meal_id" id="meal_id" class="form-control" required>
+                                    {volist name="meals" id="meal"}
+                                    <option value="{$meal.id}">{$meal.title}</option>
+                                    {/volist}
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">订阅分</label>
+                                <input type="number" name="sub_amount" id="sub_amount" placeholder="订阅分余额:{$sub_amount}" class="form-control" required />
+
+                            </div>
+                            {if condition="$is_center eq 1"}
+                            <div class="form-group">
+                                <label class="control-label">特全分</label>
+                                <input type="number" name="sp_amount" id="sp_amount" placeholder="特全分余额:{$sp_amount},最高使用:10%" class="form-control" required />
+                                
+                            </div>
+                            {/if}
+                            
+                            <div class="form-group">
+                                <label class="control-label">销售分红</label>
+                                <input type="number" name="bonus_amount" id="bonus_amount" placeholder="销售分红余额:{$bonus_amount},最高使用:50%" class="form-control" required />
+
+                            </div>
+ 
+                        </div>
+                        
+                        <div class="col-md-6 col-sm-6 col-xs-12" style="padding: 0 30px;">
+                            
+                            <div class="form-group">
+                                <label class="control-label">客户中心(选填)</label>
+                                <input type="text" name="center_username" placeholder="请输入客户中心" id="center_username" class="form-control" required />
+                            
+                            </div>
+                            {if condition="$can_backfill eq 1"}
+                            <div class="form-group">
+                                <label class="control-label">是否空单回填</label>
+                                <select name="use_backfill" id="use_backfill" class="form-control">
+                                    <option value="0">不创建空单回填</option>
+                                    <option value="1">创建空单回填</option>
+                                </select>
+                                 
+                            </div>
+                            {/if}
+                            
+                            <div class="form-group">
+                                <label class="control-label">身份证(选填)</label>
+                                <input type="text" name="card_no" placeholder="请输入身份证" id="card_no" class="form-control" />
+
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">住址(选填)</label>
+                                <input type="text" name="address" placeholder="请输入住址" id="address" class="form-control" />
+                            
+                            </div>
+
+                        </div>
+                    </div>
+                    <div style="width: 100%; text-align: center; margin-top: 20px;">
+                        <span class="btn btn-primary" id="resetBtn">清空</span>
+                        <span class="btn btn-success" id="submitBtn">提交</span>
+                    </div>
+                </form>
+                <!-- end form for validations -->
+
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+
+<script type="text/javascript">
+    var sub_amount = {$sub_amount};
+    {if condition="$is_center eq 1"}
+        var sp_amount = {$sp_amount};
+    {else/}
+        var sp_amount = 0;
+    {/if}
+    var position = "{$position}"
+    $(function () {
+        loadPrice();
+        $("#position").val(position)
+    })
+    
+    function loadPrice(){
+        var meal_id = $("#meal_id").val();
+        $.getJSON("{:url('load_meal_price')}",{meal_id:meal_id},function(price){
+            if(sp_amount > 0){
+                var set_sp_amount = price * 0.1;
+                if(set_sp_amount > sp_amount){
+                    set_sp_amount = sp_amount;
+                }
+                $("#sp_amount").val(set_sp_amount);
+                set_sub_amount = price * 0.9;
+                if(set_sub_amount > sub_amount){
+                    set_sub_amount = sub_amount;
+                }
+                $("#sub_amount").val(set_sub_amount);
+            }else{
+                $("#sub_amount").val(price);
+            }
+        })
+    }
+    
+    $("#meal_id").change(function(){
+        loadPrice();
+    })
+
+    $("#submitBtn").click(function () {
+        $("#demo-form").ajaxSubmit({
+            beforeSubmit: function () {
+                showLoading("数据提交中...");
+            },
+            success: function (res) {
+                hideLoading();
+                if (res.success) {
+                    alert('注册成功');
+                } else {
+                    alert(res.message);
+                }
+            }
+        })
+    })
+</script>
+{/block}

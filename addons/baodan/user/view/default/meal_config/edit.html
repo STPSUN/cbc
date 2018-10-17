@@ -1,0 +1,52 @@
+{extend name="$BASE_POPUP_FORM" /}
+{block name="body"}
+<input type="hidden" id="id" name="id" />
+
+<div class="box-content">
+    <div class="control-row col-2">
+        <div class="control-group">
+            <label class="control-label">套餐名称</label>
+            <div class="controls">
+                <input type="text" name="title" id="title" class="form-control required" />    
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">价格</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" data-datatype="positive_integer" name="price" id="price" class="form-control required" />                       
+                <span class="tips">请输入整数</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">杠杆倍数</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" name="lever" id="lever" class="form-control required" />                       
+                <span class="tips">倍</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">发展奖励比率</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" name="devlop_bonus_rate" id="devlop_bonus_rate" class="form-control required" />                       
+                <span class="tips">%</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">发展奖金封顶金额</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" data-datatype="positive_integer" name="bonus_limit" id="bonus_limit" class="form-control required" />                       
+                <span class="tips">请输入整数</span>
+            </div>
+        </div>
+        
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script type="text/javascript">
+
+
+</script>
+{/block}

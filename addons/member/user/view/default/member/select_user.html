@@ -1,0 +1,91 @@
+{extend name="$BASE_POPUP" /}
+{block name="body"} 
+<link rel="stylesheet" type="text/css" href="__STATIC__/easyui/themes/custom/easyui.css" />     
+<script type="text/javascript" src="__STATIC__/easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="__STATIC__/easyui/locale/easyui-lang-zh_CN.js"></script> 
+<div id="main_content" class="ui-form main_header">   
+    <div id="js_main_header" class="main_header">
+        <span class="frm_input_box search append">
+            <a href="javascript:void(0);" id="js_search" class="frm_input_append">
+                <i class="icon wb-search" title="搜索"></i>       
+            </a>
+            <input type="text" id="js_keyword" placeholder="请输入会员名称" value="" class="frm_input" />
+        </span>
+    </div>
+    <div id="grid-table" class="easyui-datagrid"></div>
+</div>
+{/block}
+
+{block name="script"}
+<script type="text/javascript">
+    var is_first_load = true;
+    $(function () {        
+        $('#grid-table').datagrid({
+            url: getURL('loadSelectUser'),
+            method: "GET",
+            singleSelect: true,
+            remoteSort: false,
+            multiSort: true,
+            SelectOnCheck: false,
+            CheckOnSelect: false,
+            height: getGridHeight(),
+            emptyMsg: '<span>无相关数据</span>',
+            columns: [[
+                    {field: 'id', align: 'center', width: '100', checkbox: true},
+                    {field: 'username', title: '用户名称', align: 'center', width: '140'},
+                    {field: 'phone', title: '电话号码', align: 'center', width: '140'}
+                ]],
+            onLoadSuccess: function () {
+                form.ui().render();
+                is_first_load = false;
+            },
+            onSelect: function (index, data) {
+                var tr = $(".datagrid-btable tr");
+                tr.eq(index).find(".checkbox-item-label .checkbox-item").addClass("checked");
+                var len = tr.find("input[type='checkbox']:checked").length;
+                if ($('#grid-table').datagrid("getData").total == len)
+                    $(".datagrid-header-check").find(".checkbox-item").addClass("checked");
+            },
+            onUnselect: function (index, data) {
+                $(".datagrid-btable tr").eq(index).find(".checkbox-item-label .checkbox-item").removeClass("checked");
+                $(".datagrid-header-check").find(".checkbox-item").removeClass("checked");
+            },
+            onSelectAll: function (rows) {
+                $(".datagrid-header-check").find(".checkbox-item").addClass("checked");
+                for (var i = 0; i < rows.length; i++) {
+                    var tr = $(".datagrid-btable tr").eq(i);
+                    tr.find(".checkbox-item-label .checkbox-item").addClass("checked");
+                }
+            },
+            onUnselectAll: function (rows) {
+                $(".datagrid-header-check").find(".checkbox-item").removeClass("checked");
+                for (var i = 0; i < rows.length; i++) {
+                    $(".datagrid-btable tr").eq(i).find(".checkbox-item-label .checkbox-item").removeClass("checked");
+                }
+            }, onDblClickRow: function (index, row) {
+                var btn = getOkBtn();
+                btn[0].click();
+            }
+        });
+    });
+    $("#js_search").click(function () {
+        reload();
+    });
+
+    function reload() {
+        var keyword = $("#js_keyword").val();
+        $('#grid-table').datagrid('reload', {
+            keyword: keyword
+        });
+    }
+    function saveData(callback, layer_index, autoClose) {
+        var rows = $('#grid-table').datagrid('getChecked');
+        if (!rows || rows.length == 0) {
+            alert('请选择会员！');
+        } else {
+            callback(rows[0]);
+            this.close(layer_index);
+        }
+    }
+</script>
+{/block}

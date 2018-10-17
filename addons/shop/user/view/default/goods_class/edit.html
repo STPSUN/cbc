@@ -1,0 +1,69 @@
+{extend name="$BASE_POPUP_FORM" /}
+{block name="body"}
+<div class="box-content"> 
+    <input type="hidden" name="id" id="id" />
+    <div class="control-group">
+        <label class="control-label">分类名称：</label>
+        <div class="controls">
+            <input type="text" name="class_name" id="class_name" class="form-control required js_no_reset" />
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">选择上级：</label>
+        <div class="controls">
+            <select name="pid" class="form-control">
+                <option value="0" selected>|--顶级分类</option>
+                {volist name="$list" id = "vo"}
+                <option value="{$vo.id}" style="text-align: left; padding-left: 25px; font-size: 14px; font-weight: 900;">|--{$vo.class_name}</option>
+                {volist name="$vo.secondList" id="v"}
+                <option value="{$v.id}" style="text-align: left; padding-left: 25px; font-size: 12px; font-weight: 600;">       &emsp;&nbsp;|----{$v.class_name}</option>
+                {/volist}
+                {/volist}
+            </select>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">
+            分类图标：
+        </label>
+        <div class="controls">
+            <div id="js_upload_wrp">
+                <input type="hidden" id="image" name="image" value="" class="" />
+                {:hook('picResource',array('name'=>'image','folder'=>'goods_class','tips'=>'建议尺寸：400*400像素。仅支持.jpg .png格式长方形照片。','callback'=>'uploadImgCallback'))}
+            </div>
+        </div>
+    </div>
+    {if condition="$id eq ''"}
+    <div class="control-group" id = 'show'>
+        <label class="control-label">是否显示：</label>
+        <div class="controls">
+            <select name="is_show" class="form-control">
+                <option value="1">是</option>
+                <option value="0">否</option>
+            </select>
+        </div>
+    </div>
+    {/if}
+    <div class="control-group">
+        <label class="control-label">排序：</label>
+        <div class="controls">
+            <input type="text" value="0" name="order_index" id="order_index" class="form-control required js_no_reset" />
+            <tip>排序越小，显示越靠前</tip>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    function uploadImgCallback(path) {
+        $("#image").val(path);
+    }
+
+    function onLoadDataSuccess(data){
+        setPicValue("image", data['image']);
+    }
+
+
+</script>
+{/block}
+

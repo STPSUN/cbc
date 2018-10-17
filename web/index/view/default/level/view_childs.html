@@ -1,0 +1,281 @@
+{extend name="base/index" /}
+{block name="body"}
+<style>
+    body{
+        background: #fafafa;
+    }
+    *{
+        padding:0;
+        margin:0;
+    }
+    .team_list_wrap{
+        overflow-x: auto;
+        min-width: 1200px;
+    }
+    .team-box{
+        width: 20%;
+/*        height: 110px;*/
+        box-shadow: 4px 4px 6px #888;
+        line-height: 1.3;
+        padding:10px;
+        background: #fff;
+        border-radius: 5px;
+        margin: 0 auto;
+        border:1px solid #eee;
+        margin-bottom: 5px;
+    }
+    .top-user{
+        text-align: center;
+        font-size: 16px;
+    }
+    .grade{
+        color:#ffb912;
+        font-size:14px;
+    }
+    .content-team{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        text-align: center;
+        list-style: none;
+        width: 100%;
+    }
+    .content-team>li{
+        width: calc(100% / 3);
+        padding:10px 0;
+    }
+    .line-team{
+        width: 100%;
+        margin: 0 auto;
+        text-align: center;
+    }
+    .line-team img{
+        margin: 0 auto;
+        display: inline-block;
+        vertical-align: middle;
+    }
+    /* 2 */
+    .tr-box-2 ,.tr-box-3 {
+        display:flex;
+        align-items: flex-start;
+        justify-content: space-between;
+    }
+    .tr-box-2 .team-item , .tr-box-3 .team-item{
+        width:calc(100% / 2)
+    }
+    .tr-box-2 .team-item .team-box{
+        width: 50%;
+            /*width:25%;*/
+    }
+    /* 3 */
+    .tr-box-3 .team-item .team-box{
+        width: 80%;
+        /*width:40%;*/
+    }
+    /* line */
+    .lines{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .line{
+        height: 20px;
+        margin:0 auto;
+    }
+    .line.left{
+        border-left:2px solid #e4e4e4;
+    }
+
+    .line.right{
+        border-right:2px solid #e4e4e4;
+    }
+    .line.right.top{
+        border-right:2px solid #e4e4e4;
+        border-top:2px solid #e4e4e4;
+    }
+    .line.left.top{
+        border-left:2px solid #e4e4e4;
+        border-top:2px solid #e4e4e4;
+    }
+    .lines.v >h1:nth-of-type(1).left{
+        border-left: 0
+    }
+    .lines.v >h1:nth-of-type(4).right{
+        border-right: 0
+    }
+    .lines.v>h1{
+        width: calc(100% / 4);
+    }
+    .none-user{
+        text-align: center;
+        cursor: pointer;
+        font-size: 16px;
+    }
+</style>
+<div class="right_col" role="main">
+    <div class="team_list_wrap">
+        <!-- 一级父 -->
+        <div class="">
+            <div class="team-box" data-id="{$parent.id}">
+                <div class="top-user">
+                    <div>{$parent.username}</div>
+                </div>
+                <div>
+                    <ul class="content-team">
+                        <li>{$parent.left_total}(左)</li>
+                        <li>总</li>
+                        <li>{$parent.right_total}(右)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="lines">
+                <h1 class="line left"></h1>
+            </div>
+            <div class="lines v">
+                <h1 class="line left"></h1>
+                <h1 class="line left top"></h1>
+                <h1 class="line right top"></h1>
+                <h1 class="line right"></h1>
+            </div>
+        </div>
+        <!-- 二级父 -->
+        <div class="tr-box-2">
+            <!-- 二级-A -->
+            {if condition="$children neq ''"}
+                {volist name="children" id="vo"}
+                    {if condition="$vo neq null"}
+                    <div class="team-item">
+                        <div class="team-box" data-id="{$vo.id}">
+                            <div class="top-user">
+                                <div>{$vo.username}</div>
+                            </div>
+                            <div>
+                                <ul class="content-team">
+                                    <li>{$vo.left_total}(左)</li>
+                                    <li>总</li>
+                                    <li>{$vo.right_total}(右)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="lines">
+                            <h1 class="line left"></h1>
+                        </div>
+                        <div class="lines v">
+                            <h1 class="line left"></h1>
+                            <h1 class="line left top"></h1>
+                            <h1 class="line right top"></h1>
+                            <h1 class="line right"></h1>
+                        </div>	
+
+                        <!-- 三级 -->
+                        <div class="tr-box-3">
+                            <!-- 三级-A -->
+                            {if condition="$vo.children neq null"}
+                            {volist name="vo.children" id="vo1"}
+                            <div class="team-item">
+                                <div class="team-box" data-id="{$vo.id}">
+                                    <div class="top-user">
+                                        <div>{$vo1.username}</div>
+                                    </div>
+                                    <div>
+                                        <ul class="content-team">
+                                            <li>{$vo1.left_total}(左)</li>
+                                            <li>总</li>
+                                            <li>{$vo1.right_total}(右)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            {php}
+                                if(count($children[0]['children']) == 1){
+                                    echo '<div class="team-item">
+                                            <div class="team-box js_empty_user" data-aid_username='.$children[0]['username'].' data-position="1">
+                                                <div class="none-user">
+                                                    注册
+                                                </div>
+                                            </div>
+                                        </div>';
+                                }
+                            {/php}
+                            {/volist}
+                            {else /}
+                            <!-- 三级-B -->
+                            <div class="team-item">
+                                <div class="team-box js_empty_user" data-aid_username='{$vo.username}' data-position="0">
+                                    <div class="none-user">
+                                        注册
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="team-item">
+                                <div class="team-box js_empty_user" data-aid_username='{$vo.username}' data-position="0">
+                                    <div class="none-user">
+                                        注册
+                                    </div>
+                                </div>
+
+                            </div>
+                            {/if}
+                        </div>
+                    </div>
+                    {php}
+                        if(count($children) == 1){
+                            echo '<div class="team-item">
+                                    <div class="team-box js_empty_user" data-aid_username="'.$parent['username'].'" data-position="1">
+                                        <div class="none-user">
+                                            注册
+                                        </div>
+                                    </div>
+                                </div>';
+                        }
+                    {/php}
+                    {/if}
+                {/volist}
+            {else/}
+            <div class="team-item">
+                <div class="team-box js_empty_user" data-aid_username='{$parent.username}' data-position="0">
+                    <div class="none-user">
+                        注册
+                    </div>
+                </div>
+
+            </div>
+            <div class="team-item">
+                <div class="team-box js_empty_user" data-aid_username='{$parent.username}' data-position="1">
+                    <div class="none-user">
+                        注册
+                    </div>
+                </div>
+
+            </div>
+            {/if}
+        </div>
+
+    </div>
+</div>
+{/block}
+{block name="script"}
+
+<script type="text/javascript">
+    $(".team-box").click(function(){
+        var has_class = $(this).hasClass('js_empty_user'); 
+        if(has_class){
+            //为空,传递data-aid ,data-position 注册
+            var aid_username = $(this).data('aid_username');
+            var position = $(this).data('position')
+            var url = "{:url('register/index')}" + '?aid_username='+aid_username+'&position='+position;
+        }else{
+            //不为空, 传递data-id刷新页面
+            var user_id = $(this).data('id');
+            var url = "{:url('view_childs')}" + '?user_id='+user_id;
+            
+        }
+//        console.log(url)
+        location.href = url
+    })
+</script>
+{/block}
+
+

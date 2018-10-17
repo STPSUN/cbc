@@ -1,0 +1,69 @@
+{extend name="base/index" /}
+{block name="body"}
+  <link rel="stylesheet" href="__STATIC__/orgchart/demo/css/font-awesome.min.css">
+  <link rel="stylesheet" href="__STATIC__/orgchart/demo/css/jquery.orgchart.css">
+  <link rel="stylesheet" href="__STATIC__/orgchart/demo/css/style.css">
+  <input type="hidden" id="selected-node" />
+  <div id="chart-container"></div>
+  
+  
+{/block}
+
+{block name="script"}
+<script type="text/javascript" src="__STATIC__/orgchart/demo/js/jquery.orgchart.js"></script>
+<script type="text/javascript">
+    $(function() {
+
+        var data = {$data};
+        var getId = function() {
+            return (new Date().getTime()) * 1000 + Math.floor(Math.random() * 1001);
+          };
+          
+        var nodeTemplate = function(data) {
+            return `
+              <div class="js_box" data-id="${data.id}">
+              <div class="title">${data.username}</div>
+              <div class="content" style="border-radius:0">左区业绩:${data.left_total}</div>
+              <div class="content">右区业绩:${data.right_total}</div>
+              </div>
+            `;
+        };
+        
+        var oc = $('#chart-container').orgchart({
+            'data' : data,
+            'nodeTemplate': nodeTemplate,
+            'createNode': function($node, data) {
+                $node[0].id = getId();
+            }
+        });
+        var aid = '';
+        oc.$chartContainer.on('click', '.node', function() {
+            var $node = $(this);
+            var aid = $node.find('.js_box').data('id');
+            if(!aid){
+                return;
+            }
+            $.getJSON("{:url('load_childs')}",{aid:aid},function (json){
+                oc.addChildren($node,json);
+                $node.find('.js_box').removeClass('js_box');
+            })
+        });
+//    
+//        $('#chart-container').on('click','.js_box', function (argument) {
+//            var $node = $('#selected-node').data('node');
+//            var aid = $(this).data('id'); //获取用户id
+//            $.getJSON(getURL('load_childs'),{aid:aid},function (json){
+//                
+//                oc.addChildren($node,json);
+//
+//            })
+//
+//
+//        });
+
+    });
+
+</script>
+{/block}
+
+

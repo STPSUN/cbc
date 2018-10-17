@@ -1,0 +1,162 @@
+{extend name="base/index" /}
+{block name="body"}
+<!-- page content -->
+<link href="__B__/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" type="text/css" href="__STATIC__/vegas/vegas.min.css" /> 
+<style type="text/css">
+    .my-items .my-item{
+        margin-bottom: 20px;
+        padding: 20px 20px 50px;
+        color: #fff!important;
+        border-radius: 4px;
+        position: relative;
+    }
+    .my-items .my-item .name{
+        font-size: 12px;
+        color: #fff;
+    }
+    .my-items .my-item .count{
+        font-size: 24px;
+        color: #fff;
+    }
+    .my-items .my-item a{
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 32px;
+        background-color: rgba(0,0,0, .3);
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        padding-right: 10px;
+        padding-left: 10px;
+        line-height: 32px;
+        text-align: right;
+        color: #fff;
+    }
+    .my-items .my-item a:hover{
+        background-color: rgba(0,0,0,.5);
+    }
+    .my-items .my-item .my-icon{
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 40px;
+    }
+    .my-items .my-item .icon-right{
+        font-size: 14px;
+    }
+    .my-items .my-its:before{
+        display: none;
+    }
+    .my-items .my-its:nth-child(1) .my-item{
+        background-color: #727cb6;
+    }
+    .my-items .my-its:nth-child(2) .my-item{
+        background-color: #348fe2;
+    }
+    .my-items .my-its:nth-child(3) .my-item{
+        background-color: #00acac;
+    }
+    .my-items .my-its:nth-child(4) .my-item{
+        background-color: #ff5b57;
+    }
+    .my-items .my-its:nth-child(5) .my-item{
+        background-color: #f4a61e;
+    }
+    .my-items .my-its:nth-child(6) .my-item{
+        background-color: #f5894e;
+    }
+    .my-items .my-its:nth-child(7) .my-item{
+        background-color: #88ab11;
+    }
+</style>
+<div class="right_col" role="main">
+    <!-- top tiles -->
+    <div>
+        <h2>首页</h2>
+        欢迎来到巴东国际！
+        {if condition="$meal_id eq 0"}
+        <a href="{:url('register/firstblood')}" style="font-weight: bold;color:red;border-bottom: 1px solid #red;">点击首次购买套餐</a>
+        {/if}
+    </div>
+    <div class="row tile_count my-items">
+        {volist name="balances" id="balance"}
+        <div class="col-md-2 col-sm-4 col-xs-12 my-its">
+            <div class="my-item">
+                <div class="name">{$balance.name}</div>
+                <div class="count">{$balance.amount}</div>
+                <i class="fa fa-empire my-icon"></i>
+                <a>View Detail <i class="fa fa-arrow-circle-o-right"></i></a>
+            </div>
+        </div>
+        {/volist}
+        <!-- 资产列表 -->
+        <div class="row" style="margin: 0; ">
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <div class="js_slider" style="height:250px;margin-bottom: 5%">
+                    
+                </div>
+<!--                <div class="x_panel" style=" padding: 0;">
+                    <iframe frameborder="0" width="100%" height="400" src="https://v.qq.com/iframe/player.html?vid=p0563l6m35x&amp;tiny=0&amp;auto=0" allowfullscreen=""></iframe>
+                </div>-->
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <div class="x_panel" style="min-height: 400px;">
+                    <div class="x_title">
+                        <h2>系统公告</h2>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <div class="dashboard-widget-content">
+
+                            <ul class="list-unstyled timeline widget">
+                                {volist name="notices" id="notice"}
+                                <li>
+                                    <div class="block">
+                                        <div class="block_content">
+                                            <h2 class="title">
+                                                <a>{$notice.title}</a>
+                                            </h2>
+                                            <div class="byline">
+                                                <span>{$notice.update_time}</span> by <a>巴东国际</a>
+                                            </div>
+                                            <p class="excerpt">
+                                                {$notice.content}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </li>
+                                {/volist}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- /top tiles -->
+    </div>
+</div>
+
+{/block}
+{block name="script"}
+ <script type="text/javascript" src="__STATIC__/vegas/vegas.min.js"></script>
+<script type="text/javascript">
+$(".js_slider").vegas({
+    slides:[
+        {volist name="sliders" id="slider"}
+        {src:"{$slider.pic}"},
+        {/volist}
+    ],
+    preload:false,//预先加载图像和视频以启动
+//           preload-Image:true, // Preload images at start. preload must be false .
+    timer:true, //显示/隐藏定时器
+    shuffle:false, //随机
+    delay:5000,//幻灯片之间的延迟时间
+    transition: 'fade',
+
+ });
+</script>
+{/block}

@@ -1,0 +1,99 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <meta name="renderer" content="webkit">
+        <meta name ="viewport" content ="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+        <title>巴东国际</title>
+        <script src="__V__/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="__STATIC__/layer/layer.js"></script>
+        <script type="text/javascript" src="__STATIC__/js/common.js"></script>
+        <script type="text/javascript" src="__STATIC__/jquery/jquery.form.ui.js"></script>
+        <script type="text/javascript" src="__STATIC__/jquery/jquery.form.js"></script>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!-- Meta, title, CSS, favicons, etc. -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Bootstrap -->
+        <link href="__V__/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Font Awesome -->
+        <link href="__V__/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <!-- NProgress -->
+        <link href="__V__/nprogress/nprogress.css" rel="stylesheet">
+        <!-- iCheck -->
+        <link href="__V__/iCheck/skins/flat/green.css" rel="stylesheet">
+        <script src="__V__/iCheck/icheck.min.js"></script>
+
+        <!-- bootstrap-progressbar -->
+        <!--<link href="__V__/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">-->
+        <!-- JQVMap -->
+        <link href="__V__/jqvmap/dist/jqvmap.min.css" rel="stylesheet"/>
+        <!-- bootstrap-daterangepicker -->
+        <link href="__V__/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
+
+        <!-- Custom Theme Style -->
+        <link href="__B__/css/custom.min.css" rel="stylesheet">
+        
+        
+        <!-- Bootstrap -->
+        <script src="__V__/bootstrap/dist/js/bootstrap.min.js"></script>
+        
+        
+    </head>
+    <body class="nav-md">
+        <div class="container body">
+            <div class="main_container">
+            {include file="$PUBLIC_SIDEBAR"/}
+            {include file="$PUBLIC_HEADER"/}
+            {block name="body"}
+
+            {/block}
+            <footer>
+                <span class="copy-right">Copyright 2018 - 2020 XT-BlockChain All Rights Reserved</span>
+            </footer>
+            <style>
+                .control-label{
+                    text-align: right;
+                }
+                input:focus{
+                    border: 1px solid  #F7296E !important;
+                }
+            </style>
+            <script>
+                change_style_event()
+                window.onresize = function(){
+                    change_style_event()
+                }
+                function change_style_event(){
+                    var screen_width = document.documentElement.offsetWidth;
+                    var label_arr = document.getElementsByClassName('control-label');
+                    var form_arr = document.getElementsByClassName('form-control');
+                    for (var i = 0; i < label_arr.length; i++) {
+                        label_arr[i].className = 'control-label col-md-3 col-sm-12 col-xs-12';
+                        label_arr[i].style.paddingRight = '20px'
+                    }
+                    for (var i = 0; i < form_arr.length; i++) {
+                        form_arr[i].className = 'form-control col-md-6 col-sm-12 col-xs-12'
+
+                    }
+                    if(screen_width>992){
+                        for (var i = 0; i < label_arr.length; i++) {
+                            label_arr[i].style.textAlign = 'right';
+                        }
+                    }else{
+                        for (var i = 0; i < label_arr.length; i++) {
+                            label_arr[i].style.textAlign = 'left';
+                        }
+
+                    }
+                }
+
+            </script>
+            {block name="script"}{/block}
+            </div>
+        </div>
+    </body>
+</html>

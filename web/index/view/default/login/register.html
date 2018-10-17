@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <!-- Meta, title, CSS, favicons, etc. -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>巴东国际 -- 用户注册 </title>
+        <script src="__V__/jquery/dist/jquery.min.js"></script>
+        <script type="text/javascript" src="__STATIC__/layer/layer.js"></script>
+        <script type="text/javascript" src="__STATIC__/js/common.js"></script>
+        <script type="text/javascript" src="__STATIC__/jquery/jquery.form.ui.js"></script>
+        <script type="text/javascript" src="__STATIC__/jquery/jquery.form.js"></script>
+        <!-- Bootstrap -->
+        <link href="__V__/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
+        <!-- Font Awesome -->
+        <link href="__V__/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+        <!-- NProgress -->
+        <link href="__V__/nprogress/nprogress.css" rel="stylesheet">
+        <!-- iCheck -->
+        <link href="__V__/iCheck/skins/flat/green.css" rel="stylesheet">
+        <script src="__V__/iCheck/icheck.min.js"></script>
+
+        <!-- bootstrap-progressbar -->
+        <!--<link href="__V__/bootstrap-progressbar/css/bootstrap-progressbar-3.3.4.min.css" rel="stylesheet">-->
+        <!-- JQVMap -->
+        <link href="__V__/jqvmap/dist/jqvmap.min.css" rel="stylesheet"/>
+        <!-- bootstrap-daterangepicker -->
+        <link href="__V__/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet">
+
+        <!-- Custom Theme Style -->
+        <link href="__B__/css/custom.min.css" rel="stylesheet">
+
+
+        <!-- Bootstrap -->
+        <script src="__V__/bootstrap/dist/js/bootstrap.min.js"></script>
+
+        <link href="__B__/css/fucking-piss.css" rel="stylesheet">
+        <style>
+            .control-label{
+                float:left;
+            }
+            input:focus{
+                border: 1px solid  #F7296E !important;
+            }
+        </style>
+        <script>
+            change_style_event()
+            window.onresize = function () {
+                change_style_event()
+            }
+            function change_style_event() {
+                var screen_width = document.documentElement.offsetWidth;
+                var label_arr = document.getElementsByClassName('control-label');
+                var form_arr = document.getElementsByClassName('form-control');
+                for (var i = 0; i < label_arr.length; i++) {
+                    label_arr[i].className = 'control-label col-md-3 col-sm-12 col-xs-12';
+                    label_arr[i].style.paddingRight = '20px'
+                }
+                for (var i = 0; i < form_arr.length; i++) {
+                    form_arr[i].className = 'form-control col-md-6 col-sm-12 col-xs-12'
+
+                }
+                if (screen_width > 992) {
+                    for (var i = 0; i < label_arr.length; i++) {
+                        label_arr[i].style.textAlign = 'right';
+                    }
+                } else {
+                    for (var i = 0; i < label_arr.length; i++) {
+                        label_arr[i].style.textAlign = 'left';
+                    }
+
+                }
+            }
+
+        </script>
+    </head>
+    <body class="login my-bg" style="background-color: #fff">
+        <div>
+            <a class="hiddenanchor" id="signup"></a>
+            <a class="hiddenanchor" id="signin"></a>
+
+            <div class="login_wrapper">
+                <div class="animate form login_form">
+                    <section class="login_content" style="padding-top: 0; min-width: auto;">
+
+                        <form id="demo-form" method="post" class="form-material" data-parsley-validate>
+                            <div class="row" style="padding: 0 30px;">
+                                <div class="form-group">
+                                    <label class="control-label">用户名</label>
+                                    <input type="text" id="username" name="username" placeholder="请输入用户名" class="form-control" required />
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label">销售经理用户名</label>
+                                    <input type="text" value="{$username}" class="form-control" placeholder="请输入销售经理用户名" required id="inviter" name="inviter" />
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label">客服经理用户名</label>
+                                    <input type="text" value="{$username}" name="aid_username" placeholder="请输入客服经理用户名" id="aid_username" class="form-control" required />
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label">市场位置</label>
+                                    <select name="position" id="position" class="form-control" style="width:100%" >
+                                        <option value="0">I</option>
+                                        <option value="1">II</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label">姓名</label>
+                                    <input type="text" name="real_name" placeholder="请输入姓名" id="real_name" class="form-control" required />
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label">手机号</label>
+                                    <input type="text" name="phone" placeholder="请输入手机号" id="phone" class="form-control" required />
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label">登录密码</label>
+                                    <input type="text" id="password" name="password" placeholder="请输入登录密码" class="form-control" required />
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label">交易密码</label>
+                                    <input type="text" name="pay_password" placeholder="请输入6位交易密码" id="pay_password" class="form-control" required />
+
+                                </div>
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="separator" style="border:none;">
+                                <p class="change_link">
+                                    <a href="#signin" class="to_register" onclick="onLogin()" style="display:inline-block; width: 100%; background: rgb(243, 156, 18); height: 36px; color: #fff; font-size: 14px; line-height: 36px; font-style: normal;     text-shadow: 0 0px 0 #fff;">确认注册 </a>
+                                </p>
+                                <div class="clearfix"></div>
+                                <br />
+                            </div>
+                        </form>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script type="text/javascript">
+
+        $(function () {
+//            form = $(".ui-form").bindForm();
+        })
+
+        function chkForm() {
+            var username = $("#username").val();
+            var inviter = $("#inviter").val();
+            var aid_username = $("#aid_username").val();
+            
+            var password = $("#password").val();
+            var pay_password = $("#pay_password").val();
+            var phone = $("#phone").val();
+            if(!username){
+                alert("用户名不能为空");
+                return false;
+            }
+            if(!inviter){
+                alert("销售经理用户名不能为空");
+                return false;
+            }
+            if(!aid_username){
+                alert("客服经理用户名不能为空");
+                return false;
+            }
+            
+            if (!password) {
+                alert("密码不能为空");
+                return false;
+            }
+            if (!pay_password) {
+                alert("交易不能为空");
+                return false;
+            }
+            if (!phone) {
+                alert("手机号不能为空");
+                return false;
+            }
+            return true;
+        }
+
+        function onLogin() {
+           
+            if (typeof (chkForm) != 'undefined') {
+                if (!chkForm())
+                    return false;
+            }
+            _isClickSave = true;
+            $("#demo-form").ajaxSubmit({
+                beforeSubmit: function () {
+                    showLoading("数据提交中...");
+                },
+                success: function (res) {
+                    _isClickSave = false;
+                    hideLoading();
+                    if (!res.success) {
+                        if (typeof (failCallback) != "undefined")
+                            failCallback(res);
+                        else
+                            msg(res.message);
+                        return;
+                    }
+                    msg('注册成功');
+                    location.href = res.data;
+                }
+            })
+            
+        }
+    </script>
+</html>

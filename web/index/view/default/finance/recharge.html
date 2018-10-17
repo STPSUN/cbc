@@ -1,0 +1,68 @@
+{extend name="base/index" /}
+{block name="body"}
+<!-- page content -->
+<div class="right_col" role="main">
+    <!-- top tiles -->
+    <div class="row tile_count">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>充值记录 <small></small></h2>
+                        <span class="right">
+                            <a href="{:url('doRecharge')}"type="button" id="js_addBtn" class="btn btn-primary"><i class="icon fa fa-plus"></i>&emsp;充值</a>
+                        </span>
+                        <div class="clearfix"></div>
+
+                    </div>
+                    <div class="x_content">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>订单号</th>
+                                <th>充值金额</th>
+                                <th>状态</th>
+                                <th>创建时间</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {volist name="list" id="vo"}
+                            <tr>
+                                <td>{$vo.ref_no}</td>
+                                <td>{$vo.amount}</td>
+                                {if condition="$vo.status eq 1"}
+                                <td>已审核</td>
+                                {elseif condition="$vo.status eq -1"}
+                                <td>不通过</td>
+                                {else /}
+                                <td>待审核</td>
+                                {/if}
+                                <td>{$vo.add_time}</td>
+                            </tr>
+                            {/volist}
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    //添加分类
+    $("#js_addBtn").click(function () {
+
+//        if ($(this).hasClass("disabled")) {
+//            return;
+//        }
+//        var url = "{:url('doRecharge')}";//'/index/Finance/doRecharge';//getURL('recharge');
+//        openBarWin('充值',  800, 600, url, function () {
+//            location.reload();
+//        });
+    });
+</script>
+{/block}

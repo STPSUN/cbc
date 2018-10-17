@@ -1,0 +1,31 @@
+{extend name="$BASE_POPUP_FORM" /}
+{block name="body"}
+<input type="hidden" id="id" name="id" />
+
+<div class="box-content">
+    <div class="control-row col-2">
+        <div class="control-group">
+            <label class="control-label">计量单位名称</label>
+            <div class="controls">
+                <input type="text" name="unit_name" id="unit_name" class="form-control required" />    
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">
+                最低提取数量</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" data-datatype="positive_integer" name="min_tiqu" id="min_tiqu" class="form-control required" />                       
+                <span class="tips">请输入整数</span>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+
+{block name="script"}
+<script type="text/javascript">
+
+
+</script>
+{/block}

@@ -1,0 +1,139 @@
+{extend name="$BASE_LIST" /}
+{block name="body"}
+<link rel="stylesheet" type="text/css" href="__STATIC__/monthPicker/dateRange.css"/>
+<link rel="stylesheet" type="text/css" href="__STATIC__/monthPicker/monthPicker.css"/>
+
+<div class="right-main">
+    <div class="page_nav" id="js_page_nav"><span class="page_title">{$page_nav}</span></div>
+    <div id="js_main_header" class="ui-form main_header">
+        <span>
+            <select name="type" id="type" class="form-control" style="width:120px">
+                <option value="">全部</option>
+                <option value="10">推荐奖金</option>
+                <option value="11">对碰奖金</option>
+                <option value="12">管理奖金</option>
+                <option value="13">领导奖金</option>
+                <option value="14">报单中心奖金</option>
+                <option value="15">复投奖金</option>
+            </select>
+        </span>
+        <div class="left margin-right-5">
+            <input style="width:200px" class="form-control" id="month_picker" size="20" />
+        </div>
+        <span class="frm_input_box search append">
+            <a href="javascript:void(0);" id="js_search" class="frm_input_append">
+                <i class="icon wb-search" title="搜索"></i>
+            </a>
+            <input type="text" id="js_keyword" placeholder="请输入用户名称" value="" class="frm_input" />
+        </span>
+<!--        <span class="right">       
+            <button type="button" id="js_addBtn" class="btn btn-primary"><i class="icon wb-plus"></i> 结算</button>
+        </span>-->
+    </div>
+    <table id="grid-table">
+        <thead>
+            <tr>
+                <th data-options="field:'username',width:120, align:'center'">用户名</th>
+                <th data-options="field:'type',width:120, align:'center',formatter:fromatType">记录类型</th>
+                <th data-options="field:'amount',width:140, align:'center',sortable: true">金额</th>
+                <th data-options="field:'update_time',width:200, align:'center'">更新时间</th>
+            
+            </tr>
+        </thead>
+    </table>
+</div>
+
+{/block}
+{block name="script"}
+<script type="text/javascript" src="__STATIC__/monthPicker/dateRange.js"></script>
+<script type="text/javascript" src="__STATIC__/monthPicker/monthPicker.js"></script>
+<script type="text/javascript">
+    var myDate = new Date();
+    var month = parseInt(myDate.getMonth()) + 1;
+    var toDay = myDate.getFullYear() + '-' + month + '-' + myDate.getDate();
+    var dateRange = new pickerDateRange('month_picker', {
+        startDate: toDay,
+        endDate: toDay,
+        defaultText: ' 至 ',
+        theme: 'ta'
+    });
+    
+    $("#js_search").click(function () {
+        reload();
+    });
+    
+    // 10=推荐奖金，11=对碰奖金，12=管理奖金，13=领导奖金，14=报单中心奖金，15=复投奖金
+    function fromatType(value, row, index){
+        var text = '';
+        if(value == 10)
+            text = '推荐奖金'
+        else if(value == 11)
+            text = '对碰奖金'
+        else if(value == 12)
+            text = '管理奖金'
+        else if(value == 13)
+            text = '领导奖金'
+        
+        else if(value == 14)
+            text = '报单中心奖金'
+        else if(value == 15)
+            text = '复投奖金'
+        return text;
+    }
+    $(function () {
+        $('#grid-table').datagrid({
+            url: getURL('loadList'),
+            method: "GET",
+            height: getGridHeight(),
+            rownumbers: true,
+            singleSelect: true,
+            remoteSort: false,
+            multiSort: true,
+            emptyMsg: '<span>无相关数据</span>',
+            showFooter:true,
+            pagination: true,
+            pageSize: 20,
+            onLoadSuccess: function(data){
+                $('#grid-table').datagrid('reloadFooter', [
+                    {
+                        username: '统计',
+                        amount: data.count_total
+                    }
+                ]);
+            }
+        });
+        //设置分页控件 
+        $('#grid-table').datagrid('getPager').pagination({
+            pageSize: 20, //每页显示的记录条数，默认为10 
+            pageList: [20, 30, 50]
+        });
+    });
+    
+    function fromatChangeType(value, row, index){
+        var text = '<span style="color:#46be8a">减少</span>'
+        if(value == 1)
+            text = '<span style="color:#ff0000">增加</span>'
+        return text;
+    }
+
+    
+    $("#type").change(function(){
+        reload();
+    })
+    
+    function reload() {
+        var keyword = $("#js_keyword").val();
+        var type = $("#type").val();
+        var month_picker = $("#month_picker").val();
+        var arr = month_picker.split(" 至 ");
+        var startDate = arr[0];
+        var endDate = arr[1];
+        $('#grid-table').datagrid('reload', {
+            keyword: keyword,
+            type:type,
+            startDate: startDate,
+            endDate: endDate
+        });
+    }
+</script>
+{/block}

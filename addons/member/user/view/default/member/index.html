@@ -1,0 +1,180 @@
+{extend name="$BASE_LIST" /}
+{block name="body"}
+<div class="right-main">
+    <div class="page_nav" id="js_page_nav"><span class="page_title">{$page_nav}</span></div>
+
+    <div id="js_main_header" class="ui-form main_header">
+        <span class="frm_input_box search append">
+            <a href="javascript:void(0);" id="js_search" class="frm_input_append">
+                <i class="icon wb-search" title="搜索"></i>
+            </a>
+            <input type="text" id="js_keyword" placeholder="请输入用户名称" value="" class="frm_input" />
+        </span>
+    </div>
+    <table id="grid-table">
+        <thead frozen="true">
+        <th data-options="field:'username',width:100,align:'center'">用户名称</th> 
+        <th data-options="field:'invite_user_name',width:100,align:'center'">销售经理名称</th> 
+        <th data-options="field:'aid_name',width:100, align:'center'">客服经理名称</th>
+        <th data-options="field:'position',width:80, align:'center',formatter:formatPosi">市场位置</th>
+        <th data-options="field:'team_direct_total',width:120,align:'center'">团队直推业绩</th> 
+        
+        <th data-options="field:'self_total',width:100,align:'center'">自身业绩</th> 
+        <th data-options="field:'left_total',width:120, align:'center'">左区业绩</th>
+        <th data-options="field:'right_total',width:120, align:'center'">右区业绩</th>
+        
+        
+        </thead>
+        <thead>
+            <tr>
+                <th data-options="field:'phone',width:150, align:'center'">手机号</th>
+                <th data-options="field:'real_name',width:100, align:'center'">真实姓名</th>
+                <th data-options="field:'card_no',width:160, align:'center'">身份证号</th>
+                <th data-options="field:'address',width:300, align:'center'">住址</th>
+                <th data-options="field:'bank_code',width:300, align:'center'">银行卡号</th>
+                <th data-options="field:'is_center',width:140,align:'center', formatter:formatStatus">是否为用户中心</th>
+                
+                <!--<th data-options="field:'is_frozen',width:100,align:'center', formatter:formatStatus">是否冻结</th>-->
+                <th data-options="field:'register_time',width:150, align:'center'">注册时间</th>
+                <th data-options="field:'_oper',width:420,halign:'center',formatter: formatOper">操作</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    
+    function formatOper(value, row, index) {
+        var html = '<span class="grid-operation">';
+        
+        html += '<button type="button" onclick="view_balance(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-eye"></i>查看资产</button>';
+        html += '<button type="button" onclick="view_childs(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-eye"></i>查看网络图</button>';
+        
+        html += '<button type="button" onclick="add_coin_stock(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>拨币</button>';
+        html += '<button type="button" onclick="edit(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>编辑用户资料</button>';
+        if(row['id'] != 1)
+            html += '<button type="button" onclick="del(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon wb-close"></i>删除</button>';
+        html += '</span>';
+        return html;
+    }
+    
+    function formatPosi(value,row,index){
+        var text = '<span style="color:red">左区</span>';
+        if(value == '1')
+            text = '<span style="color:green">右区</span>';
+        return text;
+    }
+    
+    function formatStatus(value,row,index){
+        var text = '<span style="color:red">否</span>';
+        if(value == '1')
+            text = '<span style="color:green">是</span>';
+        return text;
+    }
+    
+    $(function () {
+        $('#grid-table').datagrid({
+            url: getURL('loadList'),
+            method: "GET",
+            height: getGridHeight(),
+            rownumbers: true,
+            singleSelect: true,
+            remoteSort: false,
+            multiSort: true,
+            emptyMsg: '<span>无相关数据</span>',
+            pagination: true,
+            pageSize: 20
+        });
+        //设置分页控件 
+        $('#grid-table').datagrid('getPager').pagination({
+            pageSize: 20, //每页显示的记录条数，默认为10 
+            pageList: [20, 30, 50]
+        });
+    });
+    
+    function formatAuth(value,row,index){
+        var text = '<span style="color:red">未认证</span>';
+        if(value == '1'){
+            text = '<span style="color:green">已认证</span>';
+        }else if(value == '2'){
+            text = '<span style="color:#ff9b00">待认证</span>';
+        }else if(value =='-1'){
+            text = '<span style="color:red">不通过</span>';
+        }
+        return text;
+    }
+    
+    function change_frozen(id,status){
+        var title = '确认要解冻此用户吗?';
+        if(status == 1)
+            title = '确认要冻结此用户吗?';
+        confirm(title, function () {
+            var url = getURL('change_frozen');
+            $.getJSON(url, {id: id,status:status}, function (json) {
+                if (json.success)
+                    reload();
+                else
+                    alert(json.message);
+            });
+        });
+    }
+    function view_childs(id){
+        var url = getURL('view_childs', 'id=' + id);
+        openBarWin('网络分布', 1000, 600, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+    function view_balance(id){
+        var url = getURL('view_balance', 'id=' + id);
+        openBarWin('资产', 400, 400, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+    
+    function add_coin_stock(id) {
+        var url = getURL('add_coin_stock', 'id=' + id);
+        openBarWin('拨币', 400, 400, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+
+    function edit(id) {
+        var url = getURL('edit', 'id=' + id);
+        openBarWin('编辑', 1000, 500, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+    function auth(id) {
+        var url = getURL('auth', 'id=' + id);
+        openBarWin('认证用户', 1000, 400, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+    
+    function del(id) {
+        confirm("删除后会员数据无法找回。确认要删除此会员吗？", function () {
+            var url = getURL('del');
+            $.getJSON(url, {id: id}, function (json) {
+                if (json.success)
+                    reload();
+                else
+                    alert(json.message);
+            });
+        });
+    }
+
+    $("#js_search").click(function () {
+        reload();
+    });
+    function reload() {
+        var keyword = $("#js_keyword").val();
+        $('#grid-table').datagrid('reload', {keyword: keyword});
+    }
+    $("#type").change(function () {
+        var keyword = $("#js_keyword").val();
+        $('#grid-table').datagrid('reload', {keyword: keyword});
+    });
+</script>
+{/block}

@@ -1,0 +1,36 @@
+{extend name="$BASE_POPUP_FORM" /}
+{block name="body"}
+    <div class="box-content"> 
+        <input type="hidden" name="id" id="id" value="{$id}"/>
+        <div class="control-group">
+            <label class="control-label">选择资产类型</label>
+            <div class="controls">
+                <select name="type" id="type" class="form-control required">
+                    {volist name="types" id="vo"}
+                        <option value="{$vo.id}">{$vo.name}</option>
+                    {/volist}
+                </select>    
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">金额</label>
+            <div class="controls">
+                <input type="number" name="amount" class="form-control required" />   
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">备注</label>
+            <div class="controls">
+                <input type="text" name="remark" class="form-control required" />   
+            </div>
+        </div>
+    </div>
+{/block}
+
+{block name="script"}
+<script type="text/javascript">
+
+</script>
+{/block}
+
+

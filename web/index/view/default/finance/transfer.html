@@ -1,0 +1,111 @@
+{extend name="base/index" /}
+{block name="body"}
+<link href="__B__/css/fucking-piss.css" rel="stylesheet">
+<div class="right_col" role="main">
+    <!-- top tiles -->
+    <div class="row tile_count">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>转账</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        <form id="demo-form2" method="post" data-parsley-validate class="ui-form form-material">
+                            <div class="form-group">
+                                <label class="control-label">对方用户名</label>
+                                <input type="text" id="username" name="username" required="required" class="form-control" />
+                                
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">金额类型</label>
+                                <select name="type" id="type" class="form-control">
+                                    <option value="1">订阅分</option>
+                                    <option value="3">销售分红</option>
+                                    <option value="4">特全分</option>
+                                </select>
+                                
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="control-label">金额</label>
+                                <input onchange="createRate(this.value)" type="number" id="amount" name="amount" required="required" class="form-control" placeholder="请输入转账金额" />
+                               
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">手续费</label>
+                                <input readonly type="text" id="rate" name="rate" required="required" class="form-control"placeholder="转账手续费比例：{$rate} %" />
+                               
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">交易密码</label>
+                                <input type="password" id="pay_password" name="pay_password" required="required" class="form-control" />
+                                
+                            </div>
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                    <span class="btn btn-success" id="submitBtn" style="margin-right: 30px">提交</span>
+                                    <span class="btn btn-primary" onClick="javascript :history.back(-1);">返回</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    var rate = "{$rate}";
+    function createRate(amount) {
+        $("#rate").val(amount * rate / 100)
+    }
+    $(function () {
+        form = $(".ui-form");
+    })
+    function chkForm() {
+        var amount = $("#amount").val();
+        if (!amount || amount < 0) {
+            msg('请输入正确的金额');
+            return false;
+        }
+        return true;
+    }
+
+    $("#submitBtn").click(function () {
+//        var f = form.valid();
+//        if (f) {
+            if (typeof (chkForm) != 'undefined') {
+                if (!chkForm())
+                    return false;
+            }
+            _isClickSave = true;
+            form.ajaxSubmit({
+                beforeSubmit: function () {
+                    showLoading("数据提交中...");
+                },
+                success: function (res) {
+                    _isClickSave = false;
+                    hideLoading();
+                    if (res.success) {
+                        alert('提交成功');
+                        form.reset();
+                    } else {
+                        alert(res.message);
+                    }
+                }
+            })
+//        }
+    })
+
+
+</script>
+{/block}
+

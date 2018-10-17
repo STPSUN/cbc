@@ -1,0 +1,398 @@
+{extend name="$BASE_POPUP_FORM" /}
+{extend name="base/popup_form" /}
+{block name="body"}
+<style>
+    .edui-editor, .edui-editor-iframeholder {
+        width: 790px !important;
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="__STATIC__/easyui/themes/custom/easyui.css"> 
+<div id="js_tab" class="tab-panel">   
+    <ul class="tab-header">        
+        <li class="tab-item current" data-tag="0">基础信息</li>            
+        <li id="js_guige_li" class="tab-item hide" data-tag="1">多规格</li>
+        <li class="tab-item" data-tag="2">图片</li>                       
+    </ul>
+    <div class="tab-content">   
+        <div id="js_div0" class="html-content">
+            <input type="hidden" id="id" name="id" />
+            <input type="hidden" id="img_ids" name="img_ids" />
+            <input type="hidden" id="guige_json" name="guige_json" />
+            <input type="hidden" id="is_bind_guige" name="is_bind_guige" value="0" />
+            <div class="control-row col-2">
+                <div class="control-group">
+                    <label class="control-label">商品名称</label>
+                    <div class="controls">
+                        <input type="text" name="goods_name" id="goods_name" class="form-control required" />                       
+                    </div>
+                </div>              
+                
+                <div class="control-group" >
+                    <label class="control-label">一级分类：</label>
+                    <div class="controls">
+                        <select id="firstLevel" name="firstLevel" class="form-control">
+                            <option value="" selected>请选择</option>
+                            {volist name="class_list" id="vo"}
+                            <option value="{$vo.id}">{$vo.class_name}</option>
+                            {/volist}
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group" >
+                    <label class="control-label">二级分类：</label>
+                    <div class="controls" id= "secondLevelList">
+                        <select id = "secondLevel_default" name="secondLevel_default" class="form-control">
+                            <option value="" selected>请选择</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group" >
+                    <label class="control-label">三级分类：</label>
+                    <div class="controls" id="thirdLevelList">
+                        <select id = "thirdLevel_default" name="class_id" class="form-control">
+                            <option value=""  selected>请选择</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">商品属性</label>
+                    <div class="controls">                                                                                        
+                       <label style="margin-right:10px" id="js_guige"><input type="checkbox" id="is_guige" name="is_guige" value="1" />多规格</label>                                                                                                    
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">
+                        商品状态</label>
+                    <div class="controls">
+                        <label>
+                            <input data-ui="switch" type="radio" id="status" name="status" checked value="1" /> 上架</label>
+                        &nbsp;&nbsp;
+                        <label>
+                            <input data-ui="switch" type="radio" id="status1" name="status" value="0" /> 下架</label>
+                    </div>
+                </div>  
+                <div class="control-group">
+                    <label class="control-label">商品单位</label>
+                    <div class="controls">
+                        <input type="text" name="unit" id="unit" class="form-control required" />  
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">库存</label>
+                    <div class="controls">
+                        <input type="number" id="stock" name="stock" value="" class="form-control required" />
+                    </div>
+                </div>              
+
+                <div class="control-group">
+                    <label class="control-label">显示顺序</label>
+                    <div class="controls">
+                        <input type="text" data-dataType="positive_integer" id="order_index" name="order_index" value="{$order_index}" class="form-control required" /><span class="tips">数值越小越靠前</span>                                          
+                    </div>
+                </div> 
+                <div id="js_goods_price_box">
+                    <div class="control-group">
+                        <label class="control-label">价格</label>
+                        <div class="controls">
+                            <input type="text" name="price" id="price" data-dataType="amount" class="form-control need_required required js_price"/><span class="tips">元</span>                       
+                        </div>
+                    </div> 
+                </div>     
+            </div>
+            <div class="control-group">
+                <label class="control-label">商品描述</label>
+                <div class="controls">
+                    <div class="controls">
+                        <textarea id="content" name="detail"></textarea>
+                        {:hook('editor', array('height'=>'','id'=>"$id",'name'=>'content'))}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="js_div1" class="html-content" style="display:none">   
+            <!-- 规格 -->
+            <table id="goods-guige" class="easyui-datagrid">
+                
+            </table>
+        </div>
+        <div id="js_div2" class="html-content" style="display:none">
+            <div class="control-group">
+                <label class="control-label">选择图片</label>
+                <div class="controls">
+                    <div class="controls">
+                        <div id="js_upload_wrp">
+                            <input type="hidden" id="images" name="images" value="" class="" />
+                            {:hook('picResource',array('name'=>'pic','limit_num'=> '5','checktype'=>2,'folder'=>'shop/goods','tips'=>'建议尺寸：800x600像素。仅支持.jpg .png格式长方形照片，大小不超过1M。','callback'=>'uploadImgCallback'))}
+                        </div>
+                    </div>
+<!--                    <div class="img_upload_wrp" id="js_upload_wrp">
+                        <div style="margin-bottom:5px;" class="img_upload_box js_img_upload_box" id="pic_upload">
+                            <a class="img_upload_box_oper" id="js_load_pic" href="javascript:;">
+                                <i class="icon wb-plus js_add_pic">选择</i>
+                                <img class="preview_photo" style="display:none" /> 
+                            </a>        
+                        </div>
+                    </div>   -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript" src="__STATIC__/easyui/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="__STATIC__/easyui/src/datagrid-cellediting.js"></script> 
+<script type="text/javascript" src="__STATIC__/easyui/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript">
+    $(function(){
+        $("#is_guige").click(function () {
+            $("#js_guige_li").show();//多规格的选项卡 show
+        });
+    })
+    $("#js_tab .tab-item").click(function () {
+        var tag = $(this).data("tag");
+        switchTab(tag);
+    });
+    /**
+    * 切换选项卡样式
+    */
+   function switchTab(tag) {
+       $("#js_tab .tab-item").removeClass("current");
+       $("#js_tab .tab-item[data-tag='" + tag + "']").addClass("current");
+       $(".html-content").hide();
+       $("#js_div" + tag).show();
+       //如果是套餐
+       if (tag == "1") {
+           bindGuiGeDatagrid();
+       }
+   }
+    function formatOper(value, row, index) {
+    if (row.guige_name && row.guige_name != '')
+        return '<i title="删除" onclick="delGoodsRow(this)" class="js_delRowBtn grid-row-del-btn icon wb-close"></i>';
+    }
+
+    var columns = [
+         {field: 'guige_name', title: '规格名称', width: 140, align: 'center',editor:{type:'textbox',options:{required:true}}},
+         {field: 'price', title: '价格', width: 100, align: 'center',editor:{type:'numberbox',options:{min:0,max:10000,precision:2,required:true}}},
+         {field: '_oper', title: '移除', width: 60, align: 'center', formatter: formatOper}
+    ];
+    var current_index = -1;
+    var is_bind_guige = false;
+    var guige_list = '';
+    function bindGuiGeDatagrid(){
+        if(is_bind_guige){
+            return;
+        }
+        is_bind_guige = true;
+        $("#is_bind_guige").val(1);
+        $('#goods-guige').datagrid({
+            method: "GET",
+            height: getGridHeight(),
+            rownumbers: true,
+            singleSelect: true,
+            remoteSort: false,
+            checkOnSelect: false,
+            multiSort: true,
+            emptyMsg: '<span>无相关数据</span>',
+            pagination: false,
+            columns: [columns],
+            onClickRow: function (index, row) {
+                if (current_index == index)
+                    return;
+                current_index = index;
+            },
+            onEndEdit: function (index, row, changes) {
+                $(this).datagrid("keepAddRow", "guige_name");
+            }
+        });
+        $('#goods-guige').datagrid('enableCellEditing');
+        $('#goods-guige').datagrid("keepAddRow", "guige_name");
+        var url = getURL('loadGuiGeList');
+        var id = $("#id").val();
+        $.getJSON(url, "goods_id=" + id, function (data) {
+            if (data) {
+                var i = 0;
+                $("#goods-guige").datagrid('updateRow',{index:i,row:data[i]});
+                i++;
+                for (; i < data.length; i++) {
+                    $('#goods-guige').datagrid('insertRow', {index: current_index + i, row: data[i]});
+                }
+                $('#goods-guige').datagrid("keepAddRow", "guige_name");
+            }
+        });
+    }
+    
+    
+    function delGoodsRow(obj) {
+        var index = $(obj).parent().parent().parent().attr('datagrid-row-index');
+        $('#goods-guige').datagrid('deleteRow', parseInt(index));
+        $('#goods-guige').datagrid("keepAddRow", "guige_name");
+    }
+    //下拉分类选择--二級
+    $(document).on("change",'#firstLevel',function(){
+        var value = $(this).val();
+        var url = getURL('loadClass');
+        $.getJSON(url, {id: value}, function (json) {
+            var data = json;
+            var length = data.length;
+            var html = '';
+            html += '<select id= "secondLevel" name="secondLevel" class="form-control">';
+            html += '<option value="" selected>请选择</option>';
+            for(var i = 0 ; i<length; i ++){
+                html += '<option value="'+data[i].id+'">'+data[i].class_name+'</option>';
+            }
+            html += '</select>';
+            $('#secondLevelList').html(html);
+            form.reRenderUI();
+            
+        });
+    });
+    //下拉分类选择--三級
+    $(document).on("change",'#secondLevel',function(){
+        var value = $(this).val();
+        var url = getURL('loadClass');
+        $.getJSON(url, {id: value}, function (json) {
+            var data = json;
+            var length = data.length;
+            var html = '';
+            html += '<select id= "thirdLevel" name="class_id" class="form-control">';
+            html += '<option value="" selected>请选择</option>';
+            for(var i = 0 ; i<length; i ++){
+                html += '<option value="'+data[i].id+'">'+data[i].class_name+'</option>';
+            }
+            html += '</select>';
+            $('#thirdLevelList').html(html);
+            form.reRenderUI();
+        });
+    });
+    
+    function chkForm(){
+        if(is_bind_guige){
+            if (!makeJson()) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    function makeJson() {
+    $("#goods-guige").datagrid('acceptChanges');
+    var data = $('#goods-guige').datagrid('getData');
+    if (data.total == 0) {
+        switchTab(1);
+        msg('请添加商品规格');
+        return false;
+    }
+    $('#goods-guige').datagrid('acceptChanges');
+        var rows = [];
+        for (var i = 0; i < data.total; i++) {
+            var row = data.rows[i];
+            if (row.guige_name == null || row.guige_name == "") {
+                continue;
+            }
+            var guiges = {id:row.id,guige_name: row.guige_name,  price: row.price}
+            rows.push(guiges);
+        }
+        if (rows.length > 0) {
+            var guiges_json = JSON.stringify(rows);
+            $('#guige_json').val(guiges_json);
+        } else {
+            switchTab(1);
+            msg('请添加商品规格');
+            return false;
+        }
+        return true;
+    }
+    
+    var bars = [];
+    if (bars.length == 0)
+            bars = [
+                ['fullscreen', 'source', 'undo', 'redo', 'bold', 'italic', 'underline', 'fontborder', 'strikethrough', 'removeformat', 'formatmatch', 'autotypeset', 'blockquote', 'forecolor', 'backcolor', 'insertorderedlist', 'insertunorderedlist', 'selectall', 'lineheight'],
+                ['paragraph', 'fontfamily', 'fontsize', 'indent', 'justifyleft', 'justifycenter', 'justifyright', 'link', 'unlink', 'insertimage', 'emotion', 'attachment', 'template', 'map']
+            ];
+    function init(){
+        $("textarea[name='detail']").attr("data-editor", "detail_Editor");
+        var detail_Editor = UE.getEditor('detail', {
+            serverUrl: getURL("editor"),
+            toolbars: bars,
+            wordCount: false,
+            autoHeightEnabled: false,
+            autoFloatEnabled: true,
+            initialFrameWidth:650,
+            initialFrameHeight: 200
+        });
+    }
+    function onLoadDataSuccess(data){
+        //分类回填
+        var third_option = ' <select id = "thirdLevel_default" name="category_id" class="form-control"> <option value="'+data.thirdInfo.id+'"  selected>'+data.thirdInfo.name+'</option></select>';
+        $("#thirdLevelList").html(third_option);
+        var second_option = ' <select id = "secondLevel_default"  class="form-control"> <option value="'+data.secondInfo.id+'"  selected>'+data.secondInfo.name+'</option></select>';
+        $("#secondLevelList").html(second_option);
+
+        if (data && data.picList) { 
+            for (var i = 0; i < data.picList.length; i++) {
+                appendPic(data.picList[i].id, data.picList[i].img_url);
+            }
+            setPicIdsValue();
+        }
+        if(data.is_guige == 1){
+            $("#js_guige_li").show();//多规格的选项卡 show
+        }
+        
+        init();
+    }
+     /**
+     * 点击图片删除 
+     * */
+    $('#js_upload_wrp').on("click", ".js_pic_delete", function (e) {
+        var _this = $(this);
+        _this.parents(".js_edit_pic_wrp").remove();
+        //删除图片 需去除input img_ids中响应的id
+        setPicIdsValue();
+    });
+    var limit_num = 5;
+    $('#js_upload_wrp').on("click", "#js_load_pic", function () {
+        var _num = $(".js_edit_pic_wrp").length;
+        var _limit_num = limit_num - _num;
+        var url = getURL("pic/index",'limit_num='+_limit_num+'&folder=goods');
+        _openResourcesPic(url, selectPicCallBack);
+    });
+    
+    /**
+     * 向页面添加单张图片
+     */
+    function appendPic(id, path) {
+        var pic_template = '<div class="img_upload_box img_upload_preview_box js_edit_pic_wrp" data-id="' + id + '">';
+        pic_template += '<img class="preview_photo" src="' + path  + '"/>';
+        pic_template += '<p class="img_upload_edit_area js_edit_area"><a href="javascript:;"  title="删除" class="icon wb-trash js_pic_delete"></a></p>';
+        pic_template += '</div>';
+        $("#pic_upload").before(pic_template);
+    }
+    
+    /**
+     * 设置form表单中
+     */
+    function setPicIdsValue() {
+        var ids = '';
+        var pic_dom = $(".js_edit_pic_wrp");
+        for (var i= 0; i < pic_dom.length; i++) {
+            if (ids != '')
+                ids += ',';
+            ids += pic_dom[i].getAttribute('data-id');
+        }
+        $('#img_ids').val(ids);
+    }
+    
+    function _openResourcesPic(url, callback) {
+        openBarWinParent('图片素材', 660, 450, url, callback, ['确定', '取消']);
+    }
+    
+    function selectPicCallBack (data) {
+        for (var i = 0; i < data.length; i++) {
+            appendPic(data[i].id, data[i].img_url);
+        }
+        setPicIdsValue();
+    }
+</script>
+{/block}

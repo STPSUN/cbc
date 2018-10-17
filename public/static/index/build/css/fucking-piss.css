@@ -1,0 +1,63 @@
+label{margin-top:5px}
+.radio-item-label{margin-top:8px;line-height: 16px;}
+    
+.form-material .form-group {
+  overflow: hidden
+}
+
+.form-material .form-control {
+  background-color: #e4e3e3ba;
+  background-position: center bottom, center calc(100% - 1px);
+  background-size: 0 2px, 100% 1px;
+  min-height:38px !important;
+/*  padding: 0;*/
+  -webkit-transition: background 0s ease-out 0s;
+  -o-transition: background 0s ease-out 0s;
+  transition: background 0s ease-out 0s
+}
+
+.form-material .form-control,
+.form-material .form-control.focus,
+.form-material .form-control:focus {
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#007bbc), to(#007bbc)), -webkit-gradient(linear, left top, left bottom, from(#e9edf2), to(#e9edf2));
+  background-image: -webkit-linear-gradient(#007bbc, #007bbc), -webkit-linear-gradient(#e9edf2, #e9edf2);
+  background-image: -o-linear-gradient(#007bbc, #007bbc), -o-linear-gradient(#e9edf2, #e9edf2);
+  background-image: linear-gradient(#007bbc, #007bbc), linear-gradient(#e9edf2, #e9edf2);
+  border: 0 none;
+  border-radius: 5px;
+  background-repeat: no-repeat;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  float: none
+}
+
+.form-material .form-control.focus,
+.form-material .form-control:focus {
+  background-size: 100% 2px, 100% 1px;
+  outline: 0 none;
+  -webkit-transition-duration: 0.3s;
+  -o-transition-duration: 0.3s;
+  transition-duration: 0.3s
+}
+
+.form-control-line .form-group {
+  overflow: hidden
+}
+
+.form-control-line .form-control {
+  border: 0px;
+  border-radius: 0px;
+  padding-left: 0px;
+  border-bottom: 1px solid #f6f9ff
+}
+
+.form-control-line .form-control:focus {
+  border-bottom: 1px solid #007bbc
+}
+
+.form-material .form-control, .form-material .form-control.focus, .form-material .form-control:focus{ background: transparent;
+    border: 1px solid rgba(0,0,0,0.15);
+    border-radius: 0; }
+
+.row select{-webkit-appearance: none;
+    -webkit-border-radius: 0px;}

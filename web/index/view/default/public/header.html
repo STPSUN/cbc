@@ -1,0 +1,115 @@
+<!-- top navigation -->
+<style>
+    @media screen and (max-width: 480px) {
+        .nav.navbar-nav>li>a{
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+    }
+</style>
+<div class="top_nav">
+    <div class="nav_menu">
+        <nav>
+            <div class="nav toggle">
+                <a id="menu_toggle"><i class="fa fa-bars"></i></a>
+            </div>
+
+            <ul class="nav navbar-nav navbar-right" style="width: 80%">
+                <li class="">
+                    <a href="javascript:;" class="user-profile dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <img src="__IMG__/img.jpg" alt="">{$username}
+                        <span class=" fa fa-angle-down"></span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-usermenu pull-right">
+                        <li><a href="/index/index/change_info"> 个人资料</a></li>
+                        <li class="js_logout"><a href="/index/index/out"><i class="fa fa-sign-out pull-right"></i>退出登录</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&amp;uin=919759748&amp;site=qq&amp;menu=yes"><img border="0" src="__B__/images/qq.jpg" alt="点击这里给我发消息" title="点击这里给我发消息" width="70"></a>
+                </li>
+                <li class="dropdown divided">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="javascript:void(0)">
+                        <i class="fa fa-globe"></i>
+                        <span class=" label-transparent-black">语言切换</span>
+                    </a>
+                    <ul class="dropdown-menu animated fadeInRight cy-dropdown-hasicon">
+                        <input id="show-language" type="hidden" value="4">
+                        <li>
+                            <a href="#"> <span class="icon"><img src="__B__/images/lang/zh_cn.png" alt=""></span> 简体中文</a>
+                        </li>
+                        <li>
+                            <a href="#"> <span class="icon"><img src="__B__/images/lang/al.png" alt=""></span> 阿联酋</a>
+                        </li>
+                        <li>
+                            <a href="#"> <span class="icon"><img src="__B__/images/lang/ao.png" alt=""></span> 澳大利亚</a>
+                        </li>
+                        <li>
+                            <a href="#"> <span class="icon"><img src="__B__/images/lang/ja.png" alt=""></span> 日本</a>
+                        </li>
+                        <li>
+                            <a href="#"> <span class="icon"><img src="__B__/images/lang/ko.png" alt=""></span> 韩国</a>
+                        </li>
+                        <li>
+                            <a href="#"> <span class="icon"><img src="__B__/images/lang/ma.png" alt=""></span> 马来西亚</a>
+                        </li>
+                        <li>
+                            <a href="#"> <span class="icon"><img src="__B__/images/lang/ph.png" alt=""></span> 菲律宾</a>
+                        </li>
+                        <li>
+                            <a href="#"> <span class="icon"><img src="__B__/images/lang/sg.png" alt=""></span> 新加坡</a>
+                        </li>
+                        <li>
+                            <a href="#"> <span class="icon"><img src="__B__/images/lang/th.png" alt=""></span> 泰国</a>
+                        </li>
+                    </ul>
+
+                </li>
+
+
+            </ul>
+        </nav>
+    </div>
+</div>
+<!-- /top navigation -->
+<script type="text/javascript">
+    $("#menu_toggle").on('click', function () {
+        console.log('clicked - menu toggle');
+
+        if ($BODY.hasClass('nav-md')) {
+            $SIDEBAR_MENU.find('li.active ul').hide();
+            $SIDEBAR_MENU.find('li.active').addClass('active-sm').removeClass('active');
+        } else {
+            $SIDEBAR_MENU.find('li.active-sm ul').show();
+            $SIDEBAR_MENU.find('li.active-sm').addClass('active').removeClass('active-sm');
+        }
+
+        $BODY.toggleClass('nav-md nav-sm');
+
+        setContentHeight();
+    });
+    var setContentHeight = function () {
+        // reset height
+        $RIGHT_COL.css('min-height', $(window).height());
+
+        var bodyHeight = $BODY.outerHeight(),
+                footerHeight = $BODY.hasClass('footer_fixed') ? -10 : $FOOTER.height(),
+                leftColHeight = $LEFT_COL.eq(1).height() + $SIDEBAR_FOOTER.height(),
+                contentHeight = bodyHeight < leftColHeight ? leftColHeight : bodyHeight;
+
+        // normalize content
+        contentHeight -= $NAV_MENU.height() + footerHeight;
+
+        $RIGHT_COL.css('min-height', contentHeight);
+    };
+    $(".js_logout").click(function () {
+        confirm("确认要退出登录吗？", function () {
+            $.getJSON('{:url("/index/index/out")}', function (data) {
+                if(data.success){
+                    location.href = '{:url("index/login")}';
+                }
+            });
+        });
+    });
+    
+</script>

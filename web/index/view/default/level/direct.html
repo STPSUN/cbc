@@ -1,0 +1,85 @@
+{extend name="base/index" /}
+{block name="body"}
+<link rel="stylesheet" href="__STATIC__/zTree/css/zTreeStyle/zTreeStyle.css" type="text/css">
+<style type="text/css">
+    .brand_box div{margin:2px 0;}
+    .left_tree_wrap{min-height:300px;}        
+    .ztree{overflow:auto}
+    .ztree li span.button.switch.level0 {visibility:hidden; width:1px;}
+    .ztree li ul.level0 {padding:0; background:none;}
+    .ztree li span.button.pIcon01_ico_open, .ztree li span.button.pIcon01_ico_close{margin-right:2px; background: url(__IMG__/uu.jpg) no-repeat scroll 0 0 transparent; vertical-align:top; *vertical-align:middle}
+    .ztree li span.button.icon01_ico_docu{display:none} 
+    .ztree li span.button.pIcon01_ico_docu{display:none}     
+    .ztree li span.button.icon01_ico_open, .ztree li span.button.icon01_ico_close{display:none};    
+    .ztree li span.button {background-image: url(./img/zTreeStandard.png) !important;}
+</style>
+<!-- page content -->
+<div class="right_col" role="main">
+    <!-- top tiles -->
+    <div class="row tile_count">
+        <div class="x_panel">
+            <div class="x_title">
+                <h2>我的直推</h2>
+                <ul class="nav navbar-right panel_toolbox">
+                </ul>
+                <div class="clearfix"></div>
+            </div>
+            <div class="x_content">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <div style="padding-top:5px">     
+                            <table border="0" align="center" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td colspan="2" valign="top" class="brand_box">
+                                        <fieldset class="control-fieldset" style="float:left;">
+             
+                                            <ul id="treePopedom" style="height:435px;overflow:auto" class="ztree"></ul>  
+                                        </fieldset>
+                                    </td>
+                                </tr>    
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript" src="__STATIC__/zTree/js/jquery.ztree.core.js"></script>
+<script type="text/javascript" src="__STATIC__/zTree/js/jquery.ztree.excheck.js"></script>
+<script type="text/javascript">
+    var popedomSetting = {
+        check: {
+            enable: false,
+            setChkDisabled: true
+        },
+        data: {
+            simpleData: {
+                enable: true
+            }
+        }
+    }
+    
+    var zPopedomTree = null;
+    function loadPopedomTree() {
+        $.getJSON("{:url('level/getTree')}", {}, function (data) {
+            if (data.length > 0) {
+                var rootNode = [{id: 0, pId: 0, name: "所有直推", open: true, iconSkin: "pIcon01"}];
+                data = rootNode.concat(data);
+            }
+            zPopedomTree = $.fn.zTree.init($("#treePopedom"), popedomSetting, data);
+
+            zPopedomTree.expandAll(true);
+        });
+    }
+
+    $(function () {
+        loadPopedomTree();
+    });
+    function onLoadDataSuccess() {
+        loadPopedomTree();
+    }
+</script>
+{/block}

@@ -1,0 +1,37 @@
+{extend name="$BASE_POPUP_FORM" /}
+{block name="body"}
+<input type="hidden" id="id" name="id" />
+
+<div class="box-content">
+
+        <div class="control-group">
+            <label class="control-label">需要推荐人数</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" data-datatype="positive_integer" name="need_num" id="need_num" class="form-control required" />                       
+                <span class="tips">个</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">奖励代数</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" data-datatype="positive_integer" name="bonus_count" id="bonus_count" class="form-control required" />                       
+            <span class="tips">代</span>
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">奖励百分比</label>
+            <div class="controls">
+                <input type="number" placeholder="必须大于0" name="bonus_rate" id="bonus_rate" class="form-control required" />                       
+                <span class="tips">%</span>
+            </div>
+        </div>
+
+</div>
+{/block}
+
+{block name="script"}
+<script type="text/javascript">
+
+
+</script>
+{/block}

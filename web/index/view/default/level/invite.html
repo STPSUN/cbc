@@ -1,0 +1,60 @@
+{extend name="base/index" /}
+{block name="body"}
+<link href="__B__/css/fucking-piss.css" rel="stylesheet">
+<!-- page content -->
+<div class="right_col" role="main">
+    <!-- top tiles -->
+    <div class="row tile_count">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>邀请二维码</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content" style="text-align: center">
+                        <div class="col-md-6 col-sm-12 col-xs-12">
+                            <h2>I区二维码</h2>
+                            <div id="left_qrcode"></div>
+                        </div>
+                        <div class="col-md-6 col-sm-12 col-xs-12">
+                             <h2>II区二维码</h2>
+                            <div id="right_qrcode"></div>
+                        </div>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript" src="__STATIC__/jquery/jquery.qrcode.min.js"></script>
+<script type="text/javascript">
+    var username = "{$username}";
+    var left = 0;
+    var right = 1;
+    var url = "{:url()}";
+    var left_text = "{$user_url}/index/login/register?name="+username+"&position="+left;
+    var right_text = "{$user_url}/index/login/register?name="+username+"&position="+right;
+    $(function () {
+        $('#left_qrcode').qrcode({
+            render: "canvas", //也可以替换为table
+            width: 150,
+            height: 150,
+            text: left_text
+        });
+        $('#right_qrcode').qrcode({
+            render: "canvas", //也可以替换为table
+            width: 150,
+            height: 150,
+            text: right_text
+        });
+    })
+
+</script>
+{/block}

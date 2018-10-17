@@ -1,0 +1,206 @@
+{extend name="base/index" /}
+{block name="body"}
+<link href="__B__/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+    .my-items .my-item{
+        margin-bottom: 20px;
+        padding: 20px 20px 50px;
+        color: #fff!important;
+        border-radius: 4px;
+        position: relative;
+    }
+    .my-items .my-item .name{
+        font-size: 12px;
+        color: #fff;
+    }
+    .my-items .my-item .count{
+        font-size: 24px;
+        color: #fff;
+    }
+    .my-items .my-item a{
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 32px;
+        background-color: rgba(0,0,0, .3);
+        -webkit-box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        box-sizing: border-box;
+        padding-right: 10px;
+        padding-left: 10px;
+        line-height: 32px;
+        text-align: right;
+        color: #fff;
+    }
+    .my-items .my-item a:hover{
+        background-color: rgba(0,0,0,.5);
+    }
+    .my-items .my-item .my-icon{
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 40px;
+    }
+    .my-items .my-item .icon-right{
+        font-size: 14px;
+    }
+    .my-items .my-its:before{
+        display: none;
+    }
+    .my-items .my-its:nth-child(1) .my-item{
+        background-color: #727cb6;
+    }
+    .my-items .my-its:nth-child(2) .my-item{
+        background-color: #348fe2;
+    }
+    .my-items .my-its:nth-child(3) .my-item{
+        background-color: #00acac;
+    }
+    .my-items .my-its:nth-child(4) .my-item{
+        background-color: #ff5b57;
+    }
+    .my-items .my-its:nth-child(5) .my-item{
+        background-color: #f4a61e;
+    }
+    .my-items .my-its:nth-child(6) .my-item{
+        background-color: #f5894e;
+    }
+    .my-items .my-its:nth-child(7) .my-item{
+        background-color: #88ab11;
+    }
+    .my-items .my-its:nth-child(8) .my-item{
+        background-color: #727cb6;
+    }
+    .my-items .my-its:nth-child(9) .my-item{
+        background-color: #348fe2;
+    }
+    .my-items .my-its:nth-child(10) .my-item{
+        background-color: #00acac;
+    }
+</style>
+<!-- page content -->
+<div class="right_col" role="main">
+    <!-- top tiles -->
+    <div class="row tile_count my-items">
+        <div class="col-md-3 col-sm-6 col-xs-12 my-its">
+            <div class="my-item">
+                <div class="name">待发放奖金</div>
+                <div class="count">{$total_bonus}</div>
+                <i class="fa fa-empire my-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6 col-xs-12 my-its">
+            <div class="my-item">
+                <div class="name">累计奖金</div>
+                <div class="count">{$count_total_bonus}</div>
+                <i class="fa fa-empire my-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-4 col-xs-12 my-its">
+            <div class="my-item">
+                <div class="name">I区业绩</div>
+                <div class="count">{$left_total}</div>
+                <i class="fa fa-empire my-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-4 col-xs-12 my-its">
+            <div class="my-item">
+                <div class="name">II区业绩</div>
+                <div class="count">{$right_total}</div>
+                <i class="fa fa-empire my-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-6 col-xs-12 my-its">
+            <div class="my-item">
+                <div class="name">累计推荐奖金</div>
+                <div class="count">{$invite_total_bonus}</div>
+                <i class="fa fa-empire my-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-4 col-xs-12 my-its">
+            <div class="my-item">
+                <div class="name">累计管理奖金</div>
+                <div class="count">{$manage_total_bonus}</div>
+                <i class="fa fa-empire my-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-4 col-xs-12 my-its">
+            <div class="my-item">
+                <div class="name">累计领导奖金</div>
+                <div class="count">{$leader_total_bonus}</div>
+                <i class="fa fa-empire my-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-2 col-sm-4 col-xs-12 my-its">
+            <div class="my-item">
+                <div class="name">累计复投奖金</div>
+                <div class="count">{$recast_total_bonus}</div>
+                <i class="fa fa-empire my-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-4 col-xs-12 my-its">
+            <div class="my-item">
+                <div class="name">累计报单中心奖金</div>
+                <div class="count">{$center_total_bonus}</div>
+                <i class="fa fa-empire my-icon"></i>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>奖金明细 <small></small></h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>金额</th>
+                          <th>类型</th>
+                          <th>时间</th>
+                        </tr>
+                      </thead>
+                      
+                      <tbody>
+                        {volist name="list" id="record"}
+                        <tr>
+                          <th scope="row">{$record.amount}</th>
+                          {if condition="$record.type eq '10'"}
+                          <td>推荐奖金</td>
+                          {elseif condition="$record.type eq '11'"}
+                          <td>对碰奖金</td>
+                          {elseif condition="$record.type eq '12'"}
+                          <td>管理奖金</td>
+                          {elseif condition="$record.type eq '13'"}
+                          <td>领导奖金</td>
+                          {elseif condition="$record.type eq '14'"}
+                          <td>报单中心奖金</td>
+                          {elseif condition="$record.type eq '15'"}
+                          <td>复投奖金</td>
+                          {/if}
+                          
+                          <td>{$record.update_time}</td>
+                        </tr>
+                        {/volist}
+                      </tbody>
+                    </table>
+
+                  </div>
+                </div>
+              </div>
+        </div>
+
+        <!-- /top tiles -->
+    </div>
+</div>
+
+{/block}
+{block name="script"}
+<script type="text/javascript">
+
+</script>
+{/block}

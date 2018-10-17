@@ -1,0 +1,72 @@
+{extend name="base/index" /}
+{block name="body"}
+<!-- page content -->
+<div class="right_col" role="main">
+    <!-- top tiles -->
+    <div class="row tile_count">
+
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                  <div class="x_title">
+                    <h2>财务明细 <small></small></h2>
+                    
+                    <div class="clearfix"></div>
+                  </div>
+                  <div class="x_content">
+
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>金额</th>
+                          <th>状态</th>
+                          <th>类型</th>
+                          <th>时间</th>
+                        </tr>
+                      </thead>
+                      
+                      <tbody>
+                        {volist name="list" id="record"}
+                        <tr>
+                          <th scope="row">{$record.amount}</th>
+                          <td>
+                              {$record.remark}
+                              {if condition="$record.change_type eq 0 and $record.to_username neq null"}
+                                ,转出到{$record.to_username}
+                              {elseif condition="$record.change_type eq 1 and $record.to_username neq null"}
+                                ,由{$record.to_username}转入
+                              {/if}
+                          </td>
+                          {if condition="$record.asset_type eq '1'"}
+                          <td>订阅分</td>
+                          {elseif condition="$record.asset_type eq '2'"}
+                          <td>参股基数</td>
+                          {elseif condition="$record.asset_type eq '3'"}
+                          <td>奖金积分</td>
+                          {elseif condition="$record.asset_type eq '4'"}
+                          <td>特全分</td>
+                          {elseif condition="$record.asset_type eq '5'"}
+                          <td>增值资产</td>
+                          {/if}
+                          
+                          <td>{$record.update_time}</td>
+                        </tr>
+                        {/volist}
+                      </tbody>
+                    </table>
+
+                  </div>
+                </div>
+              </div>
+        </div>
+
+        <!-- /top tiles -->
+    </div>
+</div>
+
+{/block}
+{block name="script"}
+<script type="text/javascript">
+
+</script>
+{/block}

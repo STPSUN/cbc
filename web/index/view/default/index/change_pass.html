@@ -1,0 +1,101 @@
+{extend name="base/index" /}
+{block name="body"}
+<link href="__B__/css/fucking-piss.css" rel="stylesheet">
+<!-- page content -->
+<div class="right_col" role="main">
+    <!-- top tiles -->
+    <div class="row tile_count">
+        <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12">
+                <div class="x_panel">
+                    <div class="x_title">
+                        <h2>修改登录密码</h2>
+                        <ul class="nav navbar-right panel_toolbox">
+                        </ul>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="x_content">
+                        <br />
+                        <form id="demo-form2" method="post" data-parsley-validate class="ui-form form-material">
+                            <div class="form-group">
+                                <label class="control-label">原密码</label>
+                                <input type="password" id="old_password" name="old_password" placeholder="请输入原登录密码" required="required" class="form-control col-md-7 col-xs-12">
+                               
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">新密码</label>
+                                <input type="password" id="password" name="password" placeholder="请输入新登录密码" required="required" class="form-control col-md-7 col-xs-12">
+                                
+                            </div>
+                            <div class="form-group">
+                                <label class="control-label">确认新密码</label>
+                                <input type="password" name="password1" id="password1" placeholder="请确认新登录密码" class="form-control col-md-7 col-xs-12">
+                            
+                            </div>
+
+                            <div class="ln_solid"></div>
+                            <div class="form-group">
+                                <div class="col-md-6 col-sm-6 col-xs-12 col-md-offset-3">
+                                    <span class="btn btn-primary" id="resetBtn">清空</span>
+                                    <span class="btn btn-success" id="submitBtn">提交</span>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    $(function () {
+        form = $(".ui-form").bindForm();
+    })
+    function chkForm() {
+        var old_password = $("#old_password").val();
+        var password = $("#password").val();
+        var password1 = $("#password1").val();
+        if (!old_password) {
+            alert("原密码不能为空");
+            return false;
+        }
+        if (!password) {
+            alert("密码不能为空");
+            return false;
+        }
+        if (!password1) {
+            alert("确认密码不能为空");
+            return false;
+        }
+        return true;
+    }
+
+    $("#submitBtn").click(function() {
+        var f = form.valid();
+        if (f) {
+            if (typeof (chkForm) != 'undefined') {
+                if (!chkForm())
+                    return false;
+            }
+            _isClickSave = true;
+            form.ajaxSubmit({
+                beforeSubmit: function () {
+                    showLoading("数据提交中...");
+                },
+                success: function (res) {
+                    _isClickSave = false;
+                    hideLoading();
+                    if (res.success) {
+                        alert('修改成功');
+                        form.reset();
+                    }else{
+                        alert(res.message);
+                    }
+                }
+            })
+        }
+    })
+</script>
+{/block}
