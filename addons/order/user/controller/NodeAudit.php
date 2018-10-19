@@ -10,23 +10,22 @@ class NodeAudit extends \web\user\controller\AddonUserBase {
     public function index() {
         $status = $this->_get('status');
         if ($status == '') {
-            $status = 0;
+            $status = 1;
         }
         $this->assign('status', $status);
         return $this->fetch();
     }
 
     public function loadList() {
-
         $keyword = $this->_get('keyword');
         $status = $this->_get('status');
         $filter = 'status=' . $status;
         if ($keyword != null) {
             $filter .= ' and username like \'%' . $keyword . '%\'';
         }
-        $r = new \addons\order\model\WithoutModel();
+        $r = new \web\api\model\MemberNodeApply();
         $total = $r->getTotal($filter);
-        $rows = $r->getList($this->getPageIndex(), $this->getPageSize(), $filter);
+        $rows = $r->getDataList($this->getPageIndex(), $this->getPageSize(), $filter);
         return $this->toDataGrid($total, $rows);
     }
 
@@ -34,36 +33,64 @@ class NodeAudit extends \web\user\controller\AddonUserBase {
     public function doCheck() {
         $orderId = $this->_get('id'); //提现订单id
         $state = $this->_get('status');
-        $withoutM = new \addons\order\model\WithoutModel();
+        $r = new \web\api\model\MemberNodeApply();
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
-        $orderData = $withoutM->where(['id' => $orderId])->find();
+        $orderData = $r->where(['id' => $orderId])->find();
         $balanceM->startTrans();
         try {
-            //获取用户奖金信息
-            $balanceData = $balanceM->getBalanceByType($orderData['user_id'], 3);
-            if ($state == 1) {//提现通过，扣除用户冻结提现金额
-                //更新用户余额
-                $balanceM->where(['id' => $balanceData['id']])->update(['withdraw_frozen_amount' => $balanceData['withdraw_frozen_amount'] - $orderData['amount']]);
-                //修改订单状态
-                $withoutM->where(['id' => $orderId])->update(['status' => $state, 'update_time' => NOW_DATETIME]);
+            if ($state == 2) {//提现通过，扣除用户冻结提现金额
+                $userM = new \addons\member\model\MemberAccountModel();
+                $MemberNodeM = new \web\api\model\MemberNode();
+                $user_id = $userM->getUserByPhone($orderData['username']);
+                $node = new \web\api\model\Node();
+                $cbc = $node->where(['type'=>7])->find();
+                //获取用户奖金信息
+                $type = 4;
+                $balanceData = $balanceM->getBalanceByType($user_id, $type);
+                $amount = $cbc['cbc_num'];
+                if($cbc['cbc_num']>$balanceData['amount']){
+                    $balanceM->rollback();
+                    return $this->failData('用户金额少于'.$cbc);
+                }
+                $userAsset = $balanceM->updateBalance($user_id,$type,$amount);
+                if(!$userAsset){
+                    $balanceM->rollback();
+                    return $this->failJSON("减少资金错误");
+                }
+                $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $type, 5,0, $user_id,'超级节点消费');
+                if(empty($in_record_id)){
+                    $balanceM->rollback();
+                    return $this->failJSON('更新余额失败');
+                }
+                $res = $r->where(['id' => $orderId])->update(['status' => $state, 'update_time' => NOW_DATETIME]);
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failData('不通过失败');
+                }
+                $data = [
+                    'node_id'=>$cbc['id'],
+                    'node_num'=>$cbc['node_num'],
+                    'user_id'=>$user_id,
+                    'give_user_id'=>0,
+                    'create_time'=>NOW_DATETIME,
+                    'type'=>$cbc['type'],
+                    'status'=>1,
+                ];
+                $res = $MemberNodeM->add($data);
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failData('不通过失败');
+                }
+
                 $balanceM->commit();
                 return $this->successData();
-            } elseif ($state == -1) {
-                //减少用户提现冻结金额
-                $balanceM->where(['id' => $balanceData['id']])->update(['withdraw_frozen_amount' => $balanceData['withdraw_frozen_amount'] - $orderData['amount']]);
-                //返回提现金额
-                $balanceM->updateBalance($orderData['user_id'], 3, $orderData['amount'], true);
-                $balanceData = $balanceM->getBalanceByType($orderData['user_id'], 3);
-                //写入交易记录
-                $recordM->addRecord($orderData['user_id'], $orderData['amount'], $balanceData['before_amount'], $balanceData['amount'], 3, 2, 1, 0, '返还提现金额');
-                if ($orderData['rate'] > 0) {
-                    $balanceM->updateBalance($orderData['user_id'], 3, $orderData['rate'], true);
-                    $balanceData = $balanceM->getBalanceByType($orderData['user_id'], 3);
-                    $recordM->addRecord($orderData['user_id'], $orderData['rate'], $balanceData['before_amount'], $balanceData['amount'], 3, 2, 1, 0, '返还提现手续费');
+            } elseif ($state == 3) {
+                $res = $r->where(['id' => $orderId])->update(['status' => $state, 'update_time' => NOW_DATETIME]);
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failData('不通过失败');
                 }
-                //修改订单状态
-                $withoutM->where(['id' => $orderId])->update(['status' => $state, 'update_time' => NOW_DATETIME]);
                 $balanceM->commit();
                 return $this->successData();
             }

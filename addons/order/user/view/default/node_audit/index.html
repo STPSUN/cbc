@@ -3,26 +3,26 @@
 <div class="right-main">
     <div class="page_nav" id="js_page_nav"><span class="page_title">{$page_nav}</span></div>
     <ul class="tab_navs" id="js_tab_navs">
-        <li class="{if condition='$status eq 0'}current{/if}"><a class="pjax" href="{:getUrl('index','status=0')}">未审核</a></li>
-        <li class="{if condition='$status eq 1'}current{/if}"><a class="pjax" href="{:getUrl('index','status=1')}">已审核</a></li>
-        <li class="{if condition='$status eq -1'}current{/if}"><a class="pjax" href="{:getUrl('index','status=-1')}">不通过</a></li>
+        <li class="{if condition='$status eq 1'}current{/if}"><a class="pjax" href="{:getUrl('index','status=1')}">未审核</a></li>
+        <li class="{if condition='$status eq 2'}current{/if}"><a class="pjax" href="{:getUrl('index','status=2')}">已审核</a></li>
+        <li class="{if condition='$status eq 3'}current{/if}"><a class="pjax" href="{:getUrl('index','status=3')}">不通过</a></li>
     </ul>
     <div id="js_main_header" class="ui-form main_header">
         <span class="frm_input_box search append">
             <a href="javascript:void(0);" id="js_search" class="frm_input_append">
                 <i class="icon wb-search" title="搜索"></i>
             </a>
-            <input type="text" id="js_keyword" placeholder="请输入用户名称" value="" class="frm_input" />
+            <input type="text" id="js_keyword" placeholder="请输入用户手机" value="" class="frm_input" />
         </span>
     </div>
     <table id="grid-table">
         <thead frozen="true">
-        <th data-options="field:'username',width:100,align:'center'">用户名称</th>
-        <th data-options="field:'ref_no',width:200,align:'center'">提现单号</th>
-        <th data-options="field:'amount',width:100, align:'center'">提现数量</th>
-        <th data-options="field:'rate',width:100, align:'center'">提现手续费</th>
+        <th data-options="field:'u',width:100,align:'center'">用户名称</th>
+        <th data-options="field:'username',width:200,align:'center'">用户账号</th>
+        <th data-options="field:'phone',width:100, align:'center'">手机号</th>
+        <th data-options="field:'pusername',width:100, align:'center'">推荐人手机号</th>
         <th data-options="field:'status',width:100, align:'center',formatter:formatStatus">审核状态</th>
-        <th data-options="field:'add_time',width:140,align:'center'">创建时间</th>
+        <th data-options="field:'update_time',width:140,align:'center'">更新时间</th>
         <th data-options="field:'_oper',width:250,halign:'center',formatter: formatOper">操作</th>
     </table>
 </div>
@@ -33,27 +33,23 @@
     var status = '{$status}'
 
     function formatOper(value, row, index) {
-        console.log(row)
-        if (row.status == 0){
+        if (row.status == 1){
             var html = '<span class="grid-operation">';
-            html += '<button type="button" onclick="doCheck(' + row['id'] + ',1)" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>通过</button>';
-            html += '<button type="button" onclick="doCheck(' + row['id'] + ',-1)" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>不通过</button>';
+            html += '<button type="button" onclick="doCheck(' + row['id'] + ',2)" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>通过</button>';
+            html += '<button type="button" onclick="doCheck(' + row['id'] + ',3)" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>不通过</button>';
             html += '</span>';
         }
         return html;
     }
     //状态
     function formatStatus(value,row,index){
-        switch (value){
-            case 1 :
-                var text = '<span style="color:red">已审核</span>';
-                break;
-            case -1 :
-                var text = '<span style="color:red">未通过</span>';
-                break;
-            default:
-                var text = '<span style="color:red">未审核</span>';
-
+        console.log(value);
+        if(value==2){
+            var text = '<span style="color:red">已审核</span>';
+        }else if(value==3){
+            var text = '<span style="color:red">不通过</span>';
+        }else{
+            var text = '<span style="color:red">未审核</span>';
         }
         return text;
     }
@@ -71,7 +67,7 @@
     //审核
     function doCheck(id,status){
         var title = '审核通过?';
-        if(status == -1)
+        if(status == 3)
             title = '审核不通过?';
         confirm(title, function () {
             var url = getURL('doCheck');
