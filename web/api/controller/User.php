@@ -9,6 +9,11 @@
 namespace web\api\controller;
 
 
+use addons\member\model\Balance;
+use addons\member\model\MemberAccountModel;
+use think\Request;
+use think\Validate;
+
 class User extends ApiBase
 {
     public function login()
@@ -54,6 +59,16 @@ class User extends ApiBase
      */
     public function register() {
         if (IS_POST) {
+            $param = Request::instance()->post();
+            $validate = new Validate([
+                'phone' => 'require|number',
+                'verify_code'   => 'require',
+                'password'  => 'require',
+                'pay_password'  => 'require'
+            ]);
+            if(!$validate->check($param))
+                return $this->failJSON($validate->getError());
+
             $data['phone'] = $this->_post('phone');
             $data['verify_code'] = $this->_post('verify_code');
             $password = $this->_post('password');
@@ -67,6 +82,7 @@ class User extends ApiBase
             }
             $data['password'] = md5($password);
             $data['pay_password'] = md5($pay_password);
+            $data['address'] = md5(md5(time() . 'ABC') . '!@$');
             $m = new \addons\member\model\MemberAccountModel();
 //            $count = $m->hasRegsterUsername($data['username']);
 //            if ($count > 0) {
@@ -97,6 +113,17 @@ class User extends ApiBase
                 }
                 $data['register_time'] = NOW_DATETIME;
                 $user_id = $m->add($data); //用户id
+                $balanceM = new Balance();
+                for($i = 1; $i <= 5; $i++)
+                {
+                    $balance = array(
+                        'user_id'   => $user_id,
+                        'type'  => $i,
+                        'update_time'   => NOW_DATETIME,
+                    );
+
+                    $balanceM->save($balance);
+                }
                 $m->commit();
                 return $this->successJSON('注册成功');
 //                $res = $this->getEthAddr($data['phone']);
@@ -153,5 +180,69 @@ class User extends ApiBase
         }
     }
 
+    /**
+     * 获取用户信息
+     */
+    public function getUserInfo()
+    {
+        $userM = new MemberAccountModel();
+        $balanceM = new Balance();
 
+        $user = $userM->getDetail($this->user_id);
+
+        if(empty($user))
+        {
+            return $this->failJSON('该用户不存在');
+        }
+
+        $balance = array();
+        $balance_data = $balanceM->where('user_id',$this->user_id)->select();
+        foreach ($balance_data as $v)
+        {
+            switch ($v['type'])
+            {
+                case 1:
+                {
+                    $balance['total_amount'] = $v['amount'];
+                    $balance['use_amount'] = bcmul($v['amount'],0.7,2);
+                    break;
+                }
+                case 3:
+                    $balance['lock_amount'] = $v['amount'];    break;
+                case 4:
+                    $balance['key_amount'] = $v['amount'];     break;
+                case 5:
+                    $balance['today_amount'] = $v['amount'];   break;
+            }
+        }
+
+        $data['balance'] = $balance;
+        $data['credit_level'] = $user['credit_level'];
+        $data['node_level'] = $user['node_level'];
+        $data['user_level'] = $user['user_level'];
+        $data['phone']  = $user['phone'];
+        $data['is_auth'] = $user['is_auth'];
+        $data['head_img'] = $user['head_img'];
+        $data['address'] = $user['address'];
+
+        return $this->successJSON($data);
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
