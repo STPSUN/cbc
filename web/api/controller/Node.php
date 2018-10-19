@@ -12,6 +12,8 @@ namespace web\api\controller;
 use addons\member\model\MemberAccountModel;
 use think\Request;
 use think\Validate;
+use web\api\model\MemberNode;
+use web\api\model\MemberNodeApply;
 
 class Node extends ApiBase
 {
@@ -21,43 +23,146 @@ class Node extends ApiBase
         $param = Request::instance()->post();
 
         $validate = new Validate([
-            'node_num'   => 'require|integer',
-            'num'       => 'require|integer',
-            'give_username'  => 'integer',
+            'give_username'  => 'number',
             'node_id'   => 'require|integer',
         ]);
+        if(!$validate->check($param))
+            return $this->failJSON($validate->getError());
 
         $node_id = $param['node_id'];
-        $node_num = $param['node_num'];
         $give_username = $param['give_username'];
+        $balance_type = 4;
 
         $nodeM = new \web\api\model\Node();
+        $memberNodeM = new MemberNode();
         $node = $nodeM->getDetail($node_id);
         if(empty($node))
             return $this->failJSON('该节点为空');
 
+        $amount = $node['cbc_num'];
+        $recordM = new \addons\member\model\TradingRecord();
         $memberM= new MemberAccountModel();
-        $give_user_id = $memberM->getUserByUsername($give_username);
-        if(empty($give_user_id))
-            return $this->failJSON("该赠送账号不存在");
+        $balanceM = new \addons\member\model\Balance();
+
+        $give_user_id = '';
+        if(!empty($give_username))
+        {
+            $give_user_id = $memberM->getUserByPhone($give_username);
+            if(empty($give_user_id))
+                return $this->failJSON("该赠送账号不存在");
+        }
 
         $data = array(
-                'node_id'   => $node_id,
-                'node_num'   => $node_num,
+                'node_id'   => $node['id'],
+                'node_num'   => 1,
                 'user_id'   => $this->user_id,
                 'create_time'   => NOW_DATETIME,
             );
 
-        if(empty($give_username))
+        if(!empty($give_username))
         {
-            $nodeM->save($data);
-            return $this->successJSON();
-        }else
-        {
-
-
-            $data['give_user_id'] = $give_username;
+            $data['user_id'] = $give_user_id;
+            $data['give_user_id'] = $this->user_id;
+            $filter = 'user_id = ' . $give_user_id . ' and type = ' . $node['type'];
+            $user_node_num = $memberNodeM->getSum($filter,'node_num');
+            if($user_node_num > $node['node_num'])
+                return $this->failJSON('已达到节点认购上限');
         }
+
+        $balance = $balanceM->verifyStock($this->user_id,$amount,$balance_type);
+        if(empty($balance)){
+            return $this->failJSON('余额不足');
+        }
+        if($amount > $balance['amount']){
+            return $this->failJSON('余额不足');
+        }
+
+        $memberNodeM->startTrans();
+        try
+        {
+            $balance = $balanceM->updateBalance($this->user_id, $balance_type, $amount);
+
+            if($balance != false){
+                $type = 3; //购买节点
+                $change_type = 0; //减少
+                $remark = '节点认购';
+                $recordM->addRecord($this->user_id, $amount, $balance['before_amount'], $balance['amount'], $balance_type, $type, $change_type, 0, $remark);
+            }
+            $memberNodeM->save($data);
+            $memberNodeM->commit();
+            return $this->successJSON();
+        }catch (\Exception $e)
+        {
+            $memberNodeM->rollback();
+            return $this->failJSON($e->getMessage());
+        }
+
+    }
+
+    /**
+     * 超级节点申请
+     */
+    public function nodeApply()
+    {
+        $param = Request::instance()->post();
+        $validate = new Validate([
+            'username'  => 'require',
+            'phone'     => 'require',
+            'pusername' => 'require',
+            'node_id'   => 'require',
+        ]);
+
+        if(!$validate->check($param))
+            return $this->failJSON($validate->getError());
+
+        $username = $param['username'];
+
+        $nodeM = new \web\api\model\Node();
+        $memberM = new MemberAccountModel();
+        $memberNodeM = new MemberNode();
+        $nodeApplyM = new MemberNodeApply();
+
+        $node = $nodeM->getDetail($param['node_id']);
+        if(empty($node))
+            return $this->failJSON('该节点不存在');
+
+        $apply = $nodeApplyM->where(['username' => $username, 'status' => 1])->find();
+        if($apply)
+            return $this->failJSON('审核未通过，不可重复申请');
+
+        $user = $memberM->getUserByPhone($param['username']);
+        if(empty($user))
+            return $this->failJSON('账号不存在');
+
+        $pUser = $memberM->getUserByPhone($param['pusername']);
+        if(empty($pUser))
+            return $this->failJSON('直属领导账号不存在');
+
+        $filter = 'user_id = ' . $this->user_id . ' and type = ' . $node['type'];
+        $user_node_num = $memberNodeM->getSum($filter,'node_num');
+        if($user_node_num > $node['node_num'])
+            return $this->failJSON('已达到节点认购上限');
+
+        $data = array(
+            'username'  => $param['username'],
+            'phone'     => $param['phone'],
+            'pusername' => $param['pusername'],
+            'update_time'   => NOW_DATETIME,
+            'status'    => 1,
+        );
+
+
+        $nodeApplyM->save($data);
+
+        return $this->successJSON();
+    }
+
+    /**
+     * 获取节点
+     */
+    public function getNode()
+    {
+        $memberNodeM = new MemberNode();
     }
 }
 

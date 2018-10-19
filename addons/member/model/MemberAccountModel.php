@@ -350,6 +350,16 @@ class MemberAccountModel extends \web\common\model\BaseModel {
         }
     }
 
+    public function getUserByPhone($username) {
+        $where['phone'] = $username;
+        $data = $this->where($where)->find();
+        if (!empty($data)) {
+            return $data['id'];
+        } else {
+            return 0;
+        }
+    }
+
     /**
      * get user authentication data
      * @param type $id
