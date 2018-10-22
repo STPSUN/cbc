@@ -165,25 +165,13 @@ class Node extends ApiBase
     {
         $memberNodeM = new MemberNode();
         $data = $memberNodeM->alias('m')
-                    ->field('m.type,n.release_num,m.status')
+                    ->field('m.type,n.release_num,m.status,m.node_id')
                     ->join('node n', 'm.node_id = n.id')
                     ->where('m.user_id',$this->user_id)
                     ->select();
 
         foreach ($data as &$v)
         {
-            switch ($v['type'])
-            {
-                case 1: $v['type'] = 'CBC-V';   break;
-                case 2: $v['type'] = 'CBC-SS';   break;
-                case 3: $v['type'] = 'CBC-S';   break;
-                case 4: $v['type'] = 'CBC-MS';  break;
-                case 5: $v['type'] = 'CBC-MB';  break;
-                case 6: $v['type'] = 'CBC-B';  break;
-                case 7: $v['type'] = 'CBC-BS';  break;
-                case 8: $v['type'] = 'CBC-X';  break;
-            }
-
             if($v['status'] == 1)
                 $v['status'] = '启动中';
             else

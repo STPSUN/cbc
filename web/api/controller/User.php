@@ -263,6 +263,72 @@ class User extends ApiBase
             }
         }
     }
+
+    /**
+     * 修改交易密码
+     * @return type
+     */
+    public function modifyPayPass(){
+        if(IS_POST){
+            $auth_code = $this->_post('auth_code');
+            $password = $this->_post('pay_password');
+            $password1 = $this->_post('pay_password1');
+            $phone  = $this->_post('phone');
+            if($password != $password1){
+                return $this->failJSON('两次输入的密码不一致');
+            }
+
+            if (strlen($password) < 8) {
+                return $this->failJSON('密码长度不能小于8');
+            }
+
+            $verifyM = new \addons\member\model\VericodeModel();
+            $_verify = $verifyM->VerifyCode($auth_code, $phone,4);
+            if(empty($_verify))
+            {
+                return $this->failJSON('验证码失效');
+            }
+
+            $password = md5($password);
+            $m = new \addons\member\model\MemberAccountModel();
+            $res = $m->updatePassByUserID($this->user_id, $password,4);
+            if($res > 0){
+                return $this->successJSON();
+            }else{
+                return $this->failJSON('交易密码修改失败');
+            }
+        }
+    }
+
+    public function modifyPhone(){
+        $type = 5;
+        $m = new \addons\member\model\MemberAccountModel();
+        $phone = $this->_post('old_phone');
+        if(IS_POST){
+            $code = $this->_post('auth_code');
+            $new_phone = $this->_post('new_phone');
+            $new_phone1 = $this->_post('new_phone1');
+
+            if($new_phone != $new_phone1)
+                return $this->failJSON('两次输入手机号不一致');
+
+            if (!preg_match("/13[0-9]{1}\d{8}|15[0-9]\d{8}|188\d{8}/", $new_phone)) {
+                //11为手机号, 匹配13[0-9]后8位 \d数字| 15[0-9]后8位数字 | 188 后8位数字
+                return $this->failJSON('手机号码格式错误');
+            }
+            $verifyM = new \addons\member\model\VericodeModel();
+            $_verify = $verifyM->VerifyCode($code, $phone, $type);
+            if (!empty($_verify)) {
+                $id = $m->where('id='.$this->user_id)->update(['phone' => $new_phone]);
+                if ($id <= 0) {
+                    return $this->failJSON('重置失败');
+                }
+                return $this->successJSON("修改成功");
+            } else {
+                return $this->failJSON('验证码失效,请重新发送');
+            }
+        }
+    }
 }
 
 
