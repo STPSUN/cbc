@@ -40,7 +40,6 @@ class Balance extends \web\common\model\BaseModel {
         return $this->query($sql);
     }
     
-//    $c = new \addons\config\model\BalanceConf();
     public function getList($pageIndex = -1, $pageSize = -1, $filter = '', $fields = '', $order = 'id desc') {
         $c = new \addons\config\model\BalanceConf();
         $sql = 'select tab.*,c.name from '.$this->getTableName().' as tab left join '.$c->getTableName().' c on tab.type=c.id';
@@ -195,5 +194,4 @@ class Balance extends \web\common\model\BaseModel {
         else
             return '';
     }
-
 }
