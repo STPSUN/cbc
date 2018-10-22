@@ -1,21 +1,17 @@
 <?php
+
+namespace addons\member\model;
+
 /**
- * Created by PhpStorm.
- * User: SUN
- * Date: 2018/10/19
- * Time: 15:37
+ * 投资理财
+ *
+ * @author shilinqing
  */
+class Financial extends \web\common\model\BaseModel {
 
-namespace web\api\model;
-
-
-class MemberNodeApply extends \web\common\model\BaseModel
-{
-    public function _initialize()
-    {
-        $this->tableName = 'member_node_apply';
+    protected function _initialize() {
+        $this->tableName = 'financial';
     }
-
 
     /**
      * 获取用户理财记录
@@ -27,14 +23,11 @@ class MemberNodeApply extends \web\common\model\BaseModel
         }else{
             $sql = 'select ' . $fileds . ' from ' . $this->getTableName();
         }
-        $sql = 'select s.*,u.username u from (' . $sql . ') as s left join ' . $userM->getTableName() . ' u on s.username=u.phone ';
+        $sql = 'select s.*,u.username from (' . $sql . ') as s left join ' . $userM->getTableName() . ' u on s.user_id=u.id ';
         if ($filter != '') {
             $sql = 'select * from (' . $sql . ') as y where ' . $filter;
         }
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
     }
 
-    // public function getDataList(){
-
-    // }
 }

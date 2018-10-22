@@ -20,8 +20,8 @@ class TradingRecord extends \web\common\model\BaseModel{
      * @param type $amount 数量
      * @param type $before_amount  更新前数量
      * @param type $after_amount   更新后数量
-     * @param type $asset_type 资产类型：1=订阅费，2=参股基数，3=奖金积分，4=特权分，5=增值资产
-     * @param type $type        记录类型：0=转账，1=OTC交易，2=提现转出，3=后台拨币,10=推荐奖金，11=对碰奖金，12=管理奖金，13=领导奖金，14=报单中心奖金
+     * @param type $asset_type 资产类型：1=CBC，3=锁仓余额，4=激活码，5=今日总产
+     * @param type $type        记录类型：1=CBC转账，2=激活码转账 | 3 购买节点 4-投资理财 5-超级节点消费
      * @param type $change_type 0 = 减少 ；1 = 增加
      * @param type $to_user_id      目标用户
      * @param type $remark      备注
