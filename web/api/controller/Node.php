@@ -58,6 +58,7 @@ class Node extends ApiBase
                 'node_num'   => 1,
                 'user_id'   => $this->user_id,
                 'create_time'   => NOW_DATETIME,
+                'type'  => $node['type'],
             );
 
         if(!empty($give_username))
