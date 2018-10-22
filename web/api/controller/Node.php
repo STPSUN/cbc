@@ -14,6 +14,7 @@ use think\Request;
 use think\Validate;
 use web\api\model\MemberNode;
 use web\api\model\MemberNodeApply;
+use web\api\model\MemberNodeIncome;
 
 class Node extends ApiBase
 {
@@ -174,12 +175,13 @@ class Node extends ApiBase
             switch ($v['type'])
             {
                 case 1: $v['type'] = 'CBC-V';   break;
-                case 2: $v['type'] = 'CBC-S';   break;
-                case 3: $v['type'] = 'CBC-MS';  break;
-                case 4: $v['type'] = 'CBC-MB';  break;
-                case 5: $v['type'] = 'CBC-B';  break;
-                case 6: $v['type'] = 'CBC-BS';  break;
-                case 7: $v['type'] = 'CBC-X';  break;
+                case 2: $v['type'] = 'CBC-SS';   break;
+                case 3: $v['type'] = 'CBC-S';   break;
+                case 4: $v['type'] = 'CBC-MS';  break;
+                case 5: $v['type'] = 'CBC-MB';  break;
+                case 6: $v['type'] = 'CBC-B';  break;
+                case 7: $v['type'] = 'CBC-BS';  break;
+                case 8: $v['type'] = 'CBC-X';  break;
             }
 
             if($v['status'] == 1)
@@ -189,6 +191,44 @@ class Node extends ApiBase
         }
 
         return $this->successJSON($data);
+    }
+
+    /**
+     * 获取节点明细
+     */
+    public function getNodeDetail()
+    {
+        $param = Request::instance()->post();
+        $validate = new Validate([
+            'node_id'   => 'require',
+        ]);
+
+        $conf = array(
+            'page'  => empty($param['page']) ? 1 : $param['page'],
+            'list_rows' => empty($param['list_rows']) ? 5 : $param['list_rows']
+        );
+
+        if(!$validate->check($param))
+            return $this->failJSON($validate->getError());
+
+        $incomeM = new MemberNodeIncome();
+        $filter = "user_id = " . $this->user_id . " and node_id = " . $param['node_id'];
+        $fields = "id,create_time,amount,type";
+        $data = $incomeM->getDataList2($conf['page'],$conf['list_rows'],$filter,$fields,'create_time desc');
+
+        return $this->successJSON($data);
+    }
+
+    /**
+     * 节点列表
+     */
+    public function nodeList()
+    {
+        $nodeM = new \web\api\model\Node();
+        $fields = "id,type";
+        $data = $nodeM->getDataList('','','',$fields,'type asc');
+
+        return  $this->successJSON($data);
     }
 }
 
