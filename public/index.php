@@ -21,7 +21,7 @@ $url = $_SERVER['SERVER_NAME'];
 switch ($url){
 //    case "test1.ifc003.com" :
     case "cbc.com" :
-        define('BIND_MODULE','api');
+//        define('BIND_MODULE','api');
         break;
     case "www.wnct.io" :
         define('BIND_MODULE','index');
