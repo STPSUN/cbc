@@ -225,7 +225,7 @@ class Node extends ApiBase
     public function nodeList()
     {
         $nodeM = new \web\api\model\Node();
-        $fields = "id,type";
+        $fields = "id,type,node_num,cbc_num";
         $data = $nodeM->getDataList('','','',$fields,'type asc');
 
         return  $this->successJSON($data);

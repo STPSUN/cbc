@@ -227,6 +227,42 @@ class User extends ApiBase
 
         return $this->successJSON($data);
     }
+
+    /**
+     * 修改登录密码
+     * @return type
+     */
+    public function modifyLoginPass(){
+        if(IS_POST){
+            $auth_code = $this->_post('auth_code');
+            $password = $this->_post('password');
+            $password1 = $this->_post('password1');
+            $phone  = $this->_post('phone');
+            if($password != $password1){
+                return $this->failJSON('两次输入的密码不一致');
+            }
+
+            if (strlen($password) < 8) {
+                return $this->failJSON('密码长度不能小于8');
+            }
+
+            $verifyM = new \addons\member\model\VericodeModel();
+            $_verify = $verifyM->VerifyCode($auth_code, $phone,2);
+            if(empty($_verify))
+            {
+                return $this->failJSON('验证码失效');
+            }
+
+            $password = md5($password);
+            $m = new \addons\member\model\MemberAccountModel();
+            $res = $m->updatePassByUserID($this->user_id, $password);
+            if($res > 0){
+                return $this->successJSON();
+            }else{
+                return $this->failJSON('修改密码失败');
+            }
+        }
+    }
 }
 
 
