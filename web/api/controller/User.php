@@ -11,6 +11,7 @@ namespace web\api\controller;
 
 use addons\member\model\Balance;
 use addons\member\model\MemberAccountModel;
+use addons\member\model\PayConfig;
 use think\Request;
 use think\Validate;
 
@@ -300,6 +301,9 @@ class User extends ApiBase
         }
     }
 
+    /**
+     * 修改手机号
+     */
     public function modifyPhone(){
         $type = 5;
         $m = new \addons\member\model\MemberAccountModel();
@@ -328,6 +332,36 @@ class User extends ApiBase
                 return $this->failJSON('验证码失效,请重新发送');
             }
         }
+    }
+
+    /**
+     * 绑定银行卡
+     */
+    public function bindingBank()
+    {
+        $param = Request::instance()->post();
+        $validate = new Validate([
+            'name' => 'require',
+            'bank_name' => 'require',
+            'account' => 'require',
+            'bank_address'  => 'require',
+        ]);
+        if(!$validate->check($param))
+            return $this->failJSON($validate->getError());
+
+        $payM = new PayConfig();
+
+        $data = $payM->where(['user_id' => $this->user_id, 'type' => 3])->find();
+        $data['user_id'] = $this->user_id;
+        $data['type'] = 3;
+        $data['account'] = $param['account'];
+        $data['name'] = $param['name'];
+        $data['bank_address'] = $param['bank_address'];
+        $data['bank_name'] = $param['bank_name'];
+        $data['update_time'] = NOW_DATETIME;
+
+        $payM->save($data);
+        return $this->successJSON();
     }
 }
 
