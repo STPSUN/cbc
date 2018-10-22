@@ -14,6 +14,7 @@ use think\Request;
 use think\Validate;
 use web\api\model\MemberNode;
 use web\api\model\MemberNodeApply;
+use web\api\model\MemberNodeIncome;
 
 class Node extends ApiBase
 {
@@ -57,6 +58,7 @@ class Node extends ApiBase
                 'node_num'   => 1,
                 'user_id'   => $this->user_id,
                 'create_time'   => NOW_DATETIME,
+                'type'  => $node['type'],
             );
 
         if(!empty($give_username))
@@ -164,24 +166,13 @@ class Node extends ApiBase
     {
         $memberNodeM = new MemberNode();
         $data = $memberNodeM->alias('m')
-                    ->field('m.type,n.release_num,m.status')
+                    ->field('m.type,n.release_num,m.status,m.node_id')
                     ->join('node n', 'm.node_id = n.id')
                     ->where('m.user_id',$this->user_id)
                     ->select();
 
         foreach ($data as &$v)
         {
-            switch ($v['type'])
-            {
-                case 1: $v['type'] = 'CBC-V';   break;
-                case 2: $v['type'] = 'CBC-S';   break;
-                case 3: $v['type'] = 'CBC-MS';  break;
-                case 4: $v['type'] = 'CBC-MB';  break;
-                case 5: $v['type'] = 'CBC-B';  break;
-                case 6: $v['type'] = 'CBC-BS';  break;
-                case 7: $v['type'] = 'CBC-X';  break;
-            }
-
             if($v['status'] == 1)
                 $v['status'] = '启动中';
             else
@@ -189,6 +180,44 @@ class Node extends ApiBase
         }
 
         return $this->successJSON($data);
+    }
+
+    /**
+     * 获取节点明细
+     */
+    public function getNodeDetail()
+    {
+        $param = Request::instance()->post();
+        $validate = new Validate([
+            'node_id'   => 'require',
+        ]);
+
+        $conf = array(
+            'page'  => empty($param['page']) ? 1 : $param['page'],
+            'list_rows' => empty($param['list_rows']) ? 5 : $param['list_rows']
+        );
+
+        if(!$validate->check($param))
+            return $this->failJSON($validate->getError());
+
+        $incomeM = new MemberNodeIncome();
+        $filter = "user_id = " . $this->user_id . " and node_id = " . $param['node_id'];
+        $fields = "id,create_time,amount,type";
+        $data = $incomeM->getDataList2($conf['page'],$conf['list_rows'],$filter,$fields,'create_time desc');
+
+        return $this->successJSON($data);
+    }
+
+    /**
+     * 节点列表
+     */
+    public function nodeList()
+    {
+        $nodeM = new \web\api\model\Node();
+        $fields = "id,type,node_num,cbc_num";
+        $data = $nodeM->getDataList('','','',$fields,'type asc');
+
+        return  $this->successJSON($data);
     }
 }
 

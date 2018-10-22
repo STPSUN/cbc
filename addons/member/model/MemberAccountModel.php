@@ -275,7 +275,7 @@ class MemberAccountModel extends \web\common\model\BaseModel {
     public function updatePassByUserID($id, $password, $type = 2) {
         if ($type == 2) {
             $data['password'] = $password;
-        } else if ($type == 3) {
+        } else if ($type == 4) {
             $data['pay_password'] = $password;
         } else {
             return 0;
