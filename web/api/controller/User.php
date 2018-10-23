@@ -14,6 +14,7 @@ use addons\member\model\MemberAccountModel;
 use addons\member\model\PayConfig;
 use think\Request;
 use think\Validate;
+use web\api\service\MemberService;
 
 class User extends ApiBase
 {
@@ -463,6 +464,14 @@ class User extends ApiBase
         }
 
         return $this->successJSON($data);
+    }
+
+    public function level()
+    {
+        $memberS = new MemberService();
+
+        $memberS->memberLevelUpdate($this->user_id);
+        return $this->successJSON();
     }
 }
 
