@@ -28,6 +28,25 @@
         html += '</span>';
         return html;
     }
+
+    function formatLang(value, row, index) {
+        if(value==0){
+            html = '中文';
+        }else{
+            html = '英语';
+        }
+        return html;
+    }
+
+    function formatType(value, row, index) {
+        if(value==0){
+            html = '酋长快讯';
+        }else{
+            html = '酋长公告';
+        }
+        return html;
+    }
+
     $(function () {
 
         $('#grid-table').datagrid({
@@ -42,6 +61,8 @@
             pagination: true,
             pageSize: 20,
             columns: [[
+                    {field: 'lang', title: '语言', width: 100, align: 'center', formatter: formatLang},
+                    {field: 'type', title: '类型', width: 100, align: 'center', formatter: formatType},
                     {field: 'title', title: '标题', width: 120, align: 'center'},
                     {field: 'content', title: '内容', width: 400, align: 'center'},
                     {field: '_oper', title: '操作', width: 140, align: 'center', sortable: true, formatter: formatOper}

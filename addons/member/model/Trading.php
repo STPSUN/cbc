@@ -29,7 +29,17 @@ class Trading extends \web\common\model\BaseModel{
      */
     public function getOrderList($map,$page,$size){
         if(!isset($map['status'])) $map['status'] = 0;
-        return $this->where($map)->limit($page,$size)->select();
+        if(isset($map['type'])) $map['t.type'] = $map['type'];
+        unset($map['type']);
+        $map['p1.type'] = 1;
+        $map['p2.type'] = 2;
+        $map['p2.type'] = 3;
+        return $this->alias('t')->field('t.*,m.user_level,m.username,m.head_img,m.is_auth,p1.account wechat,p2.account alipay,p3.account bank')->where($map)
+        ->join("member_account m",'m.id=t.user_id','LEFT')
+        ->join("member_pay_config p1",'p1.user_id=t.user_id','LEFT')
+        ->join("member_pay_config p2",'p2.user_id=t.user_id','LEFT')
+        ->join("member_pay_config p3",'p3.user_id=t.user_id','LEFT')
+        ->limit($page,$size)->select();
     }
 
     /*

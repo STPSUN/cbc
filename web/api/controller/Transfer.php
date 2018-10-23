@@ -125,6 +125,8 @@ class Transfer extends ApiBase
             'order_id'=>$this->createOrderNumber(),
             'to_user_id'=>0,
             'type'=>0,
+            'number'=>$number,
+            'price'=>$price,
             'amount'=>$amount,
             'fee_num'=>$fee_num,
             'status'=>0,
@@ -303,6 +305,10 @@ class Transfer extends ApiBase
             $map['user_id|to_user_id'] = $user_id;
         }
         $list = $tradingM->getOrderList($map,$page,$row);
+        foreach ($list as $key => $value) {
+            $count = $tradingM->where(['user_id'=>$value['user_id']])->count();
+            $list[$key]['count'] = $count;
+        }
         $this->successJSON($list);
     }
 
@@ -320,6 +326,10 @@ class Transfer extends ApiBase
             return $this->successJSON();
         }
         $list = $tradingM->getOrderList(['type'=>0],$page,$row);
+        foreach ($list as $key => $value) {
+            $count = $tradingM->where(['user_id'=>$value['user_id']])->count();
+            $list[$key]['count'] = $count;
+        }
         $this->successJSON($list);
     }
 

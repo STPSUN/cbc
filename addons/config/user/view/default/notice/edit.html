@@ -3,7 +3,26 @@
 
 <div class="box-content">   
     <input type="hidden" id="id" name="id" value="{$id}"/>
-    
+    <div class="control-group">
+        <label class="control-label">语言</label>
+        <div class="controls">
+            <select name="lang">
+                <option value="0">中文</option>
+                <option value="1">英语</option>
+            </select>
+            <!-- <input style="width:400px" type="text" name="title" class="require form-control" />                                 -->
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">类型</label>
+        <div class="controls">
+            <select name="type">
+                <option value="0">酋长快讯</option>
+                <option value="1">酋长公告</option>
+            </select>
+            <!-- <input style="width:400px" type="text" name="title" class="require form-control" />                                 -->
+        </div>
+    </div>
     <div class="control-group">
         <label class="control-label">公告标题</label>
         <div class="controls">
