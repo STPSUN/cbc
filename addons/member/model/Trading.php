@@ -33,9 +33,6 @@ class Trading extends \web\common\model\BaseModel{
         if(isset($map['user_id']))  $map['t.user_id'] = $map['user_id'];
         unset($map['type']);
         unset($map['user_id']);
-        $map['p1.type'] = 1;
-        $map['p2.type'] = 2;
-        $map['p2.type'] = 3;
         $list =  $this->alias('t')->field('t.*,m.phone,m.user_level,m.username,m.head_img,m.is_auth')->where($map)
         ->join("member_account m",'m.id=t.user_id','LEFT')
         ->limit($page,$size)->select();
