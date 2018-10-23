@@ -46,7 +46,6 @@ class Transfer extends ApiBase
      */
     public function sellOut(){
         $user_id = $this->user_id;
-        $user_id = 56;
         if($user_id <= 0) return $this->failData('请登录');
         $pay_password = $this->_post('pay_password');
         $pay_password = md5($pay_password);
