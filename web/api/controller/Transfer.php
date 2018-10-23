@@ -323,6 +323,32 @@ class Transfer extends ApiBase
     }
 
     /**
+     * 买家获取订单数据
+     */
+    public function getSellInfo(){
+        $user_id = $this->user_id;
+        if($user_id <= 0) return $this->failData('请登录');
+        $tradingM = new \addons\member\model\Trading();
+        $userM = new \addons\member\model\MemberAccountModel();
+        $trad_id = $this->_post('trad_id');
+        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+        $trading = $tradingM->findTrad($trad_id);
+        if(!$trading) return $this->failJSON('订单不存在');
+        $user = $userM->getDetail($trading['user_id']);
+        $count = $tradingM->getCount(['user_id'=>$trading['user_id']]);
+        $trading['phone'] = $user['phone'];
+        $trading['username'] = $user['username'];
+        $trading['head_img'] = $user['head_img'];
+        $trading['is_auth'] = $user['is_auth'];
+        $trading['order_count'] = $count;
+        $sysM = new \web\common\model\sys\SysParameterModel();
+        $trading['price'] = $sysM->getValByName('cbc_price');
+        $this->successJSON($trading);
+
+    }
+
+    
+    /**
      * 用户取消订单
      * @param trad_id int 
      * @return pay_password string 
