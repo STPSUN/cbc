@@ -362,10 +362,51 @@ class User extends ApiBase
     /**
      * 完善资料
      */
-    public function setUserInfo()
+    public function setUserInfo($real_name = null,$id_face = null,$id_back = null,$wechat = null,$alipay = null)
     {
-        $param = Request::instance()->post();
+        $userM = new MemberAccountModel();
+        $payM  = new PayConfig();
 
+        $user_data = array();
+        if($id_face)
+            $user_data['id_face'] = $id_face;
+        if($id_back)
+        {
+            $user_data['id_back'] = $id_back;
+            $user_data['is_auth'] = 2;
+        }
+        if($real_name)
+            $user_data['real_name'] = $real_name;
+
+        try
+        {
+            if($wechat)
+            {
+                $pay_wechat = $payM->where(['user_id' => $this->user_id, 'type' => 1])->find();
+                $pay_wechat['user_id'] = $this->user_id;
+                $pay_wechat['type'] = 1;
+                $pay_wechat['account'] = $wechat;
+                $pay_wechat['update_time'] = NOW_DATETIME;
+                $payM->save($pay_wechat);
+            }
+
+            if($alipay)
+            {
+                $pay_alipay = $payM->where(['user_id' => $this->user_id, 'type' => 2])->find();
+                $pay_alipay['user_id'] = $this->user_id;
+                $pay_alipay['type'] = 2;
+                $pay_alipay['account'] = $alipay;
+                $pay_alipay['update_time'] = NOW_DATETIME;
+                $payM->save($pay_alipay);
+            }
+
+            $userM->save($user_data,['id' => $this->user_id]);
+
+            return $this->successJSON();
+        }catch (\Exception $e)
+        {
+            return $this->failJSON($e->getMessage());
+        }
     }
 
     /**
@@ -381,6 +422,7 @@ class User extends ApiBase
             'id_face'   => $user['id_face'],
             'id_back'   => $user['id_back'],
             'real_name' => $user['real_name'],
+            'is_auth'   => $user['is_auth'],
             'wechat'    => '',
             'alipay'    => '',
             'name'      => '',
