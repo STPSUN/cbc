@@ -307,11 +307,16 @@ class Transfer extends ApiBase
         $trading = $tradingM->findTrad($trad_id);
         if(!$trading)  return $this->failJSON('该订单不存在');
         if(!($user_id==$trading['user_id']||$user_id==$trading['to_user_id'])) return $this->failJSON('该订单不是您的订单');
+        $userM = new \addons\member\model\MemberAccountModel();
         if($user_id==$trading['user_id']){
             $trading['play'] = 1;
+            $user = $userM->getDetail($trading['user_id']);
+            $trading['phone'] = $user['phone'];
             $trading['pay'] = $this->getUserPayAll($trading['user_id']);
         }else{
             $trading['play'] = 0;
+            $user = $userM->getDetail($trading['user_id']);
+            $trading['phone'] = $user['phone'];
             $trading['pay'] = $this->getUserPayAll($trading['to_user_id']);
         }
         $this->successJSON($trading);
