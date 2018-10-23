@@ -39,4 +39,18 @@ class Trading extends \web\common\model\BaseModel{
         $map['status'] = 0;
         return $this->where($map)->count();
     }
+
+
+    /**
+     * 获取订单列表数据
+     */
+    public function getList($filter, $pageIndex, $pageSize, $order='y.id desc'){
+        $userM = new \addons\member\model\MemberAccountModel();
+        $sql = 'select a.*,b.username susername,b.phone sphone,c.username busername,c.phone bphone from '.$this->getTableName().' a left join '.$userM->getTableName().' b on a.user_id=b.id left join '.$userM->getTableName().' c on a.to_user_id=c.id';
+        if($filter != ''){
+            $sql = 'select * from ('.$sql.') as y where '.$filter;
+        }
+        return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
+    
+    }
 }

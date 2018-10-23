@@ -3,9 +3,10 @@
 <div class="right-main">
     <div class="page_nav" id="js_page_nav"><span class="page_title">{$page_nav}</span></div>
     <ul class="tab_navs" id="js_tab_navs">
-        <li class="{if condition='$status eq 1'}current{/if}"><a class="pjax" href="{:getUrl('index','status=1')}">未审核</a></li>
-        <li class="{if condition='$status eq 2'}current{/if}"><a class="pjax" href="{:getUrl('index','status=2')}">已审核</a></li>
-        <li class="{if condition='$status eq 3'}current{/if}"><a class="pjax" href="{:getUrl('index','status=3')}">不通过</a></li>
+        <li class="{if condition='$type eq 0'}current{/if}"><a class="pjax" href="{:getUrl('index','type=0')}">未买入</a></li>
+        <li class="{if condition='$type eq 1'}current{/if}"><a class="pjax" href="{:getUrl('index','type=1')}">已买入</a></li>
+        <li class="{if condition='$type eq 2'}current{/if}"><a class="pjax" href="{:getUrl('index','type=2')}">已打款</a></li>
+        <li class="{if condition='$type eq 3'}current{/if}"><a class="pjax" href="{:getUrl('index','type=3')}">已完成</a></li>
     </ul>
     <div id="js_main_header" class="ui-form main_header">
         <span class="frm_input_box search append">
@@ -17,20 +18,32 @@
     </div>
     <table id="grid-table">
         <thead frozen="true">
-        <th data-options="field:'u',width:100,align:'center'">用户名称</th>
-        <th data-options="field:'username',width:200,align:'center'">用户账号</th>
-        <th data-options="field:'phone',width:100, align:'center'">手机号</th>
-        <th data-options="field:'pusername',width:100, align:'center'">推荐人手机号</th>
-        <th data-options="field:'status',width:100, align:'center',formatter:formatStatus">审核状态</th>
-        <th data-options="field:'update_time',width:140,align:'center'">更新时间</th>
-        <th data-options="field:'_oper',width:250,halign:'center',formatter: formatOper">操作</th>
+        <th data-options="field:'susername',width:150,align:'center'">用户账号</th>
+        <th data-options="field:'sphone',width:100, align:'center'">手机号</th>
+        <th data-options="field:'busername',width:150,align:'center'">用户账号</th>
+        <th data-options="field:'bphone',width:100, align:'center'">手机号</th>
+        </thead>
+        <thead>
+            <tr>
+                <th data-options="field:'order_id',width:100, align:'center'">订单编号</th>
+                <th data-options="field:'type',width:100, align:'center',formatter:formatType">订单状态</th>
+                <th data-options="field:'amount',width:100, align:'center'">金额</th>
+                <th data-options="field:'voucher',width:100, align:'center'">付款凭证</th>
+                <th data-options="field:'fee_num',width:100, align:'center'">手续费</th>
+                <th data-options="field:'update_time',width:140,align:'center'">更新时间</th>
+                <th data-options="field:'status',width:100, align:'center',formatter:formatStatus">订单状态</th>
+                <th data-options="field:'create_at',width:140,align:'center'">更新时间</th>
+                <th data-options="field:'_oper',width:250,halign:'center',formatter: formatOper">操作</th>
+            </tr>
+        </thead>
+                
     </table>
 </div>
 
 {/block}
 {block name="script"}
 <script type="text/javascript">
-    var status = '{$status}'
+    var status = '{$type}'
 
     function formatOper(value, row, index) {
         if (row.status == 1){
@@ -41,15 +54,25 @@
         }
         return html;
     }
+    //类型
+    function formatType(value,row,index){
+        if(value==0){
+            var text = '<span style="color:red">未买入</span>';
+        }else if(value==1){
+            var text = '<span style="color:red">已买入</span>';
+        }else if(value==2){
+            var text = '<span style="color:red">已打款</span>';
+        }else{
+            var text = '<span style="color:red">已完成</span>';
+        }
+        return text;
+    }
     //状态
     function formatStatus(value,row,index){
-        console.log(value);
-        if(value==2){
-            var text = '<span style="color:red">已审核</span>';
-        }else if(value==3){
-            var text = '<span style="color:red">不通过</span>';
+        if(value==0){
+            var text = '<span style="color:red">未取消</span>';
         }else{
-            var text = '<span style="color:red">未审核</span>';
+            var text = '<span style="color:red">已取消</span>';
         }
         return text;
     }
@@ -88,7 +111,7 @@
     
     $(function () {
         $('#grid-table').datagrid({
-            url: getURL('loadList','status='+status),
+            url: getURL('loadList','type='+status),
             method: "GET",
             height: getGridHeight(),
             rownumbers: true,

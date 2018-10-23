@@ -9,24 +9,24 @@ namespace addons\order\user\controller;
 class Trading extends \web\user\controller\AddonUserBase {
 
     public function index() {
-        $status = $this->_get('status');
-        if ($status == '') {
-            $status = 1;
+        $type = $this->_get('type');
+        if ($type == '') {
+            $type = 0;
         }
-        $this->assign('status', $status);
+        $this->assign('type', $type);
         return $this->fetch();
     }
 
     public function loadList() {
         $keyword = $this->_get('keyword');
-        $status = $this->_get('status');
-        $filter = 'status=' . $status;
+        $type = $this->_get('type');
+        $filter = 'type=' . $type;
         if ($keyword != null) {
             $filter .= ' and username like \'%' . $keyword . '%\'';
         }
         $r = new \addons\member\model\Trading();
         $total = $r->getTotal($filter);
-        $rows = $r->getDataList($this->getPageIndex(), $this->getPageSize(), $filter);
+        $rows = $r->getList($this->getPageIndex(), $this->getPageSize(), $filter);
         return $this->toDataGrid($total, $rows);
     }
 

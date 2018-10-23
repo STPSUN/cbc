@@ -1,9 +1,8 @@
 <?php
 /**
- * Created by PhpStorm.
+ * Created by sublime.
  * User: zhuangminghan 
- * Date: 2018/10/16
- * Time: 16:48
+ * Date: 2018/10/22
  * 交易
  */
 
@@ -23,6 +22,17 @@ class Transfer extends ApiBase
     }
 
     /**
+     * 获取今日行情
+     */
+    public function getToday(){
+        $user_id = $this->user_id;
+        if($user_id <= 0) return $this->failData('请登录');
+        $sysM = new \web\common\model\sys\SysParameterModel();
+        $data['top'] = $sysM->getValByName('top_price');
+        $data['low'] = $sysM->getValByName('low_price');
+        return $this->successJSON($data);
+    }
+    /**
      * 创建订单编号
      */
     public function createOrderNumber(){
@@ -36,15 +46,8 @@ class Transfer extends ApiBase
      */
     public function sellOut(){
         $user_id = $this->user_id;
+        $user_id = 56;
         if($user_id <= 0) return $this->failData('请登录');
-        $sysM = new \web\common\model\sys\SysParameterModel();
-        $this->forbiddenTime($sysM);
-        $number = $this->_post('amount');
-        $amount = bcmul($number, $sysM->getValByName('cbc_price'),4);
-        if($amount<=0) return $this->failJSON('请输入正确的挂买金额');
-        $payM = new \addons\member\model\PayConfig();
-        $paylist = $payM->getUserPay($user_id);
-        if(!$paylist)  return $this->failJSON('没有设置支付方式，请设置');
         $pay_password = $this->_post('pay_password');
         $pay_password = md5($pay_password);
         $userM = new \addons\member\model\MemberAccountModel();
@@ -52,6 +55,25 @@ class Transfer extends ApiBase
         if($user['pay_password'] != $pay_password){
             return $this->failJSON('支付密码错误');
         }
+        $sysM = new \web\common\model\sys\SysParameterModel();
+        $top = $sysM->getValByName('top_price');
+        $low = $sysM->getValByName('low_price');
+        $this->forbiddenTime($sysM);
+        $number = $this->_post('number');
+        $price = $this->_post('price');
+        $code = $this->_post('code');
+        $verifyM = new \addons\member\model\VericodeModel();
+        $_verify = $verifyM->VerifyCode($code, $user['phone'],6);
+        if(empty($_verify)) return $this->failJSON('验证码失效,请重新发送');
+
+        if($price>$top)  return $this->failJSON('价格大于今日最高价');
+        if($price<$low)  return $this->failJSON('价格小于今日最低价');
+        $amount = bcmul($number, $price,4);
+        if($amount<=0) return $this->failJSON('请输入正确的挂买金额');
+        $payM = new \addons\member\model\PayConfig();
+        $paylist = $payM->getUserPay($user_id);
+        if(!$paylist)  return $this->failJSON('没有设置支付方式，请设置');
+        
         $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
         $fee_num = bcmul($amount,$rate,4);
         $total = $amount+$fee_num;
