@@ -68,9 +68,6 @@ class Transfer extends ApiBase
         if($price>$top)  return $this->failJSON('价格大于今日最高价');
         if($price<$low)  return $this->failJSON('价格小于今日最低价');
         $amount = bcmul($number, $price,4);
-        var_dump($amount);
-        var_dump($number);
-        var_dump($price);
         if($amount<=0) return $this->failJSON('请输入正确的挂买金额');
         $payM = new \addons\member\model\PayConfig();
         $paylist = $payM->getUserPay($user_id);
