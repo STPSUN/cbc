@@ -27,7 +27,7 @@ class Trading extends \web\common\model\BaseModel{
     /**
      * 获取订单列表
      */
-    public function getOrderList($map,$page,$size,$user_id){
+    public function getOrderList($map,$page,$size){
         if(!isset($map['status']))  $map['status'] = 0;
         if(isset($map['type']))     $map['t.type'] = $map['type'];
         if(isset($map['user_id']))  $map['t.user_id'] = $map['user_id'];
