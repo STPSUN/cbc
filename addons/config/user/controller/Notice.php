@@ -27,6 +27,8 @@ class Notice extends \web\user\controller\AddonUserBase{
         if (IS_POST) {
             $id = $this->_post('id');
             $data['title'] = $this->_post('title');
+            $data['lang'] = $this->_post('lang');
+            $data['type'] = $this->_post('type');
             $data['content'] = $this->_post('content');
             $data['id'] = $id;
             $data['update_time'] = NOW_DATETIME;

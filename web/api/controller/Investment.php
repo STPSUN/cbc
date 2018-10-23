@@ -12,6 +12,18 @@ namespace web\api\controller;
 
 class Investment extends ApiBase
 {
+
+    /**
+     *获取理财信息 
+     */
+    public function getInvestmentList(){
+        $user_id = $this->user_id;
+        if(!$user_id) return $this->failJSON("请登录");
+        $financialM = new \web\common\model\sys\FinancialModel();
+        $list = $financialM->getDataList();
+        $this->successJSON($list);
+    }
+
     /**
      * 理财  
      * @param financial_id int
@@ -29,7 +41,7 @@ class Investment extends ApiBase
         if(!$info) return $this->failJSON("找不到理财方式");
         $amount = $this->_post('amount');
         if($amount<$info['amount_limit']) return $this->failJSON("起始投资金额少于".$info['amount_limit']);
-        $type = 1;
+        $type = 2;
         $userAsset = $balanceM->getBalanceByType($user_id,$type);
         if($amount>$userAsset['amount'])  return $this->failJSON("你的资金少于".$amount);
         $balanceM->startTrans();
@@ -91,7 +103,7 @@ class Investment extends ApiBase
         if($info['user_id']!=$user_id) return $this->failJSON("不是你的理财订单");
         if(time()<strtotime($info['end_at'])) return $this->failJSON("理财时间还没结束");
         $balanceM->startTrans();
-        $type = 1;
+        $type = 2;
         $amount = $info['amount'];
         $userAsset = $balanceM->updateBalance($user_id,$type,$amount,1);
         if(!$userAsset){
