@@ -28,7 +28,7 @@ class Trading extends \web\common\model\BaseModel{
      * 获取订单列表
      */
     public function getOrderList($map,$page,$size){
-        $map['status'] = 0;
+        if(!isset($map['status'])) $map['status'] = 0;
         return $this->where($map)->limit($page,$size)->select();
     }
 

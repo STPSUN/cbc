@@ -45,7 +45,13 @@ class Transfer extends ApiBase
         $payM = new \addons\member\model\PayConfig();
         $paylist = $payM->getUserPay($user_id);
         if(!$paylist)  return $this->failJSON('没有设置支付方式，请设置');
-
+        $pay_password = $this->_post('pay_password');
+        $pay_password = md5($pay_password);
+        $userM = new \addons\member\model\MemberAccountModel();
+        $user = $userM->getDetail($user_id);
+        if($user['pay_password'] != $pay_password){
+            return $this->failJSON('支付密码错误');
+        }
         $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
         $fee_num = bcmul($amount,$rate,4);
         $total = $amount+$fee_num;
