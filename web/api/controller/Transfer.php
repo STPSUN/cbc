@@ -61,6 +61,7 @@ class Transfer extends ApiBase
         if($user_id <= 0) return $this->failData('请登录');
         $pay_password = $this->_post('pay_password');
         $user = $this->checkPwd($user_id,$pay_password);
+        if($user['is_auth']!=1)  return $this->failJSON('没有实名认证无法挂卖');
         $sysM = new \web\common\model\sys\SysParameterModel();
         $top = $sysM->getValByName('top_price');
         $low = $sysM->getValByName('low_price');
@@ -322,7 +323,7 @@ class Transfer extends ApiBase
         $tradingM = new \addons\member\model\Trading();
         $row = $this->_post('row')?$this->_post('row'):15;
         $page = $this->_post('page')?$this->_post('page')*$row:0;
-        if($this->_post('page')>3){
+        if($this->_post('page')>=3){
             return $this->successJSON();
         }
         $list = $tradingM->getOrderList(['type'=>0],$page,$row);
