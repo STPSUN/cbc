@@ -34,7 +34,7 @@ class Trading extends \web\common\model\BaseModel{
         $map['p1.type'] = 1;
         $map['p2.type'] = 2;
         $map['p2.type'] = 3;
-        return $this->alias('t')->field('t.*,m.user_level,m.username,m.head_img,m.is_auth,p1.account wechat,p2.account alipay,p3.account bank')->where($map)
+        return $this->alias('t')->field('t.*,m.phone,m.user_level,m.username,m.head_img,m.is_auth,p1.account wechat,p2.account alipay,p3.account bank')->where($map)
         ->join("member_account m",'m.id=t.user_id','LEFT')
         ->join("member_pay_config p1",'p1.user_id=t.user_id','LEFT')
         ->join("member_pay_config p2",'p2.user_id=t.user_id','LEFT')
