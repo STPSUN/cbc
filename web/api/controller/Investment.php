@@ -12,6 +12,18 @@ namespace web\api\controller;
 
 class Investment extends ApiBase
 {
+
+    /**
+     *获取理财信息 
+     */
+    public function getInvestmentList(){
+        $user_id = $this->user_id;
+        if(!$user_id) return $this->failJSON("请登录");
+        $financialM = new \web\common\model\sys\FinancialModel();
+        $list = $financialM->getDataList();
+        $this->successJSON($list);
+    }
+
     /**
      * 理财  
      * @param financial_id int

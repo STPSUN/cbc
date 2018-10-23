@@ -307,6 +307,11 @@ class Transfer extends ApiBase
         }
         $list = $tradingM->getOrderList($map,$page,$row);
         foreach ($list as $key => $value) {
+            if($value['user_id']==$user_id){
+                $list[$key]['pay_type'] = 1;
+            }else{
+                $list[$key]['pay_type'] = 0;
+            }
             $count = $tradingM->where(['user_id'=>$value['user_id']])->count();
             $list[$key]['count'] = $count;
         }
@@ -328,6 +333,11 @@ class Transfer extends ApiBase
         }
         $list = $tradingM->getOrderList(['type'=>0],$page,$row);
         foreach ($list as $key => $value) {
+            if($value['user_id']==$user_id){
+                $list[$key]['pay_type'] = 1;
+            }else{
+                $list[$key]['pay_type'] = 0;
+            }
             $count = $tradingM->where(['user_id'=>$value['user_id']])->count();
             $list[$key]['count'] = $count;
         }
