@@ -340,28 +340,84 @@ class User extends ApiBase
     public function bindingBank()
     {
         $param = Request::instance()->post();
-        $validate = new Validate([
-            'name' => 'require',
-            'bank_name' => 'require',
-            'account' => 'require',
-            'bank_address'  => 'require',
-        ]);
-        if(!$validate->check($param))
-            return $this->failJSON($validate->getError());
 
         $payM = new PayConfig();
-
         $data = $payM->where(['user_id' => $this->user_id, 'type' => 3])->find();
         $data['user_id'] = $this->user_id;
         $data['type'] = 3;
-        $data['account'] = $param['account'];
-        $data['name'] = $param['name'];
-        $data['bank_address'] = $param['bank_address'];
-        $data['bank_name'] = $param['bank_name'];
+        if($param['account'])
+            $data['account'] = $param['account'];
+        if($param['name'])
+            $data['name'] = $param['name'];
+        if($param['bank_address'])
+            $data['bank_address'] = $param['bank_address'];
+        if($param['bank_name'])
+            $data['bank_name'] = $param['bank_name'];
         $data['update_time'] = NOW_DATETIME;
 
         $payM->save($data);
         return $this->successJSON();
+    }
+
+    /**
+     * 完善资料
+     */
+    public function setUserInfo()
+    {
+        $param = Request::instance()->post();
+
+    }
+
+    /**
+     * 获取用户资料
+     */
+    public function getUserData()
+    {
+        $userM = new MemberAccountModel();
+        $user = $userM->getDetail($this->user_id);
+
+        $data = array(
+            'head_img'  => $user['head_img'],
+            'id_face'   => $user['id_face'],
+            'id_back'   => $user['id_back'],
+            'real_name' => $user['real_name'],
+            'wechat'    => '',
+            'alipay'    => '',
+            'name'      => '',
+            'bank_account'  => '',
+            'bank_name' => '',
+        );
+
+        $payM = new PayConfig();
+        $pay = $payM->where('user_id',$this->user_id)->select();
+        if($pay)
+        {
+            foreach ($pay as $v) {
+                switch ($v['type'])
+                {
+                    case 1:
+                    {
+                        $data['wechat'] = $v['account'];
+                        break;
+                    }
+                    case 2:
+                    {
+                        $data['alipay'] = $v['account'];
+                        break;
+                    }
+                    case 3:
+                    {
+                        $data['name'] = $v['name'];
+                        $data['bank_account'] = $v['account'];
+                        $data['bank_address'] = $v['bank_address'];
+                        $data['bank_name'] = $v['bank_name'];
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $this->successJSON($data);
     }
 }
 

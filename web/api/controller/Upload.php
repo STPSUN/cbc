@@ -12,20 +12,15 @@ class Upload extends ApiBase
 {
     public function uploadImg()
     {
-        $file = request()->file('image');
-
-        if($file)
-        {
-            $info = $file->move(ROOT_PATH . 'public' . DS . 'uploads/user');
-            if($info)
-            {
-                $savename = $info->getSaveName();
-
-                return $this->successJSON($savename);
-            }else
-            {
-                return $this->failJSON($file->getError());
+        $base64 = $this->_post('image');
+        if($base64){
+            $savePath = 'user/';
+            $ret = $this->base_img_upload($base64, $this->user_id, $savePath);
+            if(!$ret['success']){
+                return $this->failJSON($ret['message']);
             }
+
+            return $this->successJSON($ret['path']);
         }
     }
 }
