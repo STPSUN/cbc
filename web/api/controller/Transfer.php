@@ -22,6 +22,18 @@ class Transfer extends ApiBase
     }
 
     /**
+     * 判断支付密码是否正确
+     */
+    public function checkPwd($user_id,$pay_password){
+        $pay_password = md5($pay_password);
+        $userM = new \addons\member\model\MemberAccountModel();
+        $user = $userM->getDetail($user_id);
+        if($user['pay_password'] != $pay_password){
+            return $this->failJSON('支付密码错误');
+        }
+        return $user;
+    }
+    /**
      * 获取今日行情
      */
     public function getToday(){
@@ -48,12 +60,7 @@ class Transfer extends ApiBase
         $user_id = $this->user_id;
         if($user_id <= 0) return $this->failData('请登录');
         $pay_password = $this->_post('pay_password');
-        $pay_password = md5($pay_password);
-        $userM = new \addons\member\model\MemberAccountModel();
-        $user = $userM->getDetail($user_id);
-        if($user['pay_password'] != $pay_password){
-            return $this->failJSON('支付密码错误');
-        }
+        $user = $this->checkPwd($user_id,$pay_password);
         $sysM = new \web\common\model\sys\SysParameterModel();
         $top = $sysM->getValByName('top_price');
         $low = $sysM->getValByName('low_price');
@@ -74,7 +81,7 @@ class Transfer extends ApiBase
         if(!$paylist)  return $this->failJSON('没有设置支付方式，请设置');
         
         $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
-        $fee_num = bcmul($amount,$rate,4);
+        $fee_num = bcmul($amount,($rate/100),4);
         $total = $amount+$fee_num;
         $balanceM = new \addons\member\model\Balance();
         $coin_id = 2;//CBC
@@ -150,12 +157,8 @@ class Transfer extends ApiBase
         if($trading['status']!=0) return $this->failJSON('不能买入买单');
         if($user_id==$trading['user_id']) return $this->failJSON('不能买入自己挂卖的订单');
         if($trading['type']==1) return $this->failJSON('订单已买入');
-        $pay_password = md5($this->_post('pay_password'));
-        $userM = new \addons\member\model\MemberAccountModel();
-        $user = $userM->getDetail($user_id);
-        if($user['pay_password'] != $pay_password){
-            return $this->failJSON('支付密码错误');
-        }
+        $pay_password = $this->_post('pay_password');
+        $this->checkPwd($user_id,$pay_password);
         $data = [
                 'to_user_id' =>$user_id,
                 'type'=>1,
@@ -185,12 +188,8 @@ class Transfer extends ApiBase
         if(!$trading) return $this->failJSON('订单不存在');
         if($user_id!=$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
         if($trading['type']!=1) return $this->failJSON('订单状态错误');
-        $pay_password = md5($this->_post('pay_password'));
-        $userM = new \addons\member\model\MemberAccountModel();
-        $user = $userM->getDetail($user_id);
-        if($user['pay_password'] != $pay_password){
-            return $this->failJSON('支付密码错误');
-        }
+        $pay_password = $this->_post('pay_password');
+        $this->checkPwd($user_id,$pay_password);
 
         $qrcode = $this->_post('file');
         $savePath = 'transaction/proof/'.$user_id.'/';
@@ -215,20 +214,15 @@ class Transfer extends ApiBase
         if($user_id <= 0) return $this->failData('请登录');
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
-        $user = $userM->where(['id'=>$user_id])->find();
+        $pay_password = $this->_post('pay_password');
+        $user = $this->checkPwd($user_id,$pay_password);
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON('请选择正确的订单');
         $trading = $tradingM->findTrad($trad_id);
         if(!$trading) return $this->failJSON('订单不存在');
         if($user_id!=$trading['user_id']) return $this->failJSON('该订单不是您的订单');
         if($trading['type']!=2) return $this->failJSON('订单状态错误');
-        $pay_password = $this->_post('pay_password');
-        $pay_password = md5($pay_password);
-        $userM = new \addons\member\model\MemberAccountModel();
-        $user = $userM->getDetail($user_id);
-        if($user['pay_password'] != $pay_password){
-            return $this->failJSON('支付密码错误');
-        }
+        
         $balanceM = new \addons\member\model\Balance();
         $balanceM->startTrans();
         $trading['type'] = 3;
@@ -257,6 +251,11 @@ class Transfer extends ApiBase
         //删除锁仓金额
         $coin_id = 3;//CBC
         $amount = bcmul(($trading['fee_num']+$trading['amount']), 1,2);
+        $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
+        if($amount>$userAmount['amount']){
+            $amount = $userAmount['amount'];
+        }
+            
         $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount);
         if(!$userAmount){
             $balanceM->rollback();
@@ -309,13 +308,17 @@ class Transfer extends ApiBase
 
     /**
      * 交易大厅
+     * 每行15个超过3页为空
      */
     public function TradingHall(){
         $user_id = $this->user_id;
         if($user_id <= 0) return $this->failData('请登录');
         $tradingM = new \addons\member\model\Trading();
-        $row = $this->_post('row')?$this->_post('row'):20;
+        $row = $this->_post('row')?$this->_post('row'):15;
         $page = $this->_post('page')?$this->_post('page')*$row:0;
+        if($this->_post('page')>3){
+            return $this->successJSON();
+        }
         $list = $tradingM->getOrderList(['type'=>0],$page,$row);
         $this->successJSON($list);
     }
@@ -398,7 +401,7 @@ class Transfer extends ApiBase
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
             if(!$userAmount){
                 $balanceM->rollback();
-                return $this->failJSON('减少CBC余额失败');
+                return $this->failJSON('增加CBC余额失败');
             }
 
             $type = 10;
@@ -416,7 +419,7 @@ class Transfer extends ApiBase
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
             if(!$userAmount){
                 $balanceM->rollback();
-                return $this->failJSON('增加CBC锁仓失败');
+                return $this->failJSON('减少CBC锁仓失败');
             }
             $type = 11;
             $change_type = 0; //减少

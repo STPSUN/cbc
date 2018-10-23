@@ -41,6 +41,20 @@ class Trading extends \web\common\model\BaseModel{
     }
 
 
+    public function getTrandTotal($filter = '') {
+        $userM = new \addons\member\model\MemberAccountModel();
+        $sql = '(select a.*,b.username susername,b.phone sphone,c.username busername,c.phone bphone from '.$this->getTableName().' a left join '.$userM->getTableName().' b on a.user_id=b.id left join '.$userM->getTableName().' c on a.to_user_id=c.id) y';
+        $sql = 'select count(*) c from '.$sql;
+        if($filter != ''){
+            $sql .= ' where ' . $filter;
+        }
+        $result = $this->query($sql);
+        if (count($result) > 0)
+            return intval($result[0]['c']);
+        else
+            return 0;
+    }
+
     /**
      * 获取订单列表数据
      */
@@ -50,6 +64,7 @@ class Trading extends \web\common\model\BaseModel{
         if($filter != ''){
             $sql = 'select * from ('.$sql.') as y where '.$filter;
         }
+        // echo $sql;
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
     
     }

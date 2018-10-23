@@ -12,54 +12,90 @@ class Sms{
     private static $api_key = ''; //用户秘钥
     private static $target_url = '';
     
-    private static function _init() {
-        $m = new \addons\config\model\Sms();
-        $data = $m->getAllowConfig();
-        if(empty($data))
-            return false;
-        self::$api_id = $data['api_id'];
-        self::$api_key = $data['api_key'];
-        self::$target_url = $data['api_url'];
-    }
+    private static $API_SEND_URL='https://smssh1.253.com/msg/send/json'; //创蓝发送短信接口URL
+    private static $API_VARIABLE_URL ='https://smssh1.253.com/msg/variable/json';//创蓝变量短信接口URL
+    private static $API_BALANCE_QUERY_URL='https://smssh1.253.com/msg/balance/json';//创蓝短信余额查询接口URL
+    private static $API_ACCOUNT= 'N2372657'; // 创蓝API账号
+    private static $API_PASSWORD= 'WbzH8vuDQg2066';// 创蓝API密码
+
+    // private static function _init() {
+    //     $m = new \addons\config\model\Sms();
+    //     $data = $m->getAllowConfig();
+    //     if(empty($data))
+    //         return false;
+    //     self::$api_id = $data['api_id'];
+    //     self::$api_key = $data['api_key'];
+    //     self::$target_url = $data['api_url'];
+    // }
     
+
     /**
      * 发送验证码
      * @param type $phone
      */
     public static function send($phone){
-        self::_init();
-        if (empty($phone)) {
-            self::$data['success'] = false;
-            self::$data['message']='手机号码不能为空';
-            return self::$data;
-        }
-        if (!preg_match("/^1[34578]{1}\d{9}$/", $phone)) {
-            self::$data['success'] = false;
-            self::$data['message']='请输入正确的手机号';
-            return self::$data;
-        }
         $code = self::random(6,1);//验证码
-        $post_data = array(
-            'account' => self::$api_id,
-            'password'  => self::$api_key,
-            'mobile' => $phone,
-            'content' => rawurlencode("您的验证码是：" . $code . "。请不要把验证码泄露给其他人。")
+        $msg = '【CBC】尊敬的用户，您本次操作的验证码为'.$code.'，请妥善保存，切勿泄露。';
+        //创蓝接口参数
+        $postArr = array (
+            'account'  =>  self::$API_ACCOUNT,
+            'password' => self::$API_PASSWORD,
+            'msg' => urlencode($msg),
+            'phone' => $phone,
+            'report' => 'true'
         );
-        $post_data = self::makeData($post_data);
-        $res = self::Post($post_data, self::$target_url);
-        $res = self::xml_to_array($res);
-        $res = $res['SubmitResult'];
-        if($res['code'] != 2){
-            self::$data['message'] = 'errormsg:'.$res['msg'];
-            self::$data['success'] = false;
-        }else{
+        $res = json_decode(self::curlPost(self::$API_SEND_URL, $postArr),1);
+        if($res['code']==0){
             self::$data['code'] = $code;
             self::$data['message'] = "验证码发送成功，请注意查收";
             self::$data['success'] = true;   
+        }else{
+            self::$data['message'] = 'errormsg:'.$res['errorMsg'];
+            self::$data['success'] = false;
         }
         return self::$data;
     }
     
+
+    /**
+     * 通过CURL发送HTTP请求
+     * @param string $url  //请求URL
+     * @param array $postFields //请求参数 
+     * @return mixed
+     *  
+     */
+    private static function curlPost($url,$postFields){
+        $postFields = json_encode($postFields);
+        
+        $ch = curl_init ();
+        curl_setopt( $ch, CURLOPT_URL, $url ); 
+        curl_setopt( $ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json; charset=utf-8'   //json版本需要填写  Content-Type: application/json;
+            )
+        );
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); 
+        curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+        curl_setopt( $ch, CURLOPT_POST, 1 );
+        curl_setopt( $ch, CURLOPT_POSTFIELDS, $postFields);
+        curl_setopt( $ch, CURLOPT_TIMEOUT,60); 
+        curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0);
+        $ret = curl_exec ( $ch );
+        if (false == $ret) {
+            $result = curl_error(  $ch);
+        } else {
+            $rsp = curl_getinfo( $ch, CURLINFO_HTTP_CODE);
+            if (200 != $rsp) {
+                $result = "请求状态 ". $rsp . " " . curl_error($ch);
+            } else {
+                $result = $ret;
+            }
+        }
+        curl_close ( $ch );
+        return $result;
+    }
+
+
     /**
      * 组成url 参数
      * @param type $post_data
