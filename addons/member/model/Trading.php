@@ -27,19 +27,31 @@ class Trading extends \web\common\model\BaseModel{
     /**
      * 获取订单列表
      */
-    public function getOrderList($map,$page,$size){
-        if(!isset($map['status'])) $map['status'] = 0;
-        if(isset($map['type'])) $map['t.type'] = $map['type'];
+    public function getOrderList($map,$page,$size,$user_id){
+        if(!isset($map['status']))  $map['status'] = 0;
+        if(isset($map['type']))     $map['t.type'] = $map['type'];
+        if(isset($map['user_id']))  $map['t.user_id'] = $map['user_id'];
         unset($map['type']);
+        unset($map['user_id']);
         $map['p1.type'] = 1;
         $map['p2.type'] = 2;
         $map['p2.type'] = 3;
-        return $this->alias('t')->field('t.*,m.phone,m.user_level,m.username,m.head_img,m.is_auth,p1.account wechat,p2.account alipay,p3.account bank')->where($map)
+        $list =  $this->alias('t')->field('t.*,m.phone,m.user_level,m.username,m.head_img,m.is_auth')->where($map)
         ->join("member_account m",'m.id=t.user_id','LEFT')
-        ->join("member_pay_config p1",'p1.user_id=t.user_id','LEFT')
-        ->join("member_pay_config p2",'p2.user_id=t.user_id','LEFT')
-        ->join("member_pay_config p3",'p3.user_id=t.user_id','LEFT')
         ->limit($page,$size)->select();
+        foreach ($list as $key => $value) {
+            $info = $this->table('tp_member_pay_config')->where(['user_id'=>$value['user_id']])->select();
+            foreach ($info as $k => $v) {
+                if($v['type']==1){
+                    $list[$key]['wechat'] = $v['account'];
+                }elseif($v['type']==2){
+                    $list[$key]['alipay'] = $v['account'];
+                }elseif($v['type']==3){
+                    $list[$key]['bank'] = $v['account'];
+                }
+            }
+        }
+        return $list;
     }
 
     /*
