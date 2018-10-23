@@ -22,7 +22,12 @@ class Transfer extends ApiBase
         if(!(time()>=$time_start&&time()<=$time_end)) return $this->failJSON('当前时间禁止交易');
     }
 
-
+    /**
+     * 创建订单编号
+     */
+    public function createOrderNumber(){
+        return 'CBC'.date('ymdHis').rand(0,9).rand(0,9).rand(0,9);
+    }
 
     /**
      * 挂卖  
@@ -40,7 +45,13 @@ class Transfer extends ApiBase
         $payM = new \addons\member\model\PayConfig();
         $paylist = $payM->getUserPay($user_id);
         if(!$paylist)  return $this->failJSON('没有设置支付方式，请设置');
-
+        $pay_password = $this->_post('pay_password');
+        $pay_password = md5($pay_password);
+        $userM = new \addons\member\model\MemberAccountModel();
+        $user = $userM->getDetail($user_id);
+        if($user['pay_password'] != $pay_password){
+            return $this->failJSON('支付密码错误');
+        }
         $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
         $fee_num = bcmul($amount,$rate,4);
         $total = $amount+$fee_num;
@@ -83,6 +94,7 @@ class Transfer extends ApiBase
 
         $data = [
             'user_id' =>$user_id,
+            'order_id'=>$this->createOrderNumber(),
             'to_user_id'=>0,
             'type'=>0,
             'amount'=>$amount,
@@ -117,7 +129,12 @@ class Transfer extends ApiBase
         if($trading['status']!=0) return $this->failJSON('不能买入买单');
         if($user_id==$trading['user_id']) return $this->failJSON('不能买入自己挂卖的订单');
         if($trading['type']==1) return $this->failJSON('订单已买入');
-
+        $pay_password = md5($this->_post('pay_password'));
+        $userM = new \addons\member\model\MemberAccountModel();
+        $user = $userM->getDetail($user_id);
+        if($user['pay_password'] != $pay_password){
+            return $this->failJSON('支付密码错误');
+        }
         $data = [
                 'to_user_id' =>$user_id,
                 'type'=>1,
@@ -147,6 +164,13 @@ class Transfer extends ApiBase
         if(!$trading) return $this->failJSON('订单不存在');
         if($user_id!=$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
         if($trading['type']!=1) return $this->failJSON('订单状态错误');
+        $pay_password = md5($this->_post('pay_password'));
+        $userM = new \addons\member\model\MemberAccountModel();
+        $user = $userM->getDetail($user_id);
+        if($user['pay_password'] != $pay_password){
+            return $this->failJSON('支付密码错误');
+        }
+
         $qrcode = $this->_post('file');
         $savePath = 'transaction/proof/'.$user_id.'/';
         $data = $this->base_img_upload($qrcode, $user_id, $savePath);
@@ -245,9 +269,33 @@ class Transfer extends ApiBase
         $tradingM = new \addons\member\model\Trading();
         $row = $this->_post('row')?$this->_post('row'):20;
         $page = $this->_post('page')?$this->_post('page')*$row:0;
-        $map['type'] = $this->_post('type')?$this->_post('type'):0;
-        if($map['type']>0) $map['user_id|to_user_id'] = $user_id;
-        $list = $tradingM->where($map)->limit($page,$row)->select();
+        if($this->_post('status')){
+            $map['status'] = 1;
+        }else{
+            $type = $this->_post('type');
+            if($type==2){
+                $map['type'] = ['in',[1,2]];
+            }elseif($type==3){
+                $map['type'] = 3;
+            }else{
+                $map['type'] = 0;
+            }
+            $map['user_id|to_user_id'] = $user_id;
+        }
+        $list = $tradingM->getOrderList($map,$page,$row);
+        $this->successJSON($list);
+    }
+
+    /**
+     * 交易大厅
+     */
+    public function TradingHall(){
+        $user_id = $this->user_id;
+        if($user_id <= 0) return $this->failData('请登录');
+        $tradingM = new \addons\member\model\Trading();
+        $row = $this->_post('row')?$this->_post('row'):20;
+        $page = $this->_post('page')?$this->_post('page')*$row:0;
+        $list = $tradingM->getOrderList(['type'=>0],$page,$row);
         $this->successJSON($list);
     }
 
@@ -265,10 +313,47 @@ class Transfer extends ApiBase
         $trading = $tradingM->findTrad($trad_id);
         if(!$trading)  return $this->failJSON('该订单不存在');
         if(!($user_id==$trading['user_id']||$user_id==$trading['to_user_id'])) return $this->failJSON('该订单不是您的订单');
-        $trading['pay'] = $this->getUserPayAll($trading['user_id']);
+        $userM = new \addons\member\model\MemberAccountModel();
+        if($user_id==$trading['user_id']){
+            $trading['play'] = 1;
+            $user = $userM->getDetail($trading['user_id']);
+            $trading['phone'] = $user['phone'];
+            $trading['pay'] = $this->getUserPayAll($trading['user_id']);
+        }else{
+            $trading['play'] = 0;
+            $user = $userM->getDetail($trading['user_id']);
+            $trading['phone'] = $user['phone'];
+            $trading['pay'] = $this->getUserPayAll($trading['to_user_id']);
+        }
         $this->successJSON($trading);
     }
 
+    /**
+     * 买家获取订单数据
+     */
+    public function getSellInfo(){
+        $user_id = $this->user_id;
+        if($user_id <= 0) return $this->failData('请登录');
+        $tradingM = new \addons\member\model\Trading();
+        $userM = new \addons\member\model\MemberAccountModel();
+        $trad_id = $this->_post('trad_id');
+        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+        $trading = $tradingM->findTrad($trad_id);
+        if(!$trading) return $this->failJSON('订单不存在');
+        $user = $userM->getDetail($trading['user_id']);
+        $count = $tradingM->getCount(['user_id'=>$trading['user_id']]);
+        $trading['phone'] = $user['phone'];
+        $trading['username'] = $user['username'];
+        $trading['head_img'] = $user['head_img'];
+        $trading['is_auth'] = $user['is_auth'];
+        $trading['order_count'] = $count;
+        $sysM = new \web\common\model\sys\SysParameterModel();
+        $trading['price'] = $sysM->getValByName('cbc_price');
+        $this->successJSON($trading);
+
+    }
+
+    
     /**
      * 用户取消订单
      * @param trad_id int 
@@ -284,7 +369,7 @@ class Transfer extends ApiBase
         if($trad_id<=0) return $this->failJSON('请选择正确的订单');
         $trading = $tradingM->findTrad($trad_id);
         if(!$trading) return $this->failJSON('订单不存在');
-        if($user_id==$trading['user_id']&&0==$trading['type']){
+        if($user_id==$trading['user_id']&&0==$trading['type']&&0==$trading['status']){
             $balanceM = new \addons\member\model\Balance();
             $balanceM->startTrans();
             $coin_id = 2;
@@ -321,42 +406,34 @@ class Transfer extends ApiBase
                 $balanceM->rollback();
                 return $this->failJSON('增加记录失败');
             }
-        }else{
-            if($user_id==$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
-            if($trading['type']==3||$trading['type']==2) return $this->failJSON('订单状态错误');
-            $pay_password = $this->_post('pay_password');
-            $pay_password = md5($pay_password);
-            $userM = new \addons\member\model\MemberAccountModel();
-            $user = $userM->getDetail($user_id);
-            if($user['pay_password'] != $pay_password) return $this->failJSON('支付密码错误');
-            $trading['type'] = 0;
-            $trading['to_user_id'] = 0;
+            $trading['status'] = 1;
             $trading['update_time'] = NOW_DATETIME;
             $res = $tradingM->save($trading);
-            if($res) $this->successJSON('取消成功');
-            else $this->failJSON('取消失败');
+            if($res){
+                $balanceM->commit();
+                $this->successJSON('取消成功');
+            }else{
+                $balanceM->rollback();
+                $this->failJSON('取消失败');
+            } 
+        }else{
+            // if(!($user_id==$trading['user_id']||$user_id==$trading['to_user_id'])) return $this->failJSON('该订单不是您的订单');
+            // if($trading['type']==3||$trading['type']==2) return $this->failJSON('订单状态错误');
+            // $pay_password = $this->_post('pay_password');
+            // $pay_password = md5($pay_password);
+            // $userM = new \addons\member\model\MemberAccountModel();
+            // $user = $userM->getDetail($user_id);
+            // if($user['pay_password'] != $pay_password) return $this->failJSON('支付密码错误');
+            // $trading['type'] = 0;
+            // $trading['to_user_id'] = 0;
+            // $trading['update_time'] = NOW_DATETIME;
+            // $res = $tradingM->save($trading);
+            // if($res) $this->successJSON('取消成功');
+            return $this->failJSON('订单错误');
         }
-            
     }
 
-    /**
-     * 超过30分钟未付款则取消订单
-     */
-    public function cancleOrder(){
-        $tradingM = new \addons\member\model\Trading();
-        $map['type'] = 1;
-        $map['update_time'] = ['gt',date('Y-m-d H:i:s',(time()+30*60))];
-        $list = $tradingM->where($map)->select();
-        if(!$list) return $this->failJSON('暂无订单');
-        foreach ($list as $key => $value) {
-            $list[$key]['to_user_id'] = 0;
-            $list[$key]['type'] = 0;
-            $list[$key]['update_time']=NOW_DATETIME;
-        }
-        $res = $tradingM->save($list);
-        if($res) $this->successJSON('update success');
-        else $this->failJSON('update failed');
-    }
+    
 
 
 
@@ -448,6 +525,27 @@ class Transfer extends ApiBase
         } catch (\Exception $ex) {
             return $this->failJSON($ex->getMessage());
         }
+    }
+
+
+    /**
+     * 定时器访问
+     * 超过30分钟未付款则取消订单
+     */
+    public function cancleOrder(){
+        $tradingM = new \addons\member\model\Trading();
+        $map['type'] = 1;
+        $map['update_time'] = ['gt',date('Y-m-d H:i:s',(time()+30*60))];
+        $list = $tradingM->where($map)->select();
+        if(!$list) return $this->failJSON('暂无订单');
+        foreach ($list as $key => $value) {
+            $list[$key]['to_user_id'] = 0;
+            $list[$key]['type'] = 0;
+            $list[$key]['update_time']=NOW_DATETIME;
+        }
+        $res = $tradingM->save($list);
+        if($res) $this->successJSON('update success');
+        else $this->failJSON('update failed');
     }
 
     /**
