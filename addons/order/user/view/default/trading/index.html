@@ -1,5 +1,8 @@
 {extend name="$BASE_LIST" /}
 {block name="body"}
+<style type="text/css">
+.voucher{max-height: 50px;max-width: 50px}
+</style>
 <div class="right-main">
     <div class="page_nav" id="js_page_nav"><span class="page_title">{$page_nav}</span></div>
     <ul class="tab_navs" id="js_tab_navs">
@@ -9,34 +12,33 @@
         <li class="{if condition='$type eq 3'}current{/if}"><a class="pjax" href="{:getUrl('index','type=3')}">已完成</a></li>
     </ul>
     <div id="js_main_header" class="ui-form main_header">
-        <span class="frm_input_box search append">
+        <span class="frm_input_box search append" style="width: 240px">
             <a href="javascript:void(0);" id="js_search" class="frm_input_append">
                 <i class="icon wb-search" title="搜索"></i>
             </a>
-            <input type="text" id="js_keyword" placeholder="请输入用户手机" value="" class="frm_input" />
+            <input type="text" id="js_keyword" placeholder="请输入卖家手机、订单编号、金额" value="" class="frm_input" />
         </span>
     </div>
     <table id="grid-table">
         <thead frozen="true">
-        <th data-options="field:'susername',width:150,align:'center'">用户账号</th>
-        <th data-options="field:'sphone',width:100, align:'center'">手机号</th>
-        <th data-options="field:'busername',width:150,align:'center'">用户账号</th>
-        <th data-options="field:'bphone',width:100, align:'center'">手机号</th>
+        <th data-options="field:'susername',width:150,align:'center'">卖家账号</th>
+        <th data-options="field:'sphone',width:100, align:'center'">卖家手机号</th>
+        <th data-options="field:'busername',width:150,align:'center'">买家账号</th>
+        <th data-options="field:'bphone',width:100, align:'center'">买家手机号</th>
         </thead>
         <thead>
             <tr>
-                <th data-options="field:'order_id',width:100, align:'center'">订单编号</th>
+                <th data-options="field:'order_id',width:160, align:'center'">订单编号</th>
                 <th data-options="field:'type',width:100, align:'center',formatter:formatType">订单状态</th>
                 <th data-options="field:'amount',width:100, align:'center'">金额</th>
-                <th data-options="field:'voucher',width:100, align:'center'">付款凭证</th>
+                <th data-options="field:'voucher',width:100, align:'center',formatter:formatImg"">付款凭证</th>
                 <th data-options="field:'fee_num',width:100, align:'center'">手续费</th>
                 <th data-options="field:'update_time',width:140,align:'center'">更新时间</th>
                 <th data-options="field:'status',width:100, align:'center',formatter:formatStatus">订单状态</th>
-                <th data-options="field:'create_at',width:140,align:'center'">更新时间</th>
+                <th data-options="field:'create_at',width:140,align:'center'">创建时间</th>
                 <th data-options="field:'_oper',width:250,halign:'center',formatter: formatOper">操作</th>
             </tr>
         </thead>
-                
     </table>
 </div>
 
@@ -53,6 +55,14 @@
             html += '</span>';
         }
         return html;
+    }
+    function formatImg(value,row,index){
+        if(!value){
+            text = '';
+        }else{
+            text = '<a target="_blank" href="'+value+'"><img class="voucher" src="'+value+'"></a>';
+        }
+        return text;
     }
     //类型
     function formatType(value,row,index){
@@ -76,6 +86,19 @@
         }
         return text;
     }
+
+    function formatOper(value, row, index) {
+        var html = '<span class="grid-operation">';
+        if(!row['status']){
+            if(row['type']==0||row['type']==1){
+                html += '<button type="button" onclick="cancleOrder(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>取消</button>';
+            }else if(row['type']==2){
+                html += '<button type="button" onclick="confirmMoney(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>确认收款</button>';
+            }
+        }
+        html += '</span>';
+        return html;
+    }
 //    //查看图片
 //    function formatPic(value,row,index){
 //        var html = '<button type="button" onclick="showPic('+row['id']+')" class="btn btn-xs btn-default btn-primary">点我查看</button>';
@@ -88,13 +111,11 @@
 //        }, ['确定','取消']);
 //    }
     //审核
-    function doCheck(id,status){
-        var title = '审核通过?';
-        if(status == 3)
-            title = '审核不通过?';
+    function cancleOrder(id){
+        var title = '取消订单?';
         confirm(title, function () {
-            var url = getURL('doCheck');
-            $.getJSON(url, {id: id,status:status}, function (json) {
+            var url = getURL('cancleOrder');
+            $.getJSON(url, {id: id}, function (json) {
                 if (json.success)
                     reload();
                 else
@@ -102,12 +123,19 @@
             });
         });
     }
-//    function formatStatus(value,row,index){
-//        var text = '<span style="color:red">否</span>';
-//        if(value == '1')
-//            text = '<span style="color:green">是</span>';
-//        return text;
-//    }
+
+    function confirmMoney(id){
+        var title = '确认收款?';
+        confirm(title, function () {
+            var url = getURL('confirmMoney');
+            $.getJSON(url, {id: id}, function (json) {
+                if (json.success)
+                    reload();
+                else
+                    alert(json.message);
+            });
+        });
+    }
     
     $(function () {
         $('#grid-table').datagrid({
@@ -129,59 +157,6 @@
         });
     });
 
-//    function doCheck(id,status){
-//        var title = '确认要解冻此用户吗?';
-//        if(status == 1)
-//            title = '确认要冻结此用户吗?';
-//        confirm(title, function () {
-//            var url = getURL('change_frozen');
-//            $.getJSON(url, {id: id,status:status}, function (json) {
-//                if (json.success)
-//                    reload();
-//                else
-//                    alert(json.message);
-//            });
-//        });
-//    }
-//
-//    function view_balance(id){
-//        var url = getURL('view_balance', 'id=' + id);
-//        openBarWin('资产', 400, 400, url, function () {
-//            reload();
-//        }, ['确定','取消']);
-//    }
-//
-//    function add_coin_stock(id) {
-//        var url = getURL('add_coin_stock', 'id=' + id);
-//        openBarWin('拨币', 400, 400, url, function () {
-//            reload();
-//        }, ['确定','取消']);
-//    }
-//
-//    function edit(id) {
-//        var url = getURL('edit', 'id=' + id);
-//        openBarWin('编辑', 1000, 500, url, function () {
-//            reload();
-//        }, ['确定','取消']);
-//    }
-//    function auth(id) {
-//        var url = getURL('auth', 'id=' + id);
-//        openBarWin('认证用户', 1000, 400, url, function () {
-//            reload();
-//        }, ['确定','取消']);
-//    }
-//
-//    function del(id) {
-//        confirm("确认要删除此会员吗？逻辑删除,以备还原数据,会员数据依然会存在于数据库中", function () {
-//            var url = getURL('del');
-//            $.getJSON(url, {id: id}, function (json) {
-//                if (json.success)
-//                    reload();
-//                else
-//                    alert(json.message);
-//            });
-//        });
-//    }
 
     $("#js_search").click(function () {
         reload();

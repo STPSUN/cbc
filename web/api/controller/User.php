@@ -161,24 +161,29 @@ class User extends ApiBase
         try{
             //发送验证码
             $res = \addons\member\utils\Sms::send($phone);
-            $code = $res['code'];
-//            $res['success'] = true;
-//            $res['message'] = '短信发送成功';
-//            $res['code'] = '1111';
-            if(!empty($res['code'])){
-                //保存验证码
-                $pass_time = date('Y-m-d H:i:s',strtotime("+".$time." seconds"));
-                $data['phone'] = $phone;
-                $data['code'] = $res['code'];
-                $data['type'] = $type;
-                $data['pass_time'] = $pass_time; //过期时间
-                $m->add($data);
-                unset($res['code']);
-            }
-            return $this->successJSON($code);
+            if($res['success']){
+                $code = $res['code'];
+    //            $res['success'] = true;
+    //            $res['message'] = '短信发送成功';
+    //            $res['code'] = '1111';
+                if(!empty($res['code'])){
+                    //保存验证码
+                    $pass_time = date('Y-m-d H:i:s',strtotime("+".$time." seconds"));
+                    $data['phone'] = $phone;
+                    $data['code'] = $res['code'];
+                    $data['type'] = $type;
+                    $data['pass_time'] = $pass_time; //过期时间
+                    $m->add($data);
+                    unset($res['code']);
+                }
+                return $this->successJSON();
+            }else{
+                return $this->failJSON($res['message']);
+            }  
         } catch (\Exception $ex) {
             return $this->failJSON($ex->getMessage());
         }
+            
     }
 
     /**
