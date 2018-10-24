@@ -46,9 +46,10 @@ class Investment extends ApiBase
      */
     private function getCoinInfo(){
         $payM = new \addons\member\model\PayConfig();
-        $price = $sysM->getValByName('usdt_price');
         $arr = $this->getGlobalCache('hotapi_price');
         if(empty($arr)){
+            $sysM = new \web\common\model\sys\SysParameterModel();
+            $price = $sysM->getValByName('usdt_price');
             $type = $this->_post('type');
             $HotApi = new \web\common\utils\HotApi();
             $list = ['btcusdt','ethusdt','xrpusdt','neousdt','eosusdt'];
