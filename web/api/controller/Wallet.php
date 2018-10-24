@@ -27,7 +27,7 @@ class Wallet extends ApiBase
             'address'   => 'require',
             'amount'    => 'require|>:0',
             'pay_password'  => 'require',
-//            'auth_code' => 'require',
+            'auth_code' => 'require',
         ]);
 
         if(!$validate->check($param))
@@ -36,7 +36,7 @@ class Wallet extends ApiBase
         $address = $param['address'];
         $amount = $param['amount'];
         $pay_password   = $param['pay_password'];
-//        $auth_code  = $param['auth_code'];
+        $auth_code  = $param['auth_code'];
         $sub_type = 1;
         $key_type = 4;
 
@@ -56,11 +56,11 @@ class Wallet extends ApiBase
             return $this->failJSON('支付密码错误，请重新输入');
 
         $verifyM = new \addons\member\model\VericodeModel();
-//        $_verify = $verifyM->VerifyCode($auth_code, $member['phone'],3);
-//        if(empty($_verify))
-//        {
-//            return $this->failJSON('验证码失效,请重新注册');
-//        }
+        $_verify = $verifyM->VerifyCode($auth_code, $member['phone'],3);
+        if(empty($_verify))
+        {
+            return $this->failJSON('验证码失效,请重新获取');
+        }
 
         $paramM = new \web\common\model\sys\SysParameterModel();
         $tax_rate = $paramM->getValByName('deal_tax'); //手续费比率
@@ -114,7 +114,7 @@ class Wallet extends ApiBase
             'address'   => 'require',
             'amount'    => 'require|>:0',
             'pay_password'  => 'require',
-//            'auth_code' => 'require',
+            'auth_code' => 'require',
         ]);
 
         if(!$validate->check($param))
@@ -123,7 +123,7 @@ class Wallet extends ApiBase
         $address = $param['address'];
         $amount = $param['amount'];
         $pay_password   = $param['pay_password'];
-//        $auth_code  = $param['auth_code'];
+        $auth_code  = $param['auth_code'];
         $sub_type = 4;
         $key_type = 4;
 
@@ -143,11 +143,11 @@ class Wallet extends ApiBase
             return $this->failJSON('支付密码错误，请重新输入');
 
         $verifyM = new \addons\member\model\VericodeModel();
-//        $_verify = $verifyM->VerifyCode($auth_code, $member['phone'],3);
-//        if(empty($_verify))
-//        {
-//            return $this->failJSON('验证码失效,请重新注册');
-//        }
+        $_verify = $verifyM->VerifyCode($auth_code, $member['phone'],3);
+        if(empty($_verify))
+        {
+            return $this->failJSON('验证码失效,请重新获取');
+        }
 
 //        $paramM = new \web\common\model\sys\SysParameterModel();
 //        $tax_rate = $paramM->getValByName('deal_tax'); //手续费比率
