@@ -110,7 +110,7 @@ class User extends ApiBase
 //                    $invite_user = $m->getDetail($inviter_id);
                     $invite_user = $m->getUserByPhone($inviter_id);
                     if (!empty($invite_user)) {
-                        $data['pid'] = $inviter_id; //邀请者id
+                        $data['pid'] = $invite_user['id']; //邀请者id
                     } else {
                         return $this->failJSON('邀请人不存在');
                     }
