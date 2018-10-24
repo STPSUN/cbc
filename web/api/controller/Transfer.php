@@ -51,7 +51,7 @@ class Transfer extends ApiBase
     }
 
     /**
-     * 挂卖  
+     * 挂卖
      * @param user_id int
      * @param number float 数量
      */
@@ -65,6 +65,7 @@ class Transfer extends ApiBase
         $data = $m->field('price_now,price_top top,price_low low,create_at')->order('id desc')->find();
         $top = $data['top'];
         $low = $data['low'];
+        $sysM = new \web\common\model\sys\SysParameterModel();
         $this->forbiddenTime($sysM);
         $number = $this->_post('number');
         if($number<=0) return $this->failJSON('请输入正确的挂卖数量');
