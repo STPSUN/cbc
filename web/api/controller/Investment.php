@@ -9,6 +9,7 @@
 
 namespace web\api\controller;
 
+// use think\Cache;
 
 class Investment extends ApiBase
 {
@@ -40,19 +41,7 @@ class Investment extends ApiBase
     }
 
 
-    /**
-     * 获取外网行情
-     */
-    public function getCoinInfo(){
-        $type = $this->_post('type');
-        $HotApi = new \web\common\utils\HotApi();
-        $list = $HotApi->get_detail_merged($type);
-        $all = $HotApi->get_common_currencys();
-        $s = $HotApi->get_common_symbols();
-        print_r($list);
-        print_r($all);
-        print_r($s);
-    }
+    
 
 
     /**

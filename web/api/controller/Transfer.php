@@ -421,6 +421,55 @@ class Transfer extends ApiBase
     }
 
     /**
+     * 获取外网行情
+     */
+    public function getCoinInfo(){
+        $user_id = $this->user_id;
+        if($user_id <= 0) return $this->failData('请登录');
+        $payM = new \addons\member\model\PayConfig();
+        $redis = \think\Cache::connect(\think\Config::get('global_cache'));
+        $arr = $redis->get('hotapi_price');
+        if(!$arr){
+            $sysM = new \web\common\model\sys\SysParameterModel();
+            $price = $sysM->getValByName('usdt_price');
+            $type = $this->_post('type');
+            $HotApi = new \web\common\utils\HotApi();
+            $list = ['btcusdt','ethusdt','xrpusdt','neousdt','eosusdt'];
+            $arr = [];
+            foreach ($list as $key => $value) {
+                $info = $HotApi->get_detail_merged($value);
+                if($info['success']&&$info['data']['status']=='ok'){
+                    $tmp['price'] = bcmul($price, $info['data']['tick']['close'],2);
+                    $tmp['difference'] = bcmul($price, ($info['data']['tick']['close']-$info['data']['tick']['open']),2);
+                    if($info['data']['tick']['close']-$info['data']['tick']['open']>0){
+                        $tmp['type'] = 1;
+                    }else{
+                        $tmp['type'] = 0;
+                    }
+                    if($value=='btcusdt'){
+                        $tmp['name'] = 'BTC';
+                    }elseif($value=='ethusdt'){
+                        $tmp['name'] = 'ETH';
+                    }elseif($value=='xrpusdt'){
+                        $tmp['name'] = 'XRP';
+                    }elseif($value=='neousdt'){
+                        $tmp['name'] = 'NEO';
+                    }elseif($value=='eosusdt'){
+                        $tmp['name'] = 'EOS';
+                    }
+                    $arr[] = $tmp;
+                }
+            }
+            $tmp['type'] = 1;
+            $tmp['price'] = $price;
+            $tmp['difference'] = 0;
+            $tmp['name'] = 'USDT';
+            $arr[] = $tmp;
+            $redis->set('hotapi_price', json_encode($arr), 60);
+        }
+        $this->successJSON($arr);
+    }
+    /**
      * 订单详情
      * @param trad_id int 
      * @return pay_password string 
@@ -486,7 +535,6 @@ class Transfer extends ApiBase
         $trading['is_auth'] = $user['is_auth'];
         $trading['order_count'] = $count;
         $this->successJSON($trading);
-
     }
 
     

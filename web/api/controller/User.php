@@ -153,7 +153,7 @@ class User extends ApiBase
         $phone = $this->_post('phone');
 //        $time = $this->_post('time');
         $type = $this->_post('type');
-        $time = 120;
+        $time = 60;
         if(empty($type))
             $type = 1;//注册验证码
         $m = new \addons\member\model\VericodeModel();
