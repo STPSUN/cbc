@@ -36,6 +36,7 @@ class Investment extends ApiBase
         $data['interset'] = $data['interset'] + $int;
         $data['today'] = $start;
         $data['list'] = $list;
+        $data['info'] = $this->getCoinInfo();
         $this->successJSON($data);
     }
 
@@ -43,15 +44,26 @@ class Investment extends ApiBase
     /**
      * 获取外网行情
      */
-    public function getCoinInfo(){
-        $type = $this->_post('type');
-        $HotApi = new \web\common\utils\HotApi();
-        $list = $HotApi->get_detail_merged($type);
-        $all = $HotApi->get_common_currencys();
-        $s = $HotApi->get_common_symbols();
-        print_r($list);
-        print_r($all);
-        print_r($s);
+    private function getCoinInfo(){
+        $payM = new \addons\member\model\PayConfig();
+        $price = $sysM->getValByName('usdt_price');
+        $arr = $this->getGlobalCache('hotapi_price');
+        if(empty($arr)){
+            $type = $this->_post('type');
+            $HotApi = new \web\common\utils\HotApi();
+            $list = ['btcusdt','ethusdt','xrpusdt','neousdt','eosusdt'];
+            $arr = [];
+            foreach ($list as $key => $value) {
+                $info = $HotApi->get_detail_merged($value);
+                if($info['success']&&$info['data']['status']=='ok'){
+                    $tmp['price'] = bcmul($price, $info['data']['tick']['close'],2);
+                    $tmp['difference'] = bcmul($price, ($info['data']['tick']['close']-$info['data']['tick']['open']),2);
+                    $arr[$value] = $tmp;
+                }
+            }
+            $this->setGlobalCache('hotapi_price', json_encode($arr), 60);
+        }
+        return $arr;
     }
 
 
