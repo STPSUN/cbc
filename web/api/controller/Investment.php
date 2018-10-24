@@ -44,7 +44,7 @@ class Investment extends ApiBase
      * 获取外网行情
      */
     public function getCoinInfo(){
-        $HotApi = new web\common\utils\HotApi();
+        $HotApi = new \web\common\utils\HotApi();
         $list = $HotApi->get_detail_merged();
         print_r($list);
     }
