@@ -60,16 +60,31 @@ class Investment extends ApiBase
                 $info = $HotApi->get_detail_merged($value);
                 if($info['success']&&$info['data']['status']=='ok'){
                     $tmp['price'] = bcmul($price, $info['data']['tick']['close'],2);
+                    $tmp['difference'] = bcmul($price, ($info['data']['tick']['close']-$info['data']['tick']['open']),2);
                     if($info['data']['tick']['close']-$info['data']['tick']['open']>0){
-                        $tmp['difference'] = bcmul($price, ($info['data']['tick']['close']-$info['data']['tick']['open']),2);
+                        $tmp['type'] = 1;
                     }else{
-                        $tmp['difference'] = -bcmul($price, ($info['data']['tick']['close']-$info['data']['tick']['open']),2);
+                        $tmp['type'] = 0;
                     }
-                    $arr[$value] = $tmp;
+                    if($value=='btcusdt'){
+                        $tmp['name'] = 'BTC';
+                    }elseif($value=='ethusdt'){
+                        $tmp['name'] = 'ETH';
+                    }elseif($value=='xrpusdt'){
+                        $tmp['name'] = 'XRP';
+                    }elseif($value=='neousdt'){
+                        $tmp['name'] = 'NEO';
+                    }elseif($value=='eosusdt'){
+                        $tmp['name'] = 'EOS';
+                    }
+                    $arr[] = $tmp;
                 }
             }
-            $arr['usdt']['price'] = $price;
-            $arr['usdt']['difference'] = 0.00;
+            $tmp['type'] = 1;
+            $tmp['price'] = $price;
+            $tmp['difference'] = 0;
+            $tmp['name'] = 'USDT';
+            $arr[] = $tmp;
             $redis->set('hotapi_price', json_encode($arr), 60);
         }
         return $arr;
