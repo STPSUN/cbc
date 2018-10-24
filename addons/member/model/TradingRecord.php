@@ -46,11 +46,11 @@ class TradingRecord extends \web\common\model\BaseModel{
         $userM = new \addons\member\model\MemberAccountModel();
         $recordConfM  = new \addons\member\model\RecordConf();
         $sql = 'select a.*,c.coin_name,d.trade_type from '.$this->getTableName() . ' a,'.$coinM->getTableName().' c,'.$recordConfM->getTableName().' d where a.coin_id=c.id and a.type = d.id';
-        $sql = 'select s.*,u.username from ('.$sql.') as s left join '.$userM->getTableName().' u on s.user_id=u.id';
+        $sql = 'select s.*,u.phone username from ('.$sql.') as s left join '.$userM->getTableName().' u on s.user_id=u.id';
         if($filter != ''){
             $sql = 'select '.$fileds.' from ('.$sql.') as tab where '.$filter;
         }
-        $sql = 'select t.*,p.username to_username from ('.$sql.') as t left join '.$userM->getTableName().' p on t.to_user_id=p.id';
+        $sql = 'select t.*,p.phone to_username from ('.$sql.') as t left join '.$userM->getTableName().' p on t.to_user_id=p.id';
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
     }
     
@@ -63,7 +63,6 @@ class TradingRecord extends \web\common\model\BaseModel{
         if($filter != ''){
             $sql = 'select * from ('.$sql.') as y where '.$filter;
         }
-        // echo $sql;exit();
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
     }
 
