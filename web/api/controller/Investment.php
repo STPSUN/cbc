@@ -49,7 +49,7 @@ class Investment extends ApiBase
         $payM = new \addons\member\model\PayConfig();
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $arr = json_encode($redis->get('hotapi_price'));
-        if(empty($arr)){
+        if(!$arr){
             $sysM = new \web\common\model\sys\SysParameterModel();
             $price = $sysM->getValByName('usdt_price');
             $type = $this->_post('type');
