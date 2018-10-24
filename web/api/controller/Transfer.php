@@ -417,15 +417,13 @@ class Transfer extends ApiBase
             $count = $tradingM->where(['user_id'=>$value['user_id']])->count();
             $list[$key]['count'] = $count;
         }
-        $data['list'] = $list;
-        $data['info'] = $this->getCoinInfo();
-        $this->successJSON($data);
+        $this->successJSON($list);
     }
 
     /**
      * 获取外网行情
      */
-    private function getCoinInfo(){
+    public function getCoinInfo(){
         $payM = new \addons\member\model\PayConfig();
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $arr = $redis->get('hotapi_price');
@@ -467,7 +465,7 @@ class Transfer extends ApiBase
             $arr[] = $tmp;
             $redis->set('hotapi_price', json_encode($arr), 60);
         }
-        return $arr;
+        $this->successJSON($arr);
     }
     /**
      * 订单详情
