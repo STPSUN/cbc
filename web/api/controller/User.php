@@ -14,6 +14,7 @@ use addons\member\model\MemberAccountModel;
 use addons\member\model\PayConfig;
 use think\Request;
 use think\Validate;
+use web\api\service\AwardService;
 use web\api\service\MemberService;
 
 class User extends ApiBase
@@ -471,6 +472,13 @@ class User extends ApiBase
         $memberS = new MemberService();
 
         $memberS->memberLevelUpdate($this->user_id);
+        return $this->successJSON();
+    }
+
+    public function award()
+    {
+        $awardS = new AwardService();
+        $awardS->sendTradingReward(1,59);
         return $this->successJSON();
     }
 }
