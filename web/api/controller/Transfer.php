@@ -67,20 +67,19 @@ class Transfer extends ApiBase
         $low = $sysM->getValByName('low_price');
         $this->forbiddenTime($sysM);
         $number = $this->_post('number');
+        if($number<=0) return $this->failJSON('请输入正确的挂卖数量');
         $price = $this->_post('price');
         $code = $this->_post('code');
         $verifyM = new \addons\member\model\VericodeModel();
         $_verify = $verifyM->VerifyCode($code, $user['phone'],6);
         if(empty($_verify)) return $this->failJSON('验证码失效,请重新发送');
-
         if($price>$top)  return $this->failJSON('价格大于今日最高价');
         if($price<$low)  return $this->failJSON('价格小于今日最低价');
         $amount = bcmul($number, $price,4);
-        if($amount<=0) return $this->failJSON('请输入正确的挂买金额');
+        if($amount<=0) return $this->failJSON('请输入正确的挂卖金额');
         $payM = new \addons\member\model\PayConfig();
         $paylist = $payM->getUserPay($user_id);
         if(!$paylist)  return $this->failJSON('没有设置支付方式，请设置');
-        
         $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
         $fee_num = bcmul($amount,($rate/100),4);
         $total = $amount+$fee_num;
@@ -351,7 +350,6 @@ class Transfer extends ApiBase
      */
     public function orderDetail(){
         $user_id = $this->user_id;
-        $user_id = 56;
         if($user_id <= 0) return $this->failData('请登录');
         $tradingM = new \addons\member\model\Trading();
         $trad_id = $this->_post('trad_id');
