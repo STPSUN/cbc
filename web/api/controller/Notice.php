@@ -72,8 +72,8 @@ class Notice extends ApiBase
         $arr = [];
         foreach ($list as $key => $value) {
             $tmp = [];
-            $tmp[] = strtotime($value['create_at']).'000';
-            $tmp[] = $value['price_now'];
+            $tmp[] = (float)(strtotime($value['create_at']).'000');
+            $tmp[] = (float)$value['price_now'];
             $arr[] = $tmp;
         }
         $data['list'] = $arr;
