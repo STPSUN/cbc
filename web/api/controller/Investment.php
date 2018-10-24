@@ -60,7 +60,7 @@ class Investment extends ApiBase
                 'amount'        =>$amount,
                 'month_fee'     =>$info['amount_interest'],
                 'financing_time'=>$info['time_length'],
-                'interset'      =>$amount*$info['amount_interest']/100,
+                'interset'      =>bcmul(($amount*$info['amount_interest']/100*$info['time_length']/30), 1,4),
                 'start_at'      =>date('Y-m-d H:i:s'),
                 'end_at'        =>date('Y-m-d H:i:s',strtotime('+'.$info['time_length'].' days')),
                 'update_at'     =>date('Y-m-d H:i:s'),

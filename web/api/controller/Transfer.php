@@ -373,13 +373,41 @@ class Transfer extends ApiBase
     public function TradingHall(){
         $user_id = $this->user_id;
         if($user_id <= 0) return $this->failData('请登录');
+
+        $sort = $this->_post('sort_type');
+        if($sort==1){
+            $map['amount'] = ['lt',100];
+        }elseif($sort==2){
+            $map['amount'] = ['between',[100,1000]];
+        }elseif($sort==3){
+            $map['amount'] = ['gt',1000];
+        }
+
+        $pay_type = $this->_post('pay_type');
+        if($pay_type==1){
+            $map['p.type'] = 1;
+        }elseif($pay_type==2){
+            $map['p.type'] = 2;
+        }elseif($pay_type==3){
+            $map['p.type'] = 3;
+        }
+
+        $order = 'id desc';
+        $level_type = $this->_post('level_type');
+        if($level_type==1){
+            $order = 'user_level desc';
+        }elseif($level_type==2){
+            $order = 'user_level asc';
+        }
+        $map['type'] = 0;
+        $type = $this->_post('type')?$this->_post('type'):15;
         $tradingM = new \addons\member\model\Trading();
         $row = $this->_post('row')?$this->_post('row'):15;
         $page = $this->_post('page')?$this->_post('page')*$row:0;
         if($this->_post('page')>=3){
             return $this->successJSON();
         }
-        $list = $tradingM->getOrderList(['type'=>0],$page,$row);
+        $list = $tradingM->getOrderList($map,$page,$row,$order);
         foreach ($list as $key => $value) {
             if($value['user_id']==$user_id){
                 $list[$key]['pay_type'] = 1;
@@ -636,14 +664,9 @@ class Transfer extends ApiBase
      */
     public function getUserPayAll(){
         $m = new \addons\member\model\PayConfig();
-        if($uid){
-            $user_id = $uid;
-            return $m->getUserPay($user_id);
-        }else{
-            $user_id = $this->user_id;
-            if(empty($user_id)){
-                return $this->failJSON('missing arguments');
-            }
+        $user_id = $this->user_id;
+        if(empty($user_id)){
+            return $this->failJSON('missing arguments');
         }
         try{
             $data = $m->getUserPay($user_id);
@@ -653,6 +676,29 @@ class Transfer extends ApiBase
         }
     }
 
+    /**
+     * 发送通知卖家短信
+     */
+    public function sendSellMessage(){
+        $user_id = $this->user_id;
+        if($user_id <= 0) return $this->failData('请登录');
+        $tradingM = new \addons\member\model\Trading();
+        $userM = new \addons\member\model\MemberAccountModel();
+        $pay_password = $this->_post('pay_password');
+        $user = $this->checkPwd($user_id,$pay_password);
+        $trad_id = $this->_post('trad_id');
+        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+        $trading = $tradingM->findTrad($trad_id);
+        if(!$trading) return $this->failJSON('订单不存在');
+        if($user_id!=$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
+        $user = $userM->getDetail($trading['user_id']);
+        $msg = '【CBC】尊敬的'.$name.'先生/女士，您的订单在CBC系统出售成功，买家已经打款，请您在收到款之后去平台确认发货。';
+
+    }
+
+    /**
+     * 获取支付方式
+     */
     public function getUserPayList($uid){
         $m = new \addons\member\model\PayConfig();
         return $m->getUserPay($uid);
