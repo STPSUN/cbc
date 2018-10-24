@@ -458,7 +458,6 @@ class Transfer extends ApiBase
         $trading['head_img'] = $user['head_img'];
         $trading['is_auth'] = $user['is_auth'];
         $trading['order_count'] = $count;
-        $sysM = new \web\common\model\sys\SysParameterModel();
         $this->successJSON($trading);
 
     }
