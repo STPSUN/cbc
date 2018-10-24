@@ -39,6 +39,17 @@ class Investment extends ApiBase
         $this->successJSON($data);
     }
 
+
+    /**
+     * 获取外网行情
+     */
+    public function getCoinInfo(){
+        $HotApi = new web\common\utils\HotApi();
+        $list = $HotApi->get_detail_merged();
+        print_r($list);
+    }
+
+
     /**
      * 理财  
      * @param financial_id int
