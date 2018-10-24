@@ -9,6 +9,7 @@
 
 namespace web\api\controller;
 
+// use think\Cache;
 
 class Investment extends ApiBase
 {
@@ -46,7 +47,8 @@ class Investment extends ApiBase
      */
     private function getCoinInfo(){
         $payM = new \addons\member\model\PayConfig();
-        $arr = $this->getGlobalCache('hotapi_price');
+        $redis = \think\Cache::connect(\think\Config::get('global_cache'));
+        $arr = json_encode($redis->get('hotapi_price'));
         if(empty($arr)){
             $sysM = new \web\common\model\sys\SysParameterModel();
             $price = $sysM->getValByName('usdt_price');
@@ -58,13 +60,17 @@ class Investment extends ApiBase
                 $info = $HotApi->get_detail_merged($value);
                 if($info['success']&&$info['data']['status']=='ok'){
                     $tmp['price'] = bcmul($price, $info['data']['tick']['close'],2);
-                    $tmp['difference'] = bcmul($price, ($info['data']['tick']['close']-$info['data']['tick']['open']),2);
+                    if($info['data']['tick']['close']-$info['data']['tick']['open']>0){
+                        $tmp['difference'] = bcmul($price, ($info['data']['tick']['close']-$info['data']['tick']['open']),2);
+                    }else{
+                        $tmp['difference'] = -bcmul($price, ($info['data']['tick']['close']-$info['data']['tick']['open']),2);
+                    }
                     $arr[$value] = $tmp;
                 }
             }
             $arr['usdt']['price'] = $price;
             $arr['usdt']['difference'] = 0.00;
-            $this->setGlobalCache('hotapi_price', json_encode($arr), 60);
+            $redis->set('hotapi_price', json_encode($arr), 60);
         }
         return $arr;
     }
