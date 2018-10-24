@@ -39,9 +39,8 @@ class Transfer extends ApiBase
     public function getToday(){
         $user_id = $this->user_id;
         if($user_id <= 0) return $this->failData('请登录');
-        $sysM = new \web\common\model\sys\SysParameterModel();
-        $data['top'] = $sysM->getValByName('top_price');
-        $data['low'] = $sysM->getValByName('low_price');
+        $m = new \addons\config\model\Quotation();
+        $data = $m->field('price_now,price_top top,price_low low,create_at')->order('id desc')->find();
         return $this->successJSON($data);
     }
     /**
@@ -62,9 +61,10 @@ class Transfer extends ApiBase
         $pay_password = $this->_post('pay_password');
         $user = $this->checkPwd($user_id,$pay_password);
         if($user['is_auth']!=1)  return $this->failJSON('没有实名认证无法挂卖');
-        $sysM = new \web\common\model\sys\SysParameterModel();
-        $top = $sysM->getValByName('top_price');
-        $low = $sysM->getValByName('low_price');
+        $m = new \addons\config\model\Quotation();
+        $data = $m->field('price_now,price_top top,price_low low,create_at')->order('id desc')->find();
+        $top = $data['top'];
+        $low = $data['low'];
         $this->forbiddenTime($sysM);
         $number = $this->_post('number');
         if($number<=0) return $this->failJSON('请输入正确的挂卖数量');
