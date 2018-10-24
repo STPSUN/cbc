@@ -27,7 +27,7 @@ class Notice extends ApiBase
         }
         $map['type'] = 0;
         $page = $this->_post('page')?$this->_post('page'):0;
-        $rows = $this->_post('rows')?$this->_post('rows'):0;
+        $rows = $this->_post('rows')?$this->_post('rows'):15;
         $page = $page*$rows;
         $rows = $m->getNoticeList($map,$page,$rows, 'id desc');
         return $this->successJSON($rows);
@@ -62,7 +62,6 @@ class Notice extends ApiBase
         $m = new \addons\config\model\Quotation();
         $list = $m->field('price_now,create_at')->select();
         $now = $m->field('price_now,price_top,price_low,create_at')->order('id desc')->find();
-
         $month = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 month')),NOW_DATETIME]]])->order('id desc')->avg('price_now');
         $week = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 week')),NOW_DATETIME]]])->order('id desc')->avg('price_now');
         $yesterday = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 days')),date('Y-m-d',strtotime('-1 days')).' 23:59:59']]])->order('id desc')->avg('price_now');
@@ -70,8 +69,14 @@ class Notice extends ApiBase
         $data['month'] = $month;
         $data['week'] = $week;
         $data['yesterday'] = $yesterday;
-        $data['list'] = $list;
+        $arr = [];
+        foreach ($list as $key => $value) {
+            $tmp = [];
+            $tmp[] = strtotime($value['create_at']).'000';
+            $tmp[] = $value['price_now'];
+            $arr[] = $tmp;
+        }
+        $data['list'] = $arr;
         return $this->successJSON($data);
-
     }
 }
