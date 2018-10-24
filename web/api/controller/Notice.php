@@ -66,7 +66,6 @@ class Notice extends ApiBase
         $month = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 month')),NOW_DATETIME]]])->order('id desc')->avg('price_now');
         $week = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 week')),NOW_DATETIME]]])->order('id desc')->avg('price_now');
         $yesterday = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 days')),date('Y-m-d',strtotime('-1 days')).' 23:59:59']]])->order('id desc')->avg('price_now');
-        // echo 
         $data['now'] = $now;
         $data['month'] = $month;
         $data['week'] = $week;
