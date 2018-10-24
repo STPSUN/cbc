@@ -351,6 +351,7 @@ class Transfer extends ApiBase
      */
     public function orderDetail(){
         $user_id = $this->user_id;
+        $user_id = 56;
         if($user_id <= 0) return $this->failData('请登录');
         $tradingM = new \addons\member\model\Trading();
         $trad_id = $this->_post('trad_id');
@@ -360,16 +361,34 @@ class Transfer extends ApiBase
         if(!($user_id==$trading['user_id']||$user_id==$trading['to_user_id'])) return $this->failJSON('该订单不是您的订单');
         $userM = new \addons\member\model\MemberAccountModel();
         if($user_id==$trading['user_id']){
-            $trading['play'] = 1;
+            $trading['pay_type'] = 1;
             $user = $userM->getDetail($trading['user_id']);
             $trading['phone'] = $user['phone'];
-            $trading['pay'] = $this->getUserPayAll($trading['user_id']);
+            $list = $this->getUserPayList($trading['to_user_id']);
         }else{
-            $trading['play'] = 0;
+            $trading['pay_type'] = 0;
             $user = $userM->getDetail($trading['user_id']);
             $trading['phone'] = $user['phone'];
-            $trading['pay'] = $this->getUserPayAll($trading['to_user_id']);
+            $list = $this->getUserPayList($trading['user_id']);
         }
+        $tmp = [];
+        foreach ($list as $key => $value) {
+            if($value['type']==1){
+                $tmp['wechat_number'] = $value['account']; 
+                $tmp['wechat_name'] = $value['name']; 
+                $tmp['wechat_qrcode'] = $value['qrcode']; 
+            }elseif($value['type']==2){
+                $tmp['alipay_number'] = $value['account']; 
+                $tmp['alipay_name'] = $value['name']; 
+                $tmp['alipay_qrcode'] = $value['qrcode']; 
+            }elseif($value['type']==3){
+                $tmp['bank_name'] = $value['bank_name']; 
+                $tmp['bank_address'] = $value['bank_address']; 
+                $tmp['bank_number'] = $value['account']; 
+                $tmp['real_name'] = $value['name']; 
+            }
+        }
+        $trading['pay'] = $tmp;
         $this->successJSON($trading);
     }
 
@@ -553,7 +572,7 @@ class Transfer extends ApiBase
      * 获取收款方式
      * @return type
      */
-    public function getUserPayAll($uid=false){
+    public function getUserPayAll(){
         $m = new \addons\member\model\PayConfig();
         if($uid){
             $user_id = $uid;
@@ -572,6 +591,10 @@ class Transfer extends ApiBase
         }
     }
 
+    public function getUserPayList($uid){
+        $m = new \addons\member\model\PayConfig();
+        return $m->getUserPay($uid);
+    }
 
     /**
      * 定时器访问
