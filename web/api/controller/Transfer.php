@@ -184,25 +184,30 @@ class Transfer extends ApiBase
         $user_id = $this->user_id;
         if($user_id <= 0) return $this->failData('请登录');
         $tradingM = new \addons\member\model\Trading();
-        $trad_id = $this->_post('trad_id');
-        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
-        $trading = $tradingM->findTrad($trad_id);
-        if(!$trading) return $this->failJSON('订单不存在');
-        if($user_id!=$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
-        if($trading['type']!=1) return $this->failJSON('订单状态错误');
-        $pay_password = $this->_post('pay_password');
-        $this->checkPwd($user_id,$pay_password);
+        try{
+            $trad_id = $this->_post('trad_id');
+            if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+            $trading = $tradingM->findTrad($trad_id);
+            if(!$trading) return $this->failJSON('订单不存在');
+            if($user_id!=$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
+            if($trading['type']!=1) return $this->failJSON('订单状态错误');
+            $pay_password = $this->_post('pay_password');
+            $this->checkPwd($user_id,$pay_password);
 
-        $qrcode = $this->_post('file');
-        $savePath = 'transaction/proof/'.$user_id.'/';
-        $data = $this->base_img_upload($qrcode, $user_id, $savePath);
-        if(!$data['success']) return $this->failJSON('上传付款凭证失败');
-        $trading['type'] = 2;
-        $trading['voucher'] = $data['path'];
-        $trading['update_time'] = NOW_DATETIME;
-        $res = $tradingM->save($trading);
-        if(!$res) return $this->failJSON('订单保存失败');
-        return $this->successJSON('上传打款凭证成功');
+            $qrcode = $this->_post('file');
+            $savePath = 'transaction/proof/'.$user_id.'/';
+            $data = $this->base_img_upload($qrcode, $user_id, $savePath);
+            if(!$data['success']) return $this->failJSON('上传付款凭证失败');
+            $trading['type'] = 2;
+            $trading['voucher'] = $data['path'];
+            $trading['update_time'] = NOW_DATETIME;
+            $res = $tradingM->save($trading);
+            if(!$res) return $this->failJSON('订单保存失败');
+            return $this->successJSON('上传打款凭证成功');
+        }catch(\Exception $e){
+            return $this->successJSON($e->getMessage());
+        }
+            
     }
 
 
