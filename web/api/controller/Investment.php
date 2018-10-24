@@ -49,7 +49,7 @@ class Investment extends ApiBase
         $payM = new \addons\member\model\PayConfig();
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $arr = $redis->get('hotapi_price');
-        $arr = json_decode($redis->get('hotapi_price'));
+        // $arr = json_decode($redis->get('hotapi_price'));
 
         var_dump($arr);
         if(!$arr){
