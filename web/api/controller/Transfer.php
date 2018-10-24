@@ -459,7 +459,6 @@ class Transfer extends ApiBase
         $trading['is_auth'] = $user['is_auth'];
         $trading['order_count'] = $count;
         $sysM = new \web\common\model\sys\SysParameterModel();
-        $trading['price'] = $sysM->getValByName('cbc_price');
         $this->successJSON($trading);
 
     }
