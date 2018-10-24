@@ -18,11 +18,42 @@ class Investment extends ApiBase
      */
     public function getInvestmentList(){
         $user_id = $this->user_id;
+        $user_id = 60;
         if(!$user_id) return $this->failJSON("请登录");
         $financialM = new \web\common\model\sys\FinancialModel();
         $list = $financialM->getDataList();
-        $this->successJSON($list);
+        $finaM = new \addons\member\model\Financial();
+        $data['sum'] = $finaM->where(['user_id'=>$user_id])->sum('amount')+0;
+        $data['interset'] = $finaM->where(['user_id'=>$user_id,'status'=>1])->sum('interset');
+        $act = $finaM->where(['user_id'=>$user_id,'status'=>0])->select();
+        $start = 0;
+        $int = 0;
+        foreach ($act as $key => $value) {
+            $day = ceil((time()-strtotime($value['start_at']))/86400);
+            $int += bcmul($value['interset']/$value['financing_time']*$day, 1,4);
+            $start += bcmul($value['interset']/$value['financing_time'], 1,4);
+        }
+        $data['interset'] = $data['interset'] + $int;
+        $data['today'] = $start;
+        $data['list'] = $list;
+        $this->successJSON($data);
     }
+
+
+    /**
+     * 获取外网行情
+     */
+    public function getCoinInfo(){
+        $type = $this->_post('type');
+        $HotApi = new \web\common\utils\HotApi();
+        $list = $HotApi->get_detail_merged($type);
+        $all = $HotApi->get_common_currencys();
+        $s = $HotApi->get_common_symbols();
+        print_r($list);
+        print_r($all);
+        print_r($s);
+    }
+
 
     /**
      * 理财  
@@ -41,7 +72,7 @@ class Investment extends ApiBase
         if(!$info) return $this->failJSON("找不到理财方式");
         $amount = $this->_post('amount');
         if($amount<$info['amount_limit']) return $this->failJSON("起始投资金额少于".$info['amount_limit']);
-        $type = 2;
+        $type = 4;
         $userAsset = $balanceM->getBalanceByType($user_id,$type);
         if($amount>$userAsset['amount'])  return $this->failJSON("你的资金少于".$amount);
         $balanceM->startTrans();
@@ -60,7 +91,7 @@ class Investment extends ApiBase
                 'amount'        =>$amount,
                 'month_fee'     =>$info['amount_interest'],
                 'financing_time'=>$info['time_length'],
-                'interset'      =>$amount*$info['amount_interest']/100,
+                'interset'      =>bcmul(($amount*$info['amount_interest']/100*$info['time_length']/30), 1,4),
                 'start_at'      =>date('Y-m-d H:i:s'),
                 'end_at'        =>date('Y-m-d H:i:s',strtotime('+'.$info['time_length'].' days')),
                 'update_at'     =>date('Y-m-d H:i:s'),
@@ -103,27 +134,28 @@ class Investment extends ApiBase
         if($info['user_id']!=$user_id) return $this->failJSON("不是你的理财订单");
         if(time()<strtotime($info['end_at'])) return $this->failJSON("理财时间还没结束");
         $balanceM->startTrans();
-        $type = 2;
+        $coin_id = 2;
+        $type = 12;
         $amount = $info['amount'];
-        $userAsset = $balanceM->updateBalance($user_id,$type,$amount,1);
+        $userAsset = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
         if(!$userAsset){
             $balanceM->rollback();
             return $this->failJSON("增加资金错误");
         }
-        $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $type, 4,1, $user_id,'用户理财');
+        $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $coin_id, $type,1, $user_id,'用户理财');
         if(empty($in_record_id)){
             $balanceM->rollback();
             return $this->failJSON('更新余额失败');
         }
 
-        $type = 4;
+        $coin_id = 4;
         $amount = $info['interset'];
-        $userAsset = $balanceM->updateBalance($user_id,$type,$amount,1);
+        $userAsset = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
         if(!$userAsset){
             $balanceM->rollback();
             return $this->failJSON("增加资金错误");
         }
-        $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $type, 4,1, $user_id,'用户理财');
+        $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $coin_id, $type,1, $user_id,'用户理财');
         if(empty($in_record_id)){
             $balanceM->rollback();
             return $this->failJSON('更新余额失败');

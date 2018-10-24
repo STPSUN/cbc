@@ -60,7 +60,7 @@ class Notice extends ApiBase
      */
     public function getQuotation(){
         $m = new \addons\config\model\Quotation();
-        $list = $m->field('price_now,create_at')->select();
+        $list = $m->field('price_now,create_at')->order('create_at asc')->select();
         $now = $m->field('price_now,price_top,price_low,create_at')->order('id desc')->find();
         $month     = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 month')),NOW_DATETIME]]])->order('id desc')->avg('price_now');
         $week      = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 week')),NOW_DATETIME]]])->order('id desc')->avg('price_now');
@@ -72,8 +72,8 @@ class Notice extends ApiBase
         $arr = [];
         foreach ($list as $key => $value) {
             $tmp = [];
-            $tmp[] = strtotime($value['create_at']).'000';
-            $tmp[] = $value['price_now'];
+            $tmp[] = (float)(strtotime($value['create_at']).'000');
+            $tmp[] = (float)$value['price_now'];
             $arr[] = $tmp;
         }
         $data['list'] = $arr;

@@ -27,15 +27,22 @@ class Trading extends \web\common\model\BaseModel{
     /**
      * 获取订单列表
      */
-    public function getOrderList($map,$page,$size){
+    public function getOrderList($map,$page,$size,$order = 'id desc'){
         if(!isset($map['status']))  $map['status'] = 0;
         if(isset($map['type']))     $map['t.type'] = $map['type'];
         if(isset($map['user_id']))  $map['t.user_id'] = $map['user_id'];
         unset($map['type']);
         unset($map['user_id']);
-        $list =  $this->alias('t')->field('t.*,m.phone,m.user_level,m.username,m.head_img,m.is_auth')->where($map)
-        ->join("member_account m",'m.id=t.user_id','LEFT')
-        ->limit($page,$size)->select();
+        if(isset($map['p.type'])){
+            $list =  $this->alias('t')->field('t.*,m.phone,m.credit_level user_level,m.username,m.head_img,m.is_auth')->where($map)
+            ->join("member_account m",'m.id=t.user_id','LEFT')
+            ->join("member_pay_config p",'p.user_id=t.user_id','LEFT')->order($order)
+            ->limit($page,$size)->select();
+        }else{
+            $list =  $this->alias('t')->field('t.*,m.phone,m.credit_level user_level,m.username,m.head_img,m.is_auth')->where($map)
+            ->join("member_account m",'m.id=t.user_id','LEFT')->order($order)
+            ->limit($page,$size)->select();
+        }
         foreach ($list as $key => $value) {
             $info = $this->table('tp_member_pay_config')->where(['user_id'=>$value['user_id']])->select();
             foreach ($info as $k => $v) {
