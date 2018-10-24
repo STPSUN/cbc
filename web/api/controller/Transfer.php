@@ -424,6 +424,8 @@ class Transfer extends ApiBase
      * 获取外网行情
      */
     public function getCoinInfo(){
+        $user_id = $this->user_id;
+        if($user_id <= 0) return $this->failData('请登录');
         $payM = new \addons\member\model\PayConfig();
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $arr = $redis->get('hotapi_price');
