@@ -34,12 +34,12 @@ class Trading extends \web\common\model\BaseModel{
         unset($map['type']);
         unset($map['user_id']);
         if(isset($map['p.type'])){
-            $list =  $this->alias('t')->field('t.*,m.phone,m.user_level,m.username,m.head_img,m.is_auth')->where($map)
+            $list =  $this->alias('t')->field('t.*,m.phone,m.credit_level user_level,m.username,m.head_img,m.is_auth')->where($map)
             ->join("member_account m",'m.id=t.user_id','LEFT')
             ->join("member_pay_config p",'p.user_id=t.user_id','LEFT')->order($order)
             ->limit($page,$size)->select();
         }else{
-            $list =  $this->alias('t')->field('t.*,m.phone,m.user_level,m.username,m.head_img,m.is_auth')->where($map)
+            $list =  $this->alias('t')->field('t.*,m.phone,m.credit_level user_level,m.username,m.head_img,m.is_auth')->where($map)
             ->join("member_account m",'m.id=t.user_id','LEFT')->order($order)
             ->limit($page,$size)->select();
         }

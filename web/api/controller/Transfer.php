@@ -395,9 +395,9 @@ class Transfer extends ApiBase
         $order = 'id desc';
         $level_type = $this->_post('level_type');
         if($level_type==1){
-            $order = 'user_level desc';
+            $order = 'credit_level desc';
         }elseif($level_type==2){
-            $order = 'user_level asc';
+            $order = 'credit_level asc';
         }
         $map['type'] = 0;
         $type = $this->_post('type')?$this->_post('type'):15;
