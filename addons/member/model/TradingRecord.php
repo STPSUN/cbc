@@ -59,10 +59,11 @@ class TradingRecord extends \web\common\model\BaseModel{
         $userM = new \addons\member\model\MemberAccountModel();
         $sql = 'select a.*,c.name from '.$this->getTableName() . ' a,'.$c->getTableName().' c where a.asset_type=c.id';
         $sql = 'select '.$fileds.' from ('.$sql.') as tab';
-        $sql = 'select s.*,u.username,t.username as to_username from ('.$sql.') as s left join '.$userM->getTableName().' u on s.user_id=u.id left join '.$userM->getTableName().' t on s.to_user_id=t.id';
+        $sql = 'select s.*,u.phone username,t.phone as to_username from ('.$sql.') as s left join '.$userM->getTableName().' u on s.user_id=u.id left join '.$userM->getTableName().' t on s.to_user_id=t.id';
         if($filter != ''){
             $sql = 'select * from ('.$sql.') as y where '.$filter;
         }
+        // echo $sql;exit();
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
     }
 

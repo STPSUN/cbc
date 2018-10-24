@@ -62,8 +62,8 @@ class Notice extends ApiBase
         $m = new \addons\config\model\Quotation();
         $list = $m->field('price_now,create_at')->select();
         $now = $m->field('price_now,price_top,price_low,create_at')->order('id desc')->find();
-        $month = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 month')),NOW_DATETIME]]])->order('id desc')->avg('price_now');
-        $week = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 week')),NOW_DATETIME]]])->order('id desc')->avg('price_now');
+        $month     = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 month')),NOW_DATETIME]]])->order('id desc')->avg('price_now');
+        $week      = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 week')),NOW_DATETIME]]])->order('id desc')->avg('price_now');
         $yesterday = $m->where(['create_at'=>['between',[date('Y-m-d',strtotime('-1 days')),date('Y-m-d',strtotime('-1 days')).' 23:59:59']]])->order('id desc')->avg('price_now');
         $data['now'] = $now;
         $data['month'] = $month;
@@ -77,6 +77,8 @@ class Notice extends ApiBase
             $arr[] = $tmp;
         }
         $data['list'] = $arr;
+        $sysM = new \web\common\model\sys\SysParameterModel();
+        $data['usdt'] = $sysM->getValByName('usdt_price');
         return $this->successJSON($data);
     }
 }
