@@ -25,21 +25,22 @@
             <!--0=转账，1=OTC交易，2=提现转出，3=后台拨币, 4=注册  ,5=复投，6=补差升级 10=推荐奖金，11=对碰奖金，12=管理奖金，13=领导奖金，14=报单中心奖金，15=复投奖金-->
             <select name="type" id="type" class="form-control" style="width:120px">
                 <option value="">筛选记录类型</option>
-                <option value="0">转账</option>
-                <option value="2">提现</option>
-                <option value="3">后台拨币</option>
-                <option value="4">注册花费</option>
-                <option value="5">复投</option>
-                <option value="6">补差升级</option>
-                <option value="7">资产转换</option>
-                
+                <option value="1">转账</option>
+                <option value="2">激活码转账</option>
+                <option value="3">购买节点</option>
+                <option value="4">投资理财</option>
+                <option value="5">超级节点消费</option>
+                <option value="6">用户挂卖</option>
+                <option value="7">确认收款</option>
+                <option value="8">取消订单</option>
+                <!-- 
                 <option value="10">推荐奖金结算</option>
                 <option value="11">对碰奖金结算</option>
                 <option value="12">管理奖金结算</option>
                 <option value="13">领导奖金结算</option>
                 <option value="14">报单中心奖金结算</option>
                 <option value="15">复投奖金结算</option>
-                
+ -->                
                 
             </select>
         </span>
@@ -50,14 +51,14 @@
             <a href="javascript:void(0);" id="js_search" class="frm_input_append">
                 <i class="icon wb-search" title="搜索"></i>
             </a>
-            <input type="text" id="js_keyword" placeholder="请输入用户名称" value="" class="frm_input" />
+            <input type="text" id="js_keyword" placeholder="请输入手机号码" value="" class="frm_input" />
         </span>
     </div>
     <table id="grid-table">
         <thead>
             <tr>
-                <th data-options="field:'username',width:120, align:'center',sortable: true">用户名</th>
-                <th data-options="field:'to_username',width:120, align:'center',sortable: true">对方用户名</th>
+                <th data-options="field:'username',width:120, align:'center',sortable: true">手机手机号</th>
+                <th data-options="field:'to_username',width:120, align:'center',sortable: true">对方手机号</th>
                 <th data-options="field:'name',width:100, align:'center',sortable: true">资产类型</th>
                 <th data-options="field:'change_type',width:120, align:'center',formatter:fromatChangeType">变更类型</th>
                 <th data-options="field:'type',width:120, align:'center',formatter:fromatType">记录类型</th>
@@ -66,12 +67,10 @@
                 <th data-options="field:'after_amount',width:140, align:'center',sortable: true">变更后余额</th>
                 <th data-options="field:'remark',width:200, align:'center',sortable: true">备注</th>
                 <th data-options="field:'update_time',width:200, align:'center',sortable: true">更新时间</th>
-            
             </tr>
         </thead>
     </table>
 </div>
-
 {/block}
 {block name="script"}
 <script type="text/javascript" src="__STATIC__/monthPicker/dateRange.js"></script>
@@ -123,32 +122,34 @@
         if(row['id']){
             var text = '转账'
             if(value == 1)
-                text = 'OTC交易'
+                text = '转账'
             else if(value == 2)
-                text = '提现'
+                text = '激活码转账'
             else if(value == 3)
-                text = '后台拨币'
+                text = '购买节点'
             else if(value == 4)
-                text = '注册花费'
+                text = '投资理财'
             else if(value == 5)
-                text = '复投'
+                text = '超级节点消费'
             else if(value == 6)
-                text = '补差升级'
+                text = '用户挂卖'
             else if(value == 7)
-                text = '资产转换'
+                text = '确认收款'
+            else if(value == 8)
+                text = '取消订单'
             
-            else if(value == 10)
-                text = '推荐奖金'
-            else if(value == 11)
-                text = '对碰奖金'
-            else if(value == 12)
-                text = '管理奖金'
-            else if(value == 13)
-                text = '领导奖金'
-            else if(value == 14)
-                text = '报单中心奖金'
-            else if(value == 15)
-                text = '复投奖金'
+            // else if(value == 10)
+            //     text = '推荐奖金'
+            // else if(value == 11)
+            //     text = '对碰奖金'
+            // else if(value == 12)
+            //     text = '管理奖金'
+            // else if(value == 13)
+            //     text = '领导奖金'
+            // else if(value == 14)
+            //     text = '报单中心奖金'
+            // else if(value == 15)
+            //     text = '复投奖金'
 
             return text;
         }

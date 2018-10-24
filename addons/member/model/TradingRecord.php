@@ -21,7 +21,7 @@ class TradingRecord extends \web\common\model\BaseModel{
      * @param type $before_amount  更新前数量
      * @param type $after_amount   更新后数量
      * @param type $asset_type 资产类型：1=CBC，3=锁仓余额，4=激活码，5=今日总产
-     * @param type $type        记录类型：1=CBC转账，2=激活码转账 | 3 购买节点 4-投资理财 5-超级节点消费 6-用户挂卖 7-用户买入 8-用户挂卖-加入锁仓 9-用户买入-删除锁仓 10-用户取消-增加余额 11-用户取消-减少锁仓 12-系统取消-增加可用余额 13-系统取消订单-减少锁仓 14-系统确认收款 15-系统确认收款
+     * @param type $type        记录类型：1=CBC转账，2=激活码转账 | 3 购买节点 4-投资理财 5-超级节点消费 6-用户挂卖 7-确认收款 8-订单取消 
      * @param type $change_type 0 = 减少 ；1 = 增加
      * @param type $to_user_id      目标用户
      * @param type $remark      备注
@@ -46,11 +46,11 @@ class TradingRecord extends \web\common\model\BaseModel{
         $userM = new \addons\member\model\MemberAccountModel();
         $recordConfM  = new \addons\member\model\RecordConf();
         $sql = 'select a.*,c.coin_name,d.trade_type from '.$this->getTableName() . ' a,'.$coinM->getTableName().' c,'.$recordConfM->getTableName().' d where a.coin_id=c.id and a.type = d.id';
-        $sql = 'select s.*,u.username from ('.$sql.') as s left join '.$userM->getTableName().' u on s.user_id=u.id';
+        $sql = 'select s.*,u.phone username from ('.$sql.') as s left join '.$userM->getTableName().' u on s.user_id=u.id';
         if($filter != ''){
             $sql = 'select '.$fileds.' from ('.$sql.') as tab where '.$filter;
         }
-        $sql = 'select t.*,p.username to_username from ('.$sql.') as t left join '.$userM->getTableName().' p on t.to_user_id=p.id';
+        $sql = 'select t.*,p.phone to_username from ('.$sql.') as t left join '.$userM->getTableName().' p on t.to_user_id=p.id';
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
     }
     
@@ -59,7 +59,7 @@ class TradingRecord extends \web\common\model\BaseModel{
         $userM = new \addons\member\model\MemberAccountModel();
         $sql = 'select a.*,c.name from '.$this->getTableName() . ' a,'.$c->getTableName().' c where a.asset_type=c.id';
         $sql = 'select '.$fileds.' from ('.$sql.') as tab';
-        $sql = 'select s.*,u.username,t.username as to_username from ('.$sql.') as s left join '.$userM->getTableName().' u on s.user_id=u.id left join '.$userM->getTableName().' t on s.to_user_id=t.id';
+        $sql = 'select s.*,u.phone username,t.phone as to_username from ('.$sql.') as s left join '.$userM->getTableName().' u on s.user_id=u.id left join '.$userM->getTableName().' t on s.to_user_id=t.id';
         if($filter != ''){
             $sql = 'select * from ('.$sql.') as y where '.$filter;
         }

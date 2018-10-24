@@ -44,7 +44,7 @@ class Record extends \web\user\controller\AddonUserBase{
             $filter .= ' and (update_time <= \'' . $endDate . ' 23:59:59\')';
         $m = new \addons\member\model\TradingRecord();
         $total = $m->getTotal($filter);
-        $rows = $m->getDataList($this->getPageIndex(), $this->getPageSize(), $filter);
+        $rows = $m->getDataList($this->getPageIndex(), $this->getPageSize(), $filter,'*','id desc');
         $count_total = $m->getCountTotal($filter);
         return $this->toTotalDataGrid($total, $rows,$count_total);
     }
