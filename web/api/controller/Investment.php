@@ -62,6 +62,8 @@ class Investment extends ApiBase
                     $arr[$value] = $tmp;
                 }
             }
+            $arr['usdt']['price'] = $price;
+            $arr['usdt']['difference'] = 0.00;
             $this->setGlobalCache('hotapi_price', json_encode($arr), 60);
         }
         return $arr;
