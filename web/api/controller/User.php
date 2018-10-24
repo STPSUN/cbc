@@ -107,7 +107,8 @@ class User extends ApiBase
                 $inviter_id = $this->_post('inviter_id');
                 if (!empty($inviter_id)) {
                     //获取邀请者id
-                    $invite_user = $m->getDetail($inviter_id);
+//                    $invite_user = $m->getDetail($inviter_id);
+                    $invite_user = $m->getUserByPhone($inviter_id);
                     if (!empty($invite_user)) {
                         $data['pid'] = $inviter_id; //邀请者id
                     } else {
@@ -478,7 +479,12 @@ class User extends ApiBase
     public function award()
     {
         $awardS = new AwardService();
-        $awardS->sendTradingReward(1,59);
+        $awardS->tradingReward(100,59);
+        return $this->successJSON();
+    }
+
+    public function test()
+    {
         return $this->successJSON();
     }
 }
