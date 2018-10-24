@@ -46,10 +46,12 @@ class Investment extends ApiBase
     public function getCoinInfo(){
         $type = $this->_post('type');
         $HotApi = new \web\common\utils\HotApi();
-        $list = $HotApi->get_common_currencys($type);
+        $list = $HotApi->get_detail_merged($type);
         $all = $HotApi->get_common_currencys();
+        $s = $HotApi->get_common_symbols();
         print_r($list);
         print_r($all);
+        print_r($s);
     }
 
 
