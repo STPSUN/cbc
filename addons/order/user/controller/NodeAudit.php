@@ -51,14 +51,14 @@ class NodeAudit extends \web\user\controller\AddonUserBase {
                 $amount = $cbc['cbc_num'];
                 if($cbc['cbc_num']>$balanceData['amount']){
                     $balanceM->rollback();
-                    return $this->failData('用户金额少于'.$cbc);
+                    return $this->failData('用户金额少于'.$cbc['cbc_num']);
                 }
                 $userAsset = $balanceM->updateBalance($user_id,$type,$amount);
                 if(!$userAsset){
                     $balanceM->rollback();
                     return $this->failJSON("减少资金错误");
                 }
-                $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $type, 5,0, $user_id,'超级节点消费');
+                $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $type, 5,0, $user_id,'系统审核通过，扣除余额');
                 if(empty($in_record_id)){
                     $balanceM->rollback();
                     return $this->failJSON('更新余额失败');

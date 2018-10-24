@@ -409,13 +409,13 @@ class Transfer extends ApiBase
         $userM = new \addons\member\model\MemberAccountModel();
         if($user_id==$trading['user_id']){
             $trading['pay_type'] = 1;
-            $user = $userM->getDetail($trading['to_user_id']);
-            $list = $this->getUserPayList($trading['to_user_id']);
+            $uid = $trading['to_user_id'];
         }else{
             $trading['pay_type'] = 0;
-            $user = $userM->getDetail($trading['user_id']);
-            $list = $this->getUserPayList($trading['user_id']);
+            $uid = $trading['user_id'];
         }
+        $user = $userM->getDetail($uid);
+        $list = $this->getUserPayList($uid);
         $trading['phone'] = $user['phone'];
         $tmp = [];
         foreach ($list as $key => $value) {
