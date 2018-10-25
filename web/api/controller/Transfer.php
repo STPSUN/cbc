@@ -261,7 +261,7 @@ class Transfer extends ApiBase
                 return $this->failJSON('订单保存失败');
             }
             $coin_id = 4;//CBC余额
-            $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['amount'],1);
+            $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['number'],1);
             if(!$userAmount){
                 $balanceM->rollback();
                 return $this->failJSON('增加CBC失败');
@@ -271,13 +271,11 @@ class Transfer extends ApiBase
             $change_type = 1; //增加
             $remark = '确认收款-用户增加激活码';
             $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($trading['to_user_id'], $trading['amount'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
+            $r_id = $recordM->addRecord($trading['to_user_id'], $trading['number'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
             if(!$r_id){
                 $balanceM->rollback();
                 return $this->failJSON('增加记录失败');
             }
-
-            
 
             //删除锁仓金额
             $coin_id = 3;//CBC
@@ -738,6 +736,7 @@ class Transfer extends ApiBase
      */
     public function UserComplaint(){
         $user_id = $this->user_id;
+        $user_id = 56;
         if($user_id <= 0) return $this->failData('请登录');
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
@@ -745,8 +744,18 @@ class Transfer extends ApiBase
         if($trad_id<=0) return $this->failJSON('请选择正确的订单');
         $trading = $tradingM->findTrad($trad_id);
         if(!$trading) return $this->failJSON('订单不存在');
-        if($trading['type']!=2) return $this->failJSON('订单状态错误');
-        if($user_id!=$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
+        if(!($user_id==$trading['to_user_id']||$user_id==$trading['user_id'])) return $this->failJSON('该订单不是您的订单');
+        $content = $this->_post('content');
+        if(!$content) return $this->failJSON('投诉内容不能为空');
+        $data = [
+            'user_id'=>$user_id,
+            'trad_id'=>$trad_id,
+            'content'=>$content,
+        ];
+        $TradingComplaint = new \addons\member\model\TradingComplaint();
+        $res = $TradingComplaint->addComplaint($data);
+        if($res) $this->successJSON('投诉成功');
+        else $this->failJSON('投诉失败');
 
     }
 
