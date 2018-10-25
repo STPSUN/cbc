@@ -96,6 +96,12 @@
     .icon-back{
       width: 1rem;
     }
+    #getXy img:nth-of-type(1) , #getXy.show img:nth-of-type(2){
+      display: none;
+    }
+    #getXy img:nth-of-type(2) ,#getXy.show img:nth-of-type(1){
+      display: inline-block;
+    }
     </style>
 </head>
 <body id="wrap">
@@ -115,7 +121,7 @@
           <span id="data-no" class="aui-font-size-14">+86</span>
           <img src="./image/down.png" class="icon-down">
         </label> -->
-        <input type="text" placeholder="请输入您的手机号" class="aui-padded-l-10" style="margin-left:50px" id="phone">
+        <input type="text" placeholder="请输入您的手机号"  style="padding-left:50px" id="phone">
       </div>
     <div class="list-wrap list-input flex-wrap aui-padded-0">
       <input type="text" placeholder="请输入验证码" class="aui-padded-l-10 aui-padded-r-10" id="verify_code">
@@ -135,11 +141,11 @@
     </div>
     <div class="list-wrap aui-text-center">
       <div class="flex-wrap" style="justify-content:center">
-        <div class="aui-margin-r-10">
+        <div class="aui-margin-r-10" id="getXy" onclick="getXy()">
           <img src="./image/on_go.png" class="go_icon">
-          <img src="./image/go.png" class="go_icon aui-hide">
+          <img src="./image/go.png" class="go_icon ">
         </div>
-        <div class="aui-text-white aui-font-size-12 aui-text-center"><span id="lang_reg_1">阅读并同意</span> <span style="color:#63aaf7">《<span id="lang_reg_2">用户协议和隐私政策</span>》</span></div>
+        <div class="aui-text-white aui-font-size-12 aui-text-center"><span id="lang_reg_1">阅读并同意</span> <a href="./agree_frm.html" style="color:#63aaf7">《<span id="lang_reg_2">用户协议和隐私政策</span>》</a></div>
       </div>
     </div>
 	</div>
@@ -152,6 +158,10 @@
     window.onload = function(){
       var inviter_id = location.search.split("=")[1]
       if(inviter_id){$('#inviter_id').val(inviter_id)}
+    }
+    function getXy(){
+      $('#getXy').toggleClass('show')
+
     }
     $("#phone").intlTelInput({
        geoIpLookup: function(callback) {
@@ -197,12 +207,13 @@
       var password = $('#password').val() 
       var log_pay_password =$('#log_pay_password').val() 
       var inviter_id = $('#inviter_id').val() 
+      var isxy = $('#getXy').hasClass('show');
       if(!phone) return alert('请输入手机号');
       if(!verify_code) return alert('请输入验证码');
       if(!/[A-Za-z0-9]{8,20}$/.test(password)) return alert('请输入8-20位登陆密码,含数字或字母');
       if(!/[A-Za-z0-9]{6,20}$/.test(log_pay_password)) return alert('请输入6-20位交易密码,含数字或字母');
       if(!inviter_id) return alert('请输入推荐人');
-
+      if(!isxy) return alert('请勾选协议');
       var postVal = {
         phone : phone ,
         verify_code : verify_code,
@@ -213,8 +224,8 @@
       $.post("http://test1.ifc003.com/user/register",postVal,function(ret){
         ret = JSON.parse(ret)
         if(ret.success){
-              return alert(ret.message || "注册成功");
-              location.href = '新的下载链接'
+              alert(ret.message || "注册成功");
+              // location.href = 'app下载链接'
           }else{
               return alert(ret.message || "注册失败");
           }
