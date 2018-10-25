@@ -260,7 +260,7 @@ class Transfer extends ApiBase
                 $balanceM->rollback();
                 return $this->failJSON('订单保存失败');
             }
-            $coin_id = 2;//CBC余额
+            $coin_id = 4;//CBC余额
             $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['amount'],1);
             if(!$userAmount){
                 $balanceM->rollback();
@@ -269,7 +269,7 @@ class Transfer extends ApiBase
 
             $type = 7;
             $change_type = 1; //增加
-            $remark = '确认收款-用户增加CBC可用余额';
+            $remark = '确认收款-用户增加激活码';
             $recordM = new \addons\member\model\TradingRecord();
             $r_id = $recordM->addRecord($trading['to_user_id'], $trading['amount'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
             if(!$r_id){
@@ -277,23 +277,7 @@ class Transfer extends ApiBase
                 return $this->failJSON('增加记录失败');
             }
 
-            //增加CBC总额
-            $coin_id = 1;//总额
-            $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['amount'],1);
-            if(!$userAmount){
-                $balanceM->rollback();
-                return $this->failJSON('增加CBC失败');
-            }
-
-            $type = 7;
-            $change_type = 1; //增加
-            $remark = '确认收款-用户增加CBC总额';
-            $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($trading['to_user_id'], $trading['amount'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
-            if(!$r_id){
-                $balanceM->rollback();
-                return $this->failJSON('增加记录失败');
-            }
+            
 
             //删除锁仓金额
             $coin_id = 3;//CBC
@@ -302,7 +286,7 @@ class Transfer extends ApiBase
             if($amount>$userAmount['amount']){
                 $amount = $userAmount['amount'];
             }
-                
+
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount);
             if(!$userAmount){
                 $balanceM->rollback();
@@ -317,8 +301,9 @@ class Transfer extends ApiBase
                 $balanceM->rollback();
                 return $this->failJSON('增加记录失败');
             }
+            $AwardService = new \web\api\service\AwardService();
+            $res = $AwardService->tradingReward($trading['fee_num'],$trading['user_id']);
             //计算奖金
-            $res = $this->mathBonus($trading);
             if(!$res){
                 $balanceM->rollback();
                 return $this->failJSON('奖金发放失败');
@@ -793,10 +778,4 @@ class Transfer extends ApiBase
         else $this->failJSON('update failed');
     }
 
-    /**
-     * 计算奖金
-     */
-    private function mathBonus($trading){
-        return true;
-    }
 }

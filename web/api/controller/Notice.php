@@ -81,4 +81,7 @@ class Notice extends ApiBase
         $data['usdt'] = $sysM->getValByName('usdt_price');
         return $this->successJSON($data);
     }
+
+
+    
 }

@@ -137,7 +137,7 @@ class Trading extends \web\user\controller\AddonUserBase {
                 $balanceM->rollback();
                 return $this->failData('订单保存失败');
             }
-            $coin_id = 2;//CBC余额
+            $coin_id = 4;//CBC余额
             $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['amount'],1);
             if(!$userAmount){
                 $balanceM->rollback();
@@ -145,7 +145,7 @@ class Trading extends \web\user\controller\AddonUserBase {
             }
             $type = 7;
             $change_type = 1; //增加
-            $remark = '系统确认收款，增加可用';
+            $remark = '系统确认收款，增加激活码';
             $recordM = new \addons\member\model\TradingRecord();
             $r_id = $recordM->addRecord($trading['to_user_id'], $trading['amount'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
             if(!$r_id){
@@ -153,22 +153,6 @@ class Trading extends \web\user\controller\AddonUserBase {
                 return $this->failData('增加记录失败');
             }
 
-            //总额
-            $coin_id = 1;
-            $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['amount'],1);
-            if(!$userAmount){
-                $balanceM->rollback();
-                return $this->failData('增加CBC失败');
-            }
-            $type = 7;
-            $change_type = 1; //增加
-            $remark = '系统确认收款，增加总额';
-            $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($trading['to_user_id'], $trading['amount'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
-            if(!$r_id){
-                $balanceM->rollback();
-                return $this->failData('增加记录失败');
-            }
 
             //删除锁仓金额
             $coin_id = 3;//CBC
@@ -191,8 +175,13 @@ class Trading extends \web\user\controller\AddonUserBase {
                 $balanceM->rollback();
                 return $this->failData('增加记录失败');
             }
+            $AwardService = new \web\api\service\AwardService();
+            $res = $AwardService->tradingReward($trading['fee_num'],$trading['user_id']);
             //计算奖金
-            $res = $this->mathBonus($trading);
+            if(!$res){
+                $balanceM->rollback();
+                return $this->failJSON('奖金发放失败');
+            }
             if(!$res){
                 $balanceM->rollback();
                 return $this->failData('奖金发放失败');
@@ -202,11 +191,6 @@ class Trading extends \web\user\controller\AddonUserBase {
         }else{
             return $this->failData('无法确认收款');
         }
-    }
-
-
-    public function mathBonus($trading){
-        return true;
     }
 
 }
