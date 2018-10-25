@@ -7,6 +7,10 @@ use think\Lang;
 class Crontab extends \web\common\controller\Controller {
 
 
+    protected function _initialize() {
+        
+    }
+
     /**
      * 定时器访问
      * 超过30分钟未付款则取消订单
@@ -28,5 +32,32 @@ class Crontab extends \web\common\controller\Controller {
         else $this->failJSON('update failed');
     }
     
+
+    /**
+     * 输出错误JSON信息。
+     * @param type $message     
+     */
+    protected function failJSON($message) {
+        $message = lang($message);
+        $jsonData = array('success' => false, 'message' => $message);
+        $json = json_encode($jsonData, true);
+        echo $json;
+        exit;
+    }
+
+    /**
+     * 输出成功JSON信息
+     * @param type $data
+     */
+    protected function successJSON($data = NULL, $msg = "success") {
+        if (is_array($data) || is_object($data)) {
+            $data = $this->_setDataLang($data);
+        }
+        $jsonData = array('success' => true, 'data' => $data, 'message' => $msg);
+        $json = json_encode($jsonData, 1);
+        echo $json;
+        exit;
+    }
+
    
 }
