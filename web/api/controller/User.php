@@ -15,6 +15,7 @@ use addons\member\model\PayConfig;
 use think\Request;
 use think\Validate;
 use web\api\model\Leave;
+use web\api\model\MemberNode;
 use web\api\service\AwardService;
 use web\api\service\MemberService;
 
@@ -511,19 +512,67 @@ class User extends ApiBase
         return $this->successJSON($data);
     }
 
-    public function level()
+    /**
+     * 节点社区
+     */
+    public function nodeCommunity()
     {
         $memberS = new MemberService();
+        $users = $memberS->getTeam($this->user_id);
 
-        $memberS->memberLevel(59);
-        return $this->successJSON();
-    }
+        $memberNodeM = new MemberNode();
+        $node_arr = array();
+        foreach ($users as $v)
+        {
+            $user_node = $memberNodeM->where('user_id',$v['user_id'])->column('type');
+            if(empty($user_node))
+                continue;
 
-    public function award()
-    {
-        $awardS = new AwardService();
-        $awardS->tradingReward(100,59);
-        return $this->successJSON();
+            $temp = array(
+                'node' => $user_node,
+                'user' => $v
+            );
+
+            $node_arr[] = $temp;
+        }
+
+        $node1 = array();
+        $node2 = array();
+        $node3 = array();
+        $node4 = array();
+        $node5 = array();
+        $node6 = array();
+        $node7 = array();
+        $node8 = array();
+        foreach ($node_arr as $v)
+        {
+            foreach ($v['node'] as $n)
+            {
+                switch ($n)
+                {
+                    case 1:
+                        $node1[] = $v['user'];  break;
+                    case 2:
+                        $node2[] = $v['user'];  break;
+                    case 3:
+                        $node3[] = $v['user'];  break;
+                    case 4:
+                        $node4[] = $v['user'];  break;
+                    case 5:
+                        $node5[] = $v['user'];  break;
+                    case 6:
+                        $node6[] = $v['user'];  break;
+                    case 7:
+                        $node7[] = $v['user'];  break;
+                    case 8:
+                        $node8[] = $v['user'];  break;
+                }
+            }
+        }
+
+        $data = array($node1,$node2,$node3,$node4,$node5,$node6,$node7,$node8);
+
+        return $this->successJSON($data);
     }
 }
 
