@@ -14,6 +14,7 @@ use addons\member\model\MemberAccountModel;
 use addons\member\model\PayConfig;
 use think\Request;
 use think\Validate;
+use web\api\model\Leave;
 use web\api\service\AwardService;
 use web\api\service\MemberService;
 
@@ -262,12 +263,9 @@ class User extends ApiBase
 
             $password = md5($password);
             $m = new \addons\member\model\MemberAccountModel();
-            $res = $m->updatePassByUserID($this->user_id, $password);
-            if($res > 0){
-                return $this->successJSON();
-            }else{
-                return $this->failJSON('修改密码失败');
-            }
+            $user_id = $m->getUserByPhone($phone);
+            $m->updatePassByUserID($user_id, $password,2);
+            return $this->successJSON();
         }
     }
 
@@ -468,11 +466,56 @@ class User extends ApiBase
         return $this->successJSON($data);
     }
 
+    /**
+     * 留言
+     */
+    public function leave()
+    {
+        $param = Request::instance()->post();
+        $validate = new Validate([
+            'issue' => 'require'
+        ]);
+
+        if(!$validate->check($param))
+            return $this->failJSON($validate->getError());
+
+        $data = array(
+            'user_id'   => $this->user_id,
+            'issue'     => $param['issue'],
+            'create_time'   => NOW_DATETIME,
+            'update_time'   => NOW_DATETIME,
+        );
+
+        $leaveM = new Leave();
+        $leaveM->save($data);
+        return $this->successJSON();
+    }
+
+    /**
+     * 获取流量记录
+     */
+    public function getLeaveRecord()
+    {
+        $param = Request::instance()->post();
+
+        $conf = array(
+            'page'  => empty($param['page']) ? 1 : $param['page'],
+            'list_rows' => empty($param['list_rows']) ? 5 : $param['list_rows']
+        );
+
+        $leaveM = new Leave();
+        $filter = " user_id = $this->user_id";
+        $fields = "issue,reply,create_time";
+        $data = $leaveM->getDataList2($conf['page'],$conf['list_rows'],$filter,$fields,'create_time desc');
+
+        return $this->successJSON($data);
+    }
+
     public function level()
     {
         $memberS = new MemberService();
 
-        $memberS->memberLevelUpdate($this->user_id);
+        $memberS->memberLevel(59);
         return $this->successJSON();
     }
 
@@ -480,11 +523,6 @@ class User extends ApiBase
     {
         $awardS = new AwardService();
         $awardS->tradingReward(100,59);
-        return $this->successJSON();
-    }
-
-    public function test()
-    {
         return $this->successJSON();
     }
 }

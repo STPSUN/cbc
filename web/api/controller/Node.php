@@ -15,6 +15,7 @@ use think\Validate;
 use web\api\model\MemberNode;
 use web\api\model\MemberNodeApply;
 use web\api\model\MemberNodeIncome;
+use web\api\service\MemberService;
 
 class Node extends ApiBase
 {
@@ -91,6 +92,11 @@ class Node extends ApiBase
                 $recordM->addRecord($this->user_id, $amount, $balance['before_amount'], $balance['amount'], $balance_type, $type, $change_type, 0, $remark);
             }
             $memberNodeM->save($data);
+
+            //会员升级
+            $memberS = new MemberService();
+            $memberS->memberLevel($this->user_id);
+
             $memberNodeM->commit();
             return $this->successJSON();
         }catch (\Exception $e)
