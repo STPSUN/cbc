@@ -1,5 +1,9 @@
 <?php
 namespace web\api\service;
+use addons\member\model\MemberAccountModel;
+use addons\member\user\controller\Member;
+use think\Log;
+
 /**
  * Created by PhpStorm.
  * User: SUN
@@ -12,7 +16,39 @@ class MemberService extends \web\common\controller\Service
     /**
      * 会员升级
      */
-    public function memberLevelUpdate($user_id)
+    public function memberLevel($user_id)
+    {
+        $awardS = new AwardService();
+        $userM = new MemberAccountModel();
+        $user = $userM->getDetail($user_id);
+        $pusers = $awardS->getParentUser($user['pid']);
+
+        $userM->startTrans();
+        try{
+            Log::record("会员升级开始");
+            $this->memberLevelUpdate($user_id);
+            foreach ($pusers as $v)
+            {
+                $this->memberLevelUpdate($v['user_id']);
+            }
+
+            Log::record("会员升级成功");
+            $userM->commit();
+
+            return true;
+        }catch (\Exception $e)
+        {
+            Log::record("会员升级失败");
+            $userM->rollback();
+
+            return false;
+        }
+    }
+
+    /**
+     * 单个会员升级
+     */
+    private function memberLevelUpdate($user_id)
     {
         $userM = new \addons\member\model\MemberAccountModel();
         $user = $userM->getDetail($user_id);
@@ -217,12 +253,6 @@ class MemberService extends \web\common\controller\Service
         $data = $userM->where('pid',$id)->select();
         foreach ($data as $v)
         {
-//            $temp = array(
-//                'username' => $v['username'],
-//                'amount'    => $recordM->where(['user_id' => $v['id'], 'type' => 3])->sum('amount'),
-//                'user_id'   => $v['id'],
-//            );
-//            $result[] = $temp;
             $user_num++;
             $amount += $recordM->where(['user_id' => $v['id'], 'type' => 3])->sum('amount');
 

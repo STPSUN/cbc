@@ -14,6 +14,7 @@ use addons\member\model\TradingRecord;
 use function PHPSTORM_META\type;
 use think\Request;
 use think\Validate;
+use web\api\service\AwardService;
 
 class Wallet extends ApiBase
 {
@@ -39,6 +40,7 @@ class Wallet extends ApiBase
         $auth_code  = $param['auth_code'];
         $sub_type = 1;
         $key_type = 4;
+        $use_type = 2;
 
         $memberM = new MemberAccountModel();
         $balanceM = new \addons\member\model\Balance();
@@ -78,10 +80,13 @@ class Wallet extends ApiBase
             $balanceM->startTrans();
             //扣除当前用户余额, 添加转出用户余额
             $balance = $balanceM->updateBalance($this->user_id, $sub_type, $total_amount);
+            $use_balance = $balanceM->updateBalance($this->user_id,$use_type,$amount);
             if($balance != false){
                 $type = 1; //转账
                 $change_type = 0; //减少
                 $remark = '用户CBC转出,手续费金额:'.$tax_amount;
+                $remark2 = '用户CBC转出';
+                $recordM->addRecord($this->user_id,$amount,$use_balance['before_amount'],$use_balance['amount'],$use_type,$type,$change_type,$to_user_id,$remark2);
                 $record_id = $recordM->addRecord($this->user_id, $total_amount, $balance['before_amount'], $balance['amount'], $sub_type, $type, $change_type, $to_user_id, $remark);
                 if($record_id > 0){
                     $to_balance = $balanceM->updateBalance($to_user_id, $key_type, $amount, true);
@@ -91,6 +96,8 @@ class Wallet extends ApiBase
                         $record_id = $recordM->addRecord($to_user_id, $amount, $to_balance['before_amount'], $to_balance['amount'], $sub_type, $type, $change_type, $this->user_id, $remark);
                         if($record_id > 0){
                             $balanceM->commit();
+                            $awardS = new AwardService();
+                            $awardS->tradingReward($tax_amount,$this->user_id);
                             return $this->successJSON();
                         }
                     }

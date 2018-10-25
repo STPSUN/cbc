@@ -12,6 +12,7 @@ namespace web\api\service;
 use addons\member\model\Balance;
 use addons\member\model\MemberAccountModel;
 use addons\member\model\TradingRecord;
+use think\Log;
 
 class AwardService extends \web\common\controller\Service
 {
@@ -30,12 +31,27 @@ class AwardService extends \web\common\controller\Service
         $pusers = $this->getParentUser($user['pid']);
         $this->peer_user_id = $pusers[0]['user_id'];
 
-        //交易奖励
-        $this->userReward($amount,$pusers,$user_id);
-        //分享奖励
-        $this->shareReward($amount,$pusers,$user_id);
-        //平级奖励
-        $this->peerReward($pusers,$this->peer_amount);
+        $userM->startTrans();
+        try
+        {
+            Log::record("奖励开始发放");
+            //交易奖励
+            $this->userReward($amount,$pusers,$user_id);
+            //分享奖励
+            $this->shareReward($amount,$pusers,$user_id);
+            //平级奖励
+            $this->peerReward($pusers,$this->peer_amount);
+            Log::record("奖励发放成功");
+
+            $userM->commit();
+            return true;
+        }catch (\Exception $e)
+        {
+            Log::record("奖励发放失败");
+            $userM->rollback();
+            return false;
+        }
+
     }
 
     /**
@@ -232,7 +248,7 @@ class AwardService extends \web\common\controller\Service
     /**
      * 获取上级会员
      */
-    private function getParentUser($pid,&$pUsers=array())
+    public function getParentUser($pid,&$pUsers=array())
     {
         $userM = new \addons\member\model\MemberAccountModel();
         $puser = $userM->getDetail($pid);
