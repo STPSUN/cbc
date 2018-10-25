@@ -81,7 +81,6 @@ class Trading extends \web\user\controller\AddonUserBase {
                 return $this->failData('增加记录失败');
             }
 
-
             $coin_id = 3;//CBC
             $total = bcmul(($info['amount']+$info['fee_num']), 1,2);
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);

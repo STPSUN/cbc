@@ -2,6 +2,8 @@
 
 namespace addons\member\user\controller;
 
+use PHPExcel;
+
 class Member extends \web\user\controller\AddonUserBase{
     
     public function index(){
@@ -21,8 +23,26 @@ class Member extends \web\user\controller\AddonUserBase{
             $filter .= ' and username like \'%' . $keyword . '%\'';
         }
         $m = new \addons\member\model\MemberAccountModel();
+        $Balance = new \addons\member\model\Balance();
         $total = $m->getTotal($filter);
         $rows = $m->getList($this->getPageIndex(), $this->getPageSize(), $filter);
+        foreach ($rows as $key => $value) {
+            $info = $Balance->where(['user_id'=>$value['id']])->select();
+            foreach ($info as $k => $v) {
+                if($v['type']==1){
+                    $rows[$key]['total_cbc'] = $v['amount']+0;
+                }elseif($v['type']==2){
+                    $rows[$key]['can_use'] = $v['amount']+0;
+                }elseif($v['type']==3){
+                    $rows[$key]['lock_cbc'] = $v['amount']+0;
+                }elseif($v['type']==4){
+                    $rows[$key]['code_cbc'] = $v['amount']+0;
+                }elseif($v['type']==5){
+                    $rows[$key]['release_cbc'] = $v['amount']+0;
+                }
+            }
+                
+        }
         return $this->toDataGrid($total, $rows);
     }
     
@@ -273,6 +293,145 @@ class Member extends \web\user\controller\AddonUserBase{
         }
     }
     
+    /**
+     * 导出数据
+     */
+    public function exportout(){
+        $m = new \addons\member\model\MemberAccountModel();
+        $all = $m->select();
+        $Balance = new \addons\member\model\Balance();
+        
+        vendor('PHPExcel.PHPExcel');
+        $objPHPExcel = new \PHPExcel();
+        // import("Vendor.PHPExcel.PHPExcel.Writer.Excel5", '', '.php');
+        // import("Vendor.PHPExcel.PHPExcel.IOFactory", '', '.php');
+        // $objPHPExcel = new \PHPExcel();
+        // 设置文档信息，这个文档信息windows系统可以右键文件属性查看
+        $objPHPExcel->getProperties()->setCreator("gca")
+            ->setLastModifiedBy("gca")
+            ->setTitle("gca point")
+            ->setSubject("gca point")
+            ->setDescription("gca Capital flow");
+        //根据excel坐标，添加数据
+        $objPHPExcel->setActiveSheetIndex(0)
+        ->setCellValue('A1', '手机号')
+        ->setCellValue('B1', '节点等级')
+        ->setCellValue('C1', '会员等级')
+        ->setCellValue('D1', '信用等级')
+        ->setCellValue('E1', '真实姓名')
+        ->setCellValue('F1', '认证状态')
+        ->setCellValue('G1', '总额')
+        ->setCellValue('H1', '可用余额')
+        ->setCellValue('I1', '锁仓')
+        ->setCellValue('J1', '激活码')
+        ->setCellValue('K1', '今日释放')
+        ->setCellValue('L1', '注册时间');
+
+        foreach ($all as $key => $value) {
+            $info = $Balance->where(['user_id'=>$value['id']])->select();
+            $total_cbc = 0;
+            $can_use = 0;
+            $lock_cbc = 0;
+            $code_cbc = 0;
+            $release_cbc = 0;
+            foreach ($info as $k => $v) {
+                if($v['type']==1){
+                    $total_cbc = $v['amount']+0;
+                }elseif($v['type']==2){
+                    $can_use = $v['amount']+0;
+                }elseif($v['type']==3){
+                    $lock_cbc = $v['amount']+0;
+                }elseif($v['type']==4){
+                    $code_cbc = $v['amount']+0;
+                }elseif($v['type']==5){
+                    $release_cbc = $v['amount']+0;
+                }
+            }
+            //1 微型 | 2 小型（SS） | 3 小型（S） | 4 中小型 | 5 中大型 | 6 大型 | 7 超大型 | 8 超级',
+            $node_level = '';
+            if($value['node_level']==1){
+                $node_level = '微型';
+            }elseif($value['node_level']==2){
+                $node_level = '小型（SS）';
+            }elseif($value['node_level']==3){
+                $node_level = '小型（S）';
+            }elseif($value['node_level']==4){
+                $node_level = '中小型';
+            }elseif($value['node_level']==5){
+                $node_level = '中大型';
+            }elseif($value['node_level']==6){
+                $node_level = '大型';
+            }elseif($value['node_level']==7){
+                $node_level = '超大型';
+            }elseif($value['node_level']==8){
+                $node_level = '超级';
+            }
+            //user_level 1 会员 | 2 盟友 | 3 盟主 | 4 酋长 | 5 联盟大使 | 6 联合创始人',
+            $user_level = '';
+            if($value['user_level']==1){
+                $user_level = '会员';
+            }elseif($value['user_level']==2){
+                $user_level = '盟友';
+            }elseif($value['user_level']==3){
+                $user_level = '盟主';
+            }elseif($value['user_level']==4){
+                $user_level = '酋长';
+            }elseif($value['user_level']==5){
+                $user_level = '联盟大使';
+            }elseif($value['user_level']==6){
+                $user_level = '联合创始人';
+            }
+            //-1:不通过，0=未认证，1=已认证，2=待认证',
+            $is_auth = '';
+            if($value['is_auth']==-1){
+                $is_auth = '不通过';
+            }elseif($value['is_auth']==0){
+                $is_auth = '未认证';
+            }elseif($value['is_auth']==1){
+                $is_auth = '已认证';
+            }elseif($value['is_auth']==2){
+                $is_auth = '待认证';
+            }
+            $num = $key+2;
+            $objPHPExcel->getActiveSheet()
+                ->setCellValue('A'.$num,$value['phone'])
+                ->setCellValue('B'.$num,$node_level)
+                ->setCellValue('C'.$num,$user_level)
+                ->setCellValue('D'.$num,$value['credit_level'])
+                ->setCellValue('E'.$num,$value['real_name'])
+                ->setCellValue('F'.$num,$is_auth)
+                ->setCellValue('G'.$num,$total_cbc)
+                ->setCellValue('H'.$num,$can_use)
+                ->setCellValue('I'.$num,$lock_cbc)
+                ->setCellValue('J'.$num,$code_cbc)
+                ->setCellValue('K'.$num,$release_cbc)
+                ->setCellValue('L'.$num,$value['register_time']);
+                
+        }
+        // foreach($all as $k=>$v){
+        //     $num = $k+2;
+        //     $objPHPExcel->getActiveSheet()
+        //         ->setCellValue('A'.$num,$v['userid'])
+        //         ->setCellValue('B'.$num,$v['username'])
+        //         ->setCellValue('C'.$num,$v['mobile'])
+        //         ->setCellValue('D'.$num,$v['cangku_num'])
+        //         ->setCellValue('E'.$num,$v['fengmi_num']);
+            
+        // }
+        // 设置第一个sheet为工作的sheet
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $filename = date('Y-m-d').'.xlsx';
+        // 保存Excel 2007格式文件，保存路径为当前路径，名字为export.xlsx
+        ob_end_clean();     //清除缓冲区,避免乱码
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/octet-stream");
+        header("Content-Type: application/download");
+        header('Content-Disposition:inline;filename="'.$filename.'"');
+        header("Content-Transfer-Encoding: binary");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Pragma: no-cache");
+        $objWriter->save('php://output');
+    }
 
 }
 
