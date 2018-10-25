@@ -82,25 +82,25 @@ class Transfer extends ApiBase
         $paylist = $payM->getUserPay($user_id);
         if(!$paylist)  return $this->failJSON('没有设置支付方式，请设置');
         $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
-        $fee_num = bcmul($amount,($rate/100),4);
-        $total = $amount+$fee_num;
+        $fee_num = bcmul($number,($rate/100),4);
+        $total = $number+$fee_num;
         $balanceM = new \addons\member\model\Balance();
-        $coin_id = 2;//CBC
         $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
-        if($amount>$userAmount['amount']) return $this->failJSON('你的CBC余额少于'.$amount);
+        if($number>$userAmount['amount']) return $this->failJSON('你的CBC余额少于'.$number);
         try{
             $balanceM->startTrans();
-            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount);
+            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$number);
             if(!$userAmount){
                 $balanceM->rollback();
                 return $this->failJSON('减少CBC余额失败');
             }
 
+            $coin_id = 2;//CBC
             $type = 6;
             $change_type = 0; //减少
             $remark = '用户挂卖，减少可用';
             $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+            $r_id = $recordM->addRecord($user_id, $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
             if(!$r_id){
                 $balanceM->rollback();
                 return $this->failJSON('增加记录失败');
