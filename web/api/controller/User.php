@@ -574,6 +574,91 @@ class User extends ApiBase
 
         return $this->successJSON($data);
     }
+
+    /*
+     * 奖励社区
+     */
+    public function awardCommunity()
+    {
+        $userM = new MemberAccountModel();
+        $user = $userM->getDetail($this->user_id);
+        $pOne = null;
+        $pTwo = null;
+        $pThree = null;
+        $one_ids = '';
+        $two_ids = '';
+        $three_ids = '';
+
+        if($user)
+        {
+            $pOne = $userM->where('pid',$user['id'])->column('id');
+        }
+
+        $user2 = array();
+        if($pOne)
+        {
+            foreach ($pOne as $v)
+            {
+                $temp = $userM->where('pid',$v)->column('id');
+                $pTwo[] = $temp;
+                $one_ids .= $v . ',';
+            }
+
+            foreach ($pTwo as $p)
+                foreach ($p as $i)
+                    array_push($user2,$i);
+        }
+
+        $user3 = array();
+        if($user2)
+        {
+            foreach ($user2 as $v)
+            {
+                $temp = $userM->where('pid',$v)->column('id');
+                $pThree[] = $temp;
+                $two_ids .= $v . ',';
+            }
+
+            foreach ($pThree as $p)
+                foreach ($p as $i)
+                    array_push($user3,$i);
+        }
+
+        if($user3)
+        {
+            foreach ($user3 as $v)
+            {
+                $three_ids .= $v . ',';
+            }
+        }
+
+        $total = array(
+            'one'   => array(
+                'people_num'    => count($pOne),
+                'amount'        => 0,
+            ),
+            'two'   => array(
+                'people_num'    => count($user2),
+                'amount'        => 0,
+            ),
+            'three' => array(
+                'people_num'    => count($user3),
+                'amount'        => 0,
+            )
+        );
+
+        $one = $userM->field('real_name,phone')->where('id','in',$one_ids)->select();
+        $two = $userM->field('real_name,phone')->where('id','in',$two_ids)->select();
+        $three = $userM->field('real_name,phone')->where('id','in',$three_ids)->select();
+        $data = array(
+            'total' => $total,
+            '1'   => $one,
+            '2'   => $two,
+            '3'   => $three,
+        );
+
+        return $this->successJSON($data);
+    }
 }
 
 

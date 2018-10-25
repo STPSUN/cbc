@@ -218,22 +218,22 @@ class Wallet extends ApiBase
 
         $recordM = new TradingRecord();
 
-        $filter = 'asset_type in (4) ';
-        if($param['type'] == 1)
-            $filter = 'asset_type in (1) ';
+//        $filter = 'asset_type in (4) ';
+//        if($param['type'] == 1)
+//            $filter = 'asset_type in (1) ';
 
-        $fields = 'amount,type,update_time';
-        $data = $recordM->getDataList2($conf['page'],$conf['list_rows'],$filter,$fields,'update_time desc');
-
+//        $fields = 'amount,type,to_user_id,update_time';
+//        $data = $recordM->getDataList2($conf['page'],$conf['list_rows'],$filter,$fields,'update_time desc');
+        $data = $recordM->getRecordList($param['type'],$conf['page'],$conf['list_rows'],'update_time desc');
         foreach ($data as &$v)
         {
-            $v['title'] = '';
+            $v['color_type'] = 1;
             switch ($v['type'])
             {
-                case 1:
-                    $v['type'] = 'CBC转账';   break;
-                case 2:
-                    $v['type'] = '激活码';     break;
+                case 9:
+                case 10:
+                case 11:
+                    $v['color_type'] = 2;     break;
             }
         }
 
