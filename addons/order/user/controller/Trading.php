@@ -31,6 +31,7 @@ class Trading extends \web\user\controller\AddonUserBase {
         return $this->toDataGrid($total, $rows);
     }
 
+
     /**
     * 取消订单
     */
@@ -45,7 +46,7 @@ class Trading extends \web\user\controller\AddonUserBase {
             $balanceM = new \addons\member\model\Balance();
             $balanceM->startTrans();
             $coin_id = 2;
-            $amount = $info['amount'];
+            $amount = $info['number'];
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
             if(!$userAmount){
                 $balanceM->rollback();
@@ -64,7 +65,7 @@ class Trading extends \web\user\controller\AddonUserBase {
 
 
             $coin_id = 1;
-            $amount = bcmul(($info['amount']+$info['fee_num']), 1,2);
+            $amount = bcmul(($info['number']+$info['fee_num']), 1,2);
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
             if(!$userAmount){
                 $balanceM->rollback();
@@ -82,7 +83,7 @@ class Trading extends \web\user\controller\AddonUserBase {
             }
 
             $coin_id = 3;//CBC
-            $total = bcmul(($info['amount']+$info['fee_num']), 1,2);
+            $total = bcmul(($info['number']+$info['fee_num']), 1,2);
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
             if(!$userAmount){
                 $balanceM->rollback();
@@ -138,7 +139,7 @@ class Trading extends \web\user\controller\AddonUserBase {
                 return $this->failData('订单保存失败');
             }
             $coin_id = 4;//CBC余额
-            $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['amount'],1);
+            $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['number'],1);
             if(!$userAmount){
                 $balanceM->rollback();
                 return $this->failData('增加CBC失败');
@@ -147,7 +148,7 @@ class Trading extends \web\user\controller\AddonUserBase {
             $change_type = 1; //增加
             $remark = '系统确认收款，增加激活码';
             $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($trading['to_user_id'], $trading['amount'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
+            $r_id = $recordM->addRecord($trading['to_user_id'], $trading['number'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
             if(!$r_id){
                 $balanceM->rollback();
                 return $this->failData('增加记录失败');
@@ -156,7 +157,7 @@ class Trading extends \web\user\controller\AddonUserBase {
 
             //删除锁仓金额
             $coin_id = 3;//CBC
-            $amount = bcmul(($trading['fee_num']+$trading['amount']), 1,2);
+            $amount = bcmul(($trading['fee_num']+$trading['number']), 1,2);
             $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
             if($amount>$userAmount['amount']){
                 $amount = $userAmount['amount'];

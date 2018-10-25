@@ -82,15 +82,15 @@ class Transfer extends ApiBase
         $paylist = $payM->getUserPay($user_id);
         if(!$paylist)  return $this->failJSON('没有设置支付方式，请设置');
         $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
-        $fee_num = bcmul($amount,($rate/100),4);
-        $total = $amount+$fee_num;
+        $fee_num = bcmul($number,($rate/100),2);
+        $total = $number+$fee_num;
         $balanceM = new \addons\member\model\Balance();
         $coin_id = 2;//CBC
         $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
-        if($amount>$userAmount['amount']) return $this->failJSON('你的CBC余额少于'.$amount);
+        if($number>$userAmount['amount']) return $this->failJSON('你的CBC余额少于'.$number);
         try{
             $balanceM->startTrans();
-            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount);
+            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$number);
             if(!$userAmount){
                 $balanceM->rollback();
                 return $this->failJSON('减少CBC余额失败');
@@ -100,7 +100,7 @@ class Transfer extends ApiBase
             $change_type = 0; //减少
             $remark = '用户挂卖，减少可用';
             $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+            $r_id = $recordM->addRecord($user_id, $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
             if(!$r_id){
                 $balanceM->rollback();
                 return $this->failJSON('增加记录失败');
@@ -261,7 +261,7 @@ class Transfer extends ApiBase
                 return $this->failJSON('订单保存失败');
             }
             $coin_id = 4;//CBC余额
-            $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['amount'],1);
+            $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['number'],1);
             if(!$userAmount){
                 $balanceM->rollback();
                 return $this->failJSON('增加CBC失败');
@@ -271,17 +271,15 @@ class Transfer extends ApiBase
             $change_type = 1; //增加
             $remark = '确认收款-用户增加激活码';
             $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($trading['to_user_id'], $trading['amount'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
+            $r_id = $recordM->addRecord($trading['to_user_id'], $trading['number'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
             if(!$r_id){
                 $balanceM->rollback();
                 return $this->failJSON('增加记录失败');
             }
 
-            
-
             //删除锁仓金额
             $coin_id = 3;//CBC
-            $amount = bcmul(($trading['fee_num']+$trading['amount']), 1,2);
+            $amount = bcmul(($trading['fee_num']+$trading['number']), 1,2);
             $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
             if($amount>$userAmount['amount']){
                 $amount = $userAmount['amount'];
@@ -542,7 +540,7 @@ class Transfer extends ApiBase
                 $balanceM = new \addons\member\model\Balance();
                 $balanceM->startTrans();
                 $coin_id = 2;
-                $amount = $trading['amount'];
+                $amount = $trading['number'];
                 $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
                 if(!$userAmount){
                     $balanceM->rollback();
@@ -560,7 +558,7 @@ class Transfer extends ApiBase
                 }
 
                 $coin_id = 1;//CBC
-                $total = bcmul(($trading['amount']+$trading['fee_num']), 1,2);
+                $total = bcmul(($trading['number']+$trading['fee_num']), 1,2);
                 $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total,1);
                 if(!$userAmount){
                     $balanceM->rollback();
@@ -577,7 +575,7 @@ class Transfer extends ApiBase
                 }
 
                 $coin_id = 3;//CBC
-                $total = bcmul(($trading['amount']+$trading['fee_num']), 1,2);
+                $total = bcmul(($trading['number']+$trading['fee_num']), 1,2);
                 $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
                 if(!$userAmount){
                     $balanceM->rollback();
@@ -738,6 +736,7 @@ class Transfer extends ApiBase
      */
     public function UserComplaint(){
         $user_id = $this->user_id;
+        $user_id = 56;
         if($user_id <= 0) return $this->failData('请登录');
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
@@ -745,8 +744,18 @@ class Transfer extends ApiBase
         if($trad_id<=0) return $this->failJSON('请选择正确的订单');
         $trading = $tradingM->findTrad($trad_id);
         if(!$trading) return $this->failJSON('订单不存在');
-        if($trading['type']!=2) return $this->failJSON('订单状态错误');
-        if($user_id!=$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
+        if(!($user_id==$trading['to_user_id']||$user_id==$trading['user_id'])) return $this->failJSON('该订单不是您的订单');
+        $content = $this->_post('content');
+        if(!$content) return $this->failJSON('投诉内容不能为空');
+        $data = [
+            'user_id'=>$user_id,
+            'trad_id'=>$trad_id,
+            'content'=>$content,
+        ];
+        $TradingComplaint = new \addons\member\model\TradingComplaint();
+        $res = $TradingComplaint->addComplaint($data);
+        if($res) $this->successJSON('投诉成功');
+        else $this->failJSON('投诉失败');
 
     }
 
@@ -758,24 +767,6 @@ class Transfer extends ApiBase
         return $m->getUserPay($uid);
     }
 
-    /**
-     * 定时器访问
-     * 超过30分钟未付款则取消订单
-     */
-    public function cancleOrder(){
-        $tradingM = new \addons\member\model\Trading();
-        $map['type'] = 1;
-        $map['update_time'] = ['gt',date('Y-m-d H:i:s',(time()+30*60))];
-        $list = $tradingM->where($map)->select();
-        if(!$list) return $this->failJSON('暂无订单');
-        foreach ($list as $key => $value) {
-            $list[$key]['to_user_id'] = 0;
-            $list[$key]['type'] = 0;
-            $list[$key]['update_time']=NOW_DATETIME;
-        }
-        $res = $tradingM->save($list);
-        if($res) $this->successJSON('update success');
-        else $this->failJSON('update failed');
-    }
+    
 
 }

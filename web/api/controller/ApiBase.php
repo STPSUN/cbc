@@ -51,6 +51,7 @@ class ApiBase extends \web\common\controller\Controller {
         }
     }
     
+
     /**
      * 设置当前请求绑定的缓存对象实例--redis
      * @param type $request
