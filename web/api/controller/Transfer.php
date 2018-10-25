@@ -57,6 +57,7 @@ class Transfer extends ApiBase
      */
     public function sellOut(){
         $user_id = $this->user_id;
+        $user_id = 60;
         if($user_id <= 0) return $this->failData('请登录');
         $pay_password = $this->_post('pay_password');
         $user = $this->checkPwd($user_id,$pay_password);
@@ -85,6 +86,7 @@ class Transfer extends ApiBase
         $fee_num = bcmul($number,($rate/100),4);
         $total = $number+$fee_num;
         $balanceM = new \addons\member\model\Balance();
+        $coin_id = 2;//CBC
         $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
         if($number>$userAmount['amount']) return $this->failJSON('你的CBC余额少于'.$number);
         try{
@@ -95,7 +97,6 @@ class Transfer extends ApiBase
                 return $this->failJSON('减少CBC余额失败');
             }
 
-            $coin_id = 2;//CBC
             $type = 6;
             $change_type = 0; //减少
             $remark = '用户挂卖，减少可用';
