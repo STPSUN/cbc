@@ -82,7 +82,7 @@ class Transfer extends ApiBase
         $paylist = $payM->getUserPay($user_id);
         if(!$paylist)  return $this->failJSON('没有设置支付方式，请设置');
         $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
-        $fee_num = bcmul($number,($rate/100),4);
+        $fee_num = bcmul($number,($rate/100),2);
         $total = $number+$fee_num;
         $balanceM = new \addons\member\model\Balance();
         $coin_id = 2;//CBC
@@ -540,7 +540,7 @@ class Transfer extends ApiBase
                 $balanceM = new \addons\member\model\Balance();
                 $balanceM->startTrans();
                 $coin_id = 2;
-                $amount = $trading['amount'];
+                $amount = $trading['number'];
                 $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
                 if(!$userAmount){
                     $balanceM->rollback();
@@ -558,7 +558,7 @@ class Transfer extends ApiBase
                 }
 
                 $coin_id = 1;//CBC
-                $total = bcmul(($trading['amount']+$trading['fee_num']), 1,2);
+                $total = bcmul(($trading['number']+$trading['fee_num']), 1,2);
                 $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total,1);
                 if(!$userAmount){
                     $balanceM->rollback();
@@ -575,7 +575,7 @@ class Transfer extends ApiBase
                 }
 
                 $coin_id = 3;//CBC
-                $total = bcmul(($trading['amount']+$trading['fee_num']), 1,2);
+                $total = bcmul(($trading['number']+$trading['fee_num']), 1,2);
                 $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
                 if(!$userAmount){
                     $balanceM->rollback();
