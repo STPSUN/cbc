@@ -262,12 +262,9 @@ class User extends ApiBase
 
             $password = md5($password);
             $m = new \addons\member\model\MemberAccountModel();
-            $res = $m->updatePassByUserID($this->user_id, $password);
-            if($res > 0){
-                return $this->successJSON();
-            }else{
-                return $this->failJSON('修改密码失败');
-            }
+            $user_id = $m->getUserByPhone($phone);
+            $m->updatePassByUserID($user_id, $password,2);
+            return $this->successJSON();
         }
     }
 
@@ -472,7 +469,7 @@ class User extends ApiBase
     {
         $memberS = new MemberService();
 
-        $memberS->memberLevelUpdate($this->user_id);
+        $memberS->memberLevel(59);
         return $this->successJSON();
     }
 
