@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,initial-scale=1.0,width=device-width"/>
+  <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+  <title>注册</title>
+  <link rel="stylesheet" type="text/css" href="./aui.css"/>
+  <link rel="stylesheet" href="build/css/intlTelInput.css">
+  <style>
+    html,body{
+      width: 100%;
+      min-height: 100%;
+    }
+    body{
+        background: url('./image/login_bg.png') no-repeat;
+        background-size:100% 100%;
+        color:#ccc !important;
+        background-position: 50%;
+        background-color: transparent;
+      }
+    ::-webkit-input-placeholder {
+        /* WebKit browsers */
+        color: #7ea6e1;
+        font-size: 0.7rem;
+    }
+
+    :-moz-placeholder {
+        /* Mozilla Firefox 4 to 18 */
+        color: #7ea6e1;
+        font-size: 0.7rem;
+    }
+
+    ::-moz-placeholder {
+        /* Mozilla Firefox 19+ */
+        color: #7ea6e1;
+        font-size: 0.7rem;
+    }
+
+    :-ms-input-placeholder {
+        /* Internet Explorer `10+ */
+        color: #7ea6e1;
+        font-size: 0.7rem;
+    }
+    .list-wrap{
+      width: 80%;
+      margin: 0 auto;
+    }
+    .logo_title{
+      font-size: 1.5rem;
+      color: #95bfff;
+    }
+    .list-input{
+      background: #fff;
+      border-radius: 0.25rem;
+      padding:0 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .wrap{
+      margin-top: 1rem;
+    }
+    .btn-code{
+      height: 2.2rem;
+      line-height: 2.2rem;
+      background:#288ecf;
+      color: #fff;
+      width: 60%;
+      text-align: center;
+      border-top-right-radius: 0.15rem;
+      border-bottom-right-radius: 0.15rem;
+      font-size: 0.7rem;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .go_icon{
+      width: 1.3rem;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .icon-down{
+      width: 0.5rem;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .label-wrap{
+      display: flex;
+      align-items: center;
+      width:35%;
+      border-right: 1px solid #4890cd;
+      height: 2.2rem;
+      justify-content: space-around;
+    }
+    .icon-back{
+      width: 1rem;
+    }
+    </style>
+</head>
+<body id="wrap">
+  <header class="nav-header aui-bar aui-bar-nav aui-default-b-border" style="background:transparent !important;" id="aui-header">
+      <!-- <a class="aui-pull-left aui-btn" tapmode onclick="closeWin()">
+         <img src="./image/back.png" class="icon-back">
+      </a> -->
+  </header>
+	<div class="aui-text-center">
+		<img src="./image/logo.png" class="aui-inline" alt="" style="width: 4rem;margin-top:-1rem">
+    <div class="logo_title">CBC</div>
+	</div>
+
+  <div class="wrap">
+      <div class="list-wrap list-input flex-wrap">
+        <!-- <label class="label-wrap aui-text-app" onclick="clickEvent()">
+          <span id="data-no" class="aui-font-size-14">+86</span>
+          <img src="./image/down.png" class="icon-down">
+        </label> -->
+        <input type="text" placeholder="请输入您的手机号" class="aui-padded-l-10" style="margin-left:50px" id="phone">
+      </div>
+    <div class="list-wrap list-input flex-wrap aui-padded-0">
+      <input type="text" placeholder="请输入验证码" class="aui-padded-l-10 aui-padded-r-10" id="verify_code">
+      <span class="btn-code" onclick="getSms(this)" id="lang_getCode">获取验证码</span>
+    </div>
+    <div class="list-wrap list-input">
+      <input type="password" placeholder="请输入登陆密码 长度8-20位" id="password">
+    </div>
+    <div class="list-wrap list-input">
+      <input type="password" placeholder="请输入交易密码 长度6-20位" id="log_pay_password">
+    </div>
+    <div class="list-wrap list-input flex-wrap aui-padded-0">
+      <input type="text" placeholder="推荐人" readonly class="aui-padded-l-10 aui-padded-r-10" id="inviter_id">
+    </div>
+    <div class="btn-app" tapmode onclick="onRegister()" style="margin-top: 1.5rem;margin-bottom:0.5rem" id="lang_register">
+    	注册
+    </div>
+    <div class="list-wrap aui-text-center">
+      <div class="flex-wrap" style="justify-content:center">
+        <div class="aui-margin-r-10">
+          <img src="./image/on_go.png" class="go_icon">
+          <img src="./image/go.png" class="go_icon aui-hide">
+        </div>
+        <div class="aui-text-white aui-font-size-12 aui-text-center"><span id="lang_reg_1">阅读并同意</span> <span style="color:#63aaf7">《<span id="lang_reg_2">用户协议和隐私政策</span>》</span></div>
+      </div>
+    </div>
+	</div>
+</body>
+
+<script type="text/javascript" src="./script/jquery.min.js"></script>
+<script src="build/js/intlTelInput.js"></script>
+<script type="text/javascript">
+  var isWaiting =false ;
+    window.onload = function(){
+      var inviter_id = location.search.split("=")[1]
+      if(inviter_id){$('#inviter_id').val(inviter_id)}
+    }
+    $("#phone").intlTelInput({
+       geoIpLookup: function(callback) {
+         console.log(333)
+       },
+      utilsScript: ""
+    });
+
+    $("#phone").on("countrychange", function(e, countryData) {
+      console.log(countryData)
+      console.log(countryData.dialCode)
+    });
+
+    function remainTime(el){
+        var time = 60;
+        var interval = setInterval(function(){
+          $(el).text( (time--) +'s后重新获取' )
+             if ( time < 0 ) {
+                clearInterval(interval);
+                $(el).text( '获取验证码' )
+                isWaiting = false;
+            }
+        },1000)
+    }
+    function getSms(el){
+        var phone =   $('#phone').val();
+        if(!phone) return alert('请输入手机号');
+        if ( isWaiting ) return;
+        isWaiting = true;
+        remainTime(el);
+        $.post("http://test1.ifc003.com/user/getVerifyCode",{phone:phone,type:"1"},function(ret){
+          ret = JSON.parse(ret)
+          if(ret.success){
+                 alert(ret.message);
+          }else{
+                alert(ret.message);
+          }
+        })
+    }
+    function onRegister(){
+      var phone =  $('#phone').val()
+      var verify_code = $('#verify_code').val() 
+      var password = $('#password').val() 
+      var log_pay_password =$('#log_pay_password').val() 
+      var inviter_id = $('#inviter_id').val() 
+      if(!phone) return alert('请输入手机号');
+      if(!verify_code) return alert('请输入验证码');
+      if(!/[A-Za-z0-9]{8,20}$/.test(password)) return alert('请输入8-20位登陆密码,含数字或字母');
+      if(!/[A-Za-z0-9]{6,20}$/.test(log_pay_password)) return alert('请输入6-20位交易密码,含数字或字母');
+      if(!inviter_id) return alert('请输入推荐人');
+
+      var postVal = {
+        phone : phone ,
+        verify_code : verify_code,
+        password :password ,
+        pay_password :log_pay_password,
+        inviter_id : inviter_id
+      }
+      $.post("http://test1.ifc003.com/user/register",postVal,function(ret){
+        ret = JSON.parse(ret)
+        if(ret.success){
+              return alert(ret.message || "注册成功");
+              location.href = '新的下载链接'
+          }else{
+              return alert(ret.message || "注册失败");
+          }
+      })
+
+    }
+    
+</script>
+</html>
