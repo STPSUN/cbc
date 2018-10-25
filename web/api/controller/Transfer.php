@@ -228,8 +228,7 @@ class Transfer extends ApiBase
             return $this->successJSON('上传打款凭证成功');
         }catch(\Exception $e){
             return $this->successJSON($e->getMessage());
-        }
-            
+        }  
     }
 
 
@@ -732,22 +731,44 @@ class Transfer extends ApiBase
         if($user_id <= 0) return $this->failData('请登录');
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
-        $pay_password = $this->_post('pay_password');
-        $user = $this->checkPwd($user_id,$pay_password);
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON('请选择正确的订单');
         $trading = $tradingM->findTrad($trad_id);
         if(!$trading) return $this->failJSON('订单不存在');
+        if($trading['type']!=2) return $this->failJSON('订单状态错误');
         if($user_id!=$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
         $user = $userM->getDetail($trading['user_id']);
-        $msg = '【CBC】尊敬的'.$name.'先生/女士，您的订单在CBC系统出售成功，买家已经打款，请您在收到款之后去平台确认发货。';
+        $msg = '【CBC】尊敬的'.$user['real_name'].'先生/女士，您的订单在CBC系统出售成功，买家已经打款，请您在收到款之后去平台确认发货。';
+        $res = \addons\member\utils\Sms::sendOrder($user['phone'],$msg);
+        if($res['success']){
+            return $this->successJSON();
+        }else{
+            return $this->failJSON($res['message']);
+        }  
+    }
+
+
+    /**
+     * 用户投诉
+     */
+    public function UserComplaint(){
+        $user_id = $this->user_id;
+        if($user_id <= 0) return $this->failData('请登录');
+        $tradingM = new \addons\member\model\Trading();
+        $userM = new \addons\member\model\MemberAccountModel();
+        $trad_id = $this->_post('trad_id');
+        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+        $trading = $tradingM->findTrad($trad_id);
+        if(!$trading) return $this->failJSON('订单不存在');
+        if($trading['type']!=2) return $this->failJSON('订单状态错误');
+        if($user_id!=$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
 
     }
 
     /**
      * 获取支付方式
      */
-    public function getUserPayList($uid){
+    private function getUserPayList($uid){
         $m = new \addons\member\model\PayConfig();
         return $m->getUserPay($uid);
     }
@@ -775,7 +796,7 @@ class Transfer extends ApiBase
     /**
      * 计算奖金
      */
-    public function mathBonus($trading){
+    private function mathBonus($trading){
         return true;
     }
 }

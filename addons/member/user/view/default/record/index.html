@@ -53,6 +53,7 @@
             </a>
             <input type="text" id="js_keyword" placeholder="请输入手机号码" value="" class="frm_input" />
         </span>
+        
     </div>
     <table id="grid-table">
         <thead>
@@ -87,6 +88,20 @@
     });
     $("#js_search").click(function () {
         reload();
+    });
+
+    $("#js_export").click(function () {
+        var keyword = $("#js_keyword").val();
+        var asset_type = $("#asset_type").val();
+        var change_type = $("#change_type").val();
+        var type = $("#type").val();
+        var month_picker = $("#month_picker").val();
+        var arr = month_picker.split(" 至 ");
+        var startDate = arr[0];
+        var endDate = arr[1];
+        var str = 'keyword='+keyword+'&asset_type='+asset_type+'&change_type='+change_type+'&type='+type+'&startDate='+startDate+'&endDate='+endDate;
+        window.open(getURL('exportout')+'?'+str);
+        
     });
     $(function () {
         $('#grid-table').datagrid({

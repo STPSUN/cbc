@@ -17,7 +17,12 @@ class Sms{
     private static $API_BALANCE_QUERY_URL='https://smssh1.253.com/msg/balance/json';//创蓝短信余额查询接口URL
     private static $API_ACCOUNT= 'N2372657'; // 创蓝API账号
     private static $API_PASSWORD= 'WbzH8vuDQg2066';// 创蓝API密码
-
+    /**
+     * 新短信：短信：https://zz.253.com/om/index.html
+总账号
+总账号
+总账号 15957944057 密码 abc15957944057
+     */
     // private static function _init() {
     //     $m = new \addons\config\model\Sms();
     //     $data = $m->getAllowConfig();
@@ -47,6 +52,31 @@ class Sms{
         $res = json_decode(self::curlPost(self::$API_SEND_URL, $postArr),1);
         if($res['code']==0){
             self::$data['code'] = $code;
+            self::$data['message'] = "验证码发送成功，请注意查收";
+            self::$data['success'] = true;   
+        }else{
+            self::$data['message'] = 'errormsg:'.$res['errorMsg'];
+            self::$data['success'] = false;
+        }
+        return self::$data;
+    }
+
+
+    /**
+     * 发送验证码
+     * @param type $phone
+     */
+    public static function sendOrder($phone,$msg){
+        //创蓝接口参数
+        $postArr = array (
+            'account'  =>  self::$API_ACCOUNT,
+            'password' => self::$API_PASSWORD,
+            'msg' => urlencode($msg),
+            'phone' => $phone,
+            'report' => 'true'
+        );
+        $res = json_decode(self::curlPost(self::$API_SEND_URL, $postArr),1);
+        if($res['code']==0){
             self::$data['message'] = "验证码发送成功，请注意查收";
             self::$data['success'] = true;   
         }else{
