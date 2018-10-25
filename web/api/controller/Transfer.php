@@ -774,6 +774,7 @@ class Transfer extends ApiBase
     public function cancleOrder(){
         $tradingM = new \addons\member\model\Trading();
         $map['type'] = 1;
+        $map['status'] = 0;
         $map['update_time'] = ['gt',date('Y-m-d H:i:s',(time()+30*60))];
         $list = $tradingM->where($map)->select();
         if(!$list) return $this->failJSON('暂无订单');
