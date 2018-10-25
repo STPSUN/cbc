@@ -279,7 +279,7 @@ class Transfer extends ApiBase
 
             //删除锁仓金额
             $coin_id = 3;//CBC
-            $amount = bcmul(($trading['fee_num']+$trading['amount']), 1,2);
+            $amount = bcmul(($trading['fee_num']+$trading['number']), 1,2);
             $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
             if($amount>$userAmount['amount']){
                 $amount = $userAmount['amount'];
