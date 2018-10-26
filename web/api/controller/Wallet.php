@@ -245,7 +245,19 @@ class Wallet extends ApiBase
      */
     public function income()
     {
+        $recordM = new TradingRecord();
+        $trading_amount = $recordM->where(['to_user_id' => $this->user_id, 'type' => 9])->sum('amount');
+        $share_amount = $recordM->where(['to_user_id' => $this->user_id, 'type' => 10])->sum('amount');
+        $peer_amount = $recordM->where(['to_user_id' => $this->user_id, 'type' => 11])->sum('amount');
 
+        $data = array(
+            'team_amount'       => 0,
+            'node_amount'       => 0,
+            'trading_amount'    => $trading_amount,
+            'share_amount'      => $share_amount,
+            'peer_amount'       => $peer_amount,
+        );
+        return $this->successJSON($data);
     }
 }
 
