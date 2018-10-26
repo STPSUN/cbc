@@ -9,13 +9,17 @@
 namespace web\api\controller;
 
 
+use addons\member\model\Balance;
 use addons\member\model\MemberAccountModel;
+use addons\member\model\TradingRecord;
+use think\Log;
 use think\Request;
 use think\Validate;
 use web\api\model\MemberNode;
 use web\api\model\MemberNodeApply;
 use web\api\model\MemberNodeIncome;
 use web\api\service\MemberService;
+use web\api\service\NodeService;
 
 class Node extends ApiBase
 {
@@ -224,42 +228,6 @@ class Node extends ApiBase
         $data = $nodeM->getDataList('','','',$fields,'type asc');
 
         return  $this->successJSON($data);
-    }
-
-
-    /**
-     * 节点释放
-     */
-    public function release()
-    {
-        $nodeM = new \web\api\model\Node();
-        $memberNodeM = new MemberNode();
-        $nodes = $memberNodeM->alias('m')
-                    ->join('node n', 'n.id = m.node_id')
-                    ->where(['m.user_id' => 56, 'm.status' => 1])
-                    ->sum('n.release_num');
-
-        $num = $nodeM->alias('n')
-                    ->join('member_node m', 'm.node_id = n.id')
-                    ->where('m.user_id',56)
-                    ->sum('n.release_num');
-
-        $nodes = $memberNodeM->where(['user_id' => $this->user_id, 'status' => 1])->column('node_id');
-        $node_ids = '';
-        foreach ($nodes as $v)
-        {
-            $node_ids .= $v . ',';
-        }
-
-        print_r($node_ids);exit();
-    }
-
-    /**
-     * 普通节点释放
-     */
-    private function normaoRelease()
-    {
-
     }
 }
 
