@@ -22,6 +22,7 @@
             <tr>
                 <th data-options="field:'amount_limit',width:140,align:'center',sortable: true">金额上限</th>  
                 <th data-options="field:'amount_interest',width:100,align:'center',sortable: true">利息(%)</th>  
+                <th data-options="field:'status',width:100,align:'center',formatter: formatStatus">状态</th>  
                 <th data-options="field:'create_at',width:140,align:'center',sortable: true">创建时间</th>  
                 <th data-options="field:'update_at',width:140,align:'center',sortable: true">更新时间</th>  
                 <th data-options="field:'_oper',halign:'center',formatter: formatOper">操作</th>
@@ -33,12 +34,27 @@
 {/block}
 {block name="script"}
 <script type="text/javascript">
+    function formatStatus(value, row, index) {
+        if(value==1){
+            html = '<span style="color:red">关闭</span>'
+        }else{
+            html = '<span style="color:green">开启</span>'
+
+        }
+        return html;
+    }
 
     function formatOper(value, row, index) {
         var html = '<span class="grid-operation">';
         html += '<button type="button" onclick="edit(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>编辑</button>';
 
         html += '<button type="button" onclick="del(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon wb-close"></i>删除</button>';
+        if(row['limit']==1){
+            html += '<button type="button" onclick="change(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon "></i>开启</button>';
+        }else{
+            html += '<button type="button" onclick="change(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon "></i>关闭</button>';
+
+        }
         html += '</span>';
         return html;
     }
@@ -68,6 +84,18 @@
         openBarWin('编辑', 700, 250, url, function () {
             reload();
         }, ['保存', '取消']);
+    }
+
+    function change(id) {
+        confirm("确认要修改状态吗？", function () {
+            var url = getURL('change');
+            $.getJSON(url, {id: id}, function (json) {
+                if (json.success)
+                    reload();
+                else
+                    alert(json.message);
+            });
+        });
     }
 
     function del(id) {

@@ -53,6 +53,21 @@ class Financial extends \web\user\controller\AddonUserBase{
         }
     }
     
+
+    public function change(){
+        $id = $this->_get('id');
+        $m = new \web\common\model\sys\FinancialModel();
+        try {
+            $res = $m->where(['id'=>$id])->find();
+            $res['status'] = $res['status']?0:1;
+            $res['update_at'] = NOW_DATETIME;
+            $ret = $m->save($res);
+            return $this->successData();
+        } catch (\Exception $e) {
+            return $this->failData($e->getMessage());
+        }
+        
+    }
     public function loadData(){
         $id = $this->_get('id');
         $m = new \web\common\model\sys\FinancialModel();
