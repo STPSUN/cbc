@@ -28,10 +28,10 @@ class User extends ApiBase
                 $phone = $this->_post('phone');
                 $password = $this->_post('password');
                 if (empty($password)) {
-                    return $this->failJSON('密码不能为空');
+                    return $this->failJSON(lang('USER_PASSWORD'));
                 }
                 if (empty($phone)) {
-                    return $this->failJSON('手机号不能为空');
+                    return $this->failJSON(lang('USER_PHONE'));
                 }
                 $m = new \addons\member\model\MemberAccountModel();
                 $res = $m->getLoginData($password, $phone, 'phone,id,username', 'id,phone,username');
@@ -49,13 +49,13 @@ class User extends ApiBase
                     $data['token'] = $token;
                     return $this->successJSON($data);
                 } else {
-                    return $this->failJSON('帐号或密码有误');
+                    return $this->failJSON(lang('USER_ACCOUNT_WRONG'));
                 }
             } catch (\Exception $ex) {
                 return $this->failJSON($ex->getMessage());
             }
         } else {
-            return $this->failJSON('请求出错');
+            return $this->failJSON(lang('USER_REQUEST'));
         }
     }
 
@@ -83,7 +83,10 @@ class User extends ApiBase
 //                return $this->failJSON('两次输入的密码不一致');
 //            }
             if (strlen($password) < 8) {
-                return $this->failJSON('密码长度不能小于8');
+                return $this->failJSON(lang('USER_PASSWORD_LESS'));
+            }
+            if (strlen($pay_password) != 6) {
+                return $this->failJSON(lang('USER_PAY_PASSWORD_LESS'));
             }
             $data['password'] = md5($password);
             $data['pay_password'] = md5($pay_password);
@@ -95,7 +98,7 @@ class User extends ApiBase
 //            }
             $count = $m->hasRegsterPhone($data['phone']);
             if ($count > 0) {
-                return $this->failJSON('此手机号已被注册,请直接登录或尝试找回密码');
+                return $this->failJSON(lang('USER_PHONE_ALREADY'));
             }
             $m->startTrans();
             try {
@@ -104,7 +107,7 @@ class User extends ApiBase
                 if(empty($_verify))
                 {
                     $m->rollback();
-                    return $this->failJSON('验证码失效,请重新注册');
+                    return $this->failJSON(lang('USER_VERI_CODE'));
                 }
                 $inviter_id = $this->_post('inviter_id');
                 if (!empty($inviter_id)) {
@@ -114,7 +117,7 @@ class User extends ApiBase
                     if (!empty($invite_user)) {
                         $data['pid'] = $invite_user['id']; //邀请者id
                     } else {
-                        return $this->failJSON('邀请人不存在');
+                        return $this->failJSON(lang('USER_INVITER'));
                     }
                 }
                 $data['register_time'] = NOW_DATETIME;
@@ -131,7 +134,7 @@ class User extends ApiBase
                     $balanceM->save($balance);
                 }
                 $m->commit();
-                return $this->successJSON('注册成功');
+                return $this->successJSON(lang('USER_REGISTER_SUC'));
 //                $res = $this->getEthAddr($data['phone']);
 //                if ($res) {
 //                    $data['address'] = $this->_address; //eth地址
@@ -144,7 +147,7 @@ class User extends ApiBase
                 return $this->failJSON($ex->getMessage());
             }
         }else {
-            return $this->failJSON('请求出错');
+            return $this->failJSON(lang('USER_REQUEST'));
         }
     }
 
@@ -161,7 +164,7 @@ class User extends ApiBase
         $m = new \addons\member\model\VericodeModel();
         $unpass_code = $m->hasUnpassCode($phone,$type);
         if(!empty($unpass_code)){
-            return $this->failJSON('验证码未过期,请输入之前收到的验证码');
+            return $this->failJSON(lang('USER_VERI_NOT'));
         }
         try{
             //发送验证码
@@ -203,7 +206,7 @@ class User extends ApiBase
 
         if(empty($user))
         {
-            return $this->failJSON('该用户不存在');
+            return $this->failJSON(lang('USER_EXISTS'));
         }
 
         $balance = array();
@@ -248,18 +251,18 @@ class User extends ApiBase
             $password1 = $this->_post('password1');
             $phone  = $this->_post('phone');
             if($password != $password1){
-                return $this->failJSON('两次输入的密码不一致');
+                return $this->failJSON(lang('USER_TWO_PASS'));
             }
 
             if (strlen($password) < 8) {
-                return $this->failJSON('密码长度不能小于8');
+                return $this->failJSON(lang('USER_PASSWORD_LESS'));
             }
 
             $verifyM = new \addons\member\model\VericodeModel();
             $_verify = $verifyM->VerifyCode($auth_code, $phone,2);
             if(empty($_verify))
             {
-                return $this->failJSON('验证码失效');
+                return $this->failJSON(lang('USER_VERI_WRONG'));
             }
 
             $password = md5($password);
@@ -281,18 +284,18 @@ class User extends ApiBase
             $password1 = $this->_post('pay_password1');
             $phone  = $this->_post('phone');
             if($password != $password1){
-                return $this->failJSON('两次输入的密码不一致');
+                return $this->failJSON(lang('USER_TWO_PASS'));
             }
 
-            if (strlen($password) < 8) {
-                return $this->failJSON('密码长度不能小于8');
+            if (strlen($password) !=6) {
+                return $this->failJSON(lang('USER_PAY_PASSWORD_LESS'));
             }
 
             $verifyM = new \addons\member\model\VericodeModel();
             $_verify = $verifyM->VerifyCode($auth_code, $phone,4);
             if(empty($_verify))
             {
-                return $this->failJSON('验证码失效');
+                return $this->failJSON(lang('USER_VERI_WRONG'));
             }
 
             $password = md5($password);
@@ -301,7 +304,7 @@ class User extends ApiBase
             if($res > 0){
                 return $this->successJSON();
             }else{
-                return $this->failJSON('交易密码修改失败');
+                return $this->failJSON(lang('USER_UPDATE_PAY_FAIL'));
             }
         }
     }
@@ -319,22 +322,22 @@ class User extends ApiBase
             $new_phone1 = $this->_post('new_phone1');
 
             if($new_phone != $new_phone1)
-                return $this->failJSON('两次输入手机号不一致');
+                return $this->failJSON(lang('USER_TWO_PHONE'));
 
             if (!preg_match("/13[0-9]{1}\d{8}|15[0-9]\d{8}|188\d{8}/", $new_phone)) {
                 //11为手机号, 匹配13[0-9]后8位 \d数字| 15[0-9]后8位数字 | 188 后8位数字
-                return $this->failJSON('手机号码格式错误');
+                return $this->failJSON(lang('USER_WRONG_PHONE'));
             }
             $verifyM = new \addons\member\model\VericodeModel();
             $_verify = $verifyM->VerifyCode($code, $phone, $type);
             if (!empty($_verify)) {
                 $id = $m->where('id='.$this->user_id)->update(['phone' => $new_phone]);
                 if ($id <= 0) {
-                    return $this->failJSON('重置失败');
+                    return $this->failJSON(lang('USER_UPDATE_FIAL'));
                 }
-                return $this->successJSON("修改成功");
+                return $this->successJSON(lang('USER_UPDATE_SUC'));
             } else {
-                return $this->failJSON('验证码失效,请重新发送');
+                return $this->failJSON(lang('USER_VERI_WRONG'));
             }
         }
     }

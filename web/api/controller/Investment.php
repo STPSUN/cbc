@@ -17,7 +17,7 @@ class Investment extends ApiBase
      */
     public function getInvestmentList(){
         $user_id = $this->user_id;
-        if(!$user_id) return $this->failJSON("请登录");
+        if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
         $financialM = new \web\common\model\sys\FinancialModel();
         $list = $financialM->getDataList(-1, -1, $filter = 'status=0', $fileds = '', $order = 'id asc');
         $finaM = new \addons\member\model\Financial();
@@ -45,29 +45,29 @@ class Investment extends ApiBase
      */
     public function Investment(){
         $user_id = $this->user_id;
-        if(!$user_id) return $this->failJSON("请登录");
+        if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
         $financialM = new \web\common\model\sys\FinancialModel();
         $fina = new \addons\member\model\Financial();
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
         $financial_id = $this->_post('financial_id');
         $info = $financialM->getFinancial($financial_id);
-        if(!$info) return $this->failJSON("找不到理财方式");
+        if(!$info) return $this->failJSON(lang('INVESTMENT_FIND'));
         $amount = $this->_post('amount');
-        if($amount<$info['amount_limit']) return $this->failJSON("起始投资金额少于".$info['amount_limit']);
+        if($amount<$info['amount_limit']) return $this->failJSON(lang('INVESTMENT_LESS').$info['amount_limit']);
         $type = 4;
         $userAsset = $balanceM->getBalanceByType($user_id,$type);
-        if($amount>$userAsset['amount'])  return $this->failJSON("你的资金少于".$amount);
+        if($amount>$userAsset['amount'])  return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$amount);
         $balanceM->startTrans();
         $userAsset = $balanceM->updateBalance($user_id,$type,$amount);
         if(!$userAsset){
             $balanceM->rollback();
-            return $this->failJSON("减少资金错误");
+            return $this->failJSON(lang('INVESTMENT_REDUCE_WRONG'));
         }
         $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $type, 4,0, $user_id,'用户理财');
         if(empty($in_record_id)){
             $balanceM->rollback();
-            return $this->failJSON('更新余额失败');
+            return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
         }
         $data = [
                 'user_id'       =>$user_id,
@@ -83,7 +83,7 @@ class Investment extends ApiBase
         $res = $fina->add($data);
         if(!$res){
             $balanceM->rollback();
-            return $this->failJSON('添加投资失败');
+            return $this->failJSON(lang('INVESTMENT_ADD_WRONG'));
         }
         $balanceM->commit();
         return $this->successJSON();
@@ -94,7 +94,7 @@ class Investment extends ApiBase
      */
     public function getFinancialList(){
         $user_id = $this->user_id;
-        if(!$user_id) return $this->failJSON("请登录");
+        if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
         $finaM = new \addons\member\model\Financial();
         $order = 'id desc';
         $filter = 'user_id = '.$user_id;
@@ -107,15 +107,15 @@ class Investment extends ApiBase
      */
     public function receiveFinancial(){
         $user_id = $this->user_id;
-        if(!$user_id) return $this->failJSON("请登录");
+        if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
         $finaM = new \addons\member\model\Financial();
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
         $financial_id = $this->_post('financial_id');
         $info = $finaM->getDetail($financial_id);
-        if(!$info) return $this->failJSON("找不到理财订单");
-        if($info['user_id']!=$user_id) return $this->failJSON("不是你的理财订单");
-        if(time()<strtotime($info['end_at'])) return $this->failJSON("理财时间还没结束");
+        if(!$info) return $this->failJSON(lang('INVESTMENT_CANT_FIND'));
+        if($info['user_id']!=$user_id) return $this->failJSON(lang('INVESTMENT_NOT_YOUR'));
+        if(time()<strtotime($info['end_at'])) return $this->failJSON(lang('INVESTMENT_TIME_END'));
         $balanceM->startTrans();
         $coin_id = 2;
         $type = 12;
@@ -123,12 +123,12 @@ class Investment extends ApiBase
         $userAsset = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
         if(!$userAsset){
             $balanceM->rollback();
-            return $this->failJSON("增加资金错误");
+            return $this->failJSON(lang('COMMON_ADD_AMOUNT_WRONG'));
         }
         $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $coin_id, $type,1, $user_id,'用户理财');
         if(empty($in_record_id)){
             $balanceM->rollback();
-            return $this->failJSON('更新余额失败');
+            return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
         }
 
         $coin_id = 4;
@@ -136,12 +136,12 @@ class Investment extends ApiBase
         $userAsset = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
         if(!$userAsset){
             $balanceM->rollback();
-            return $this->failJSON("增加资金错误");
+            return $this->failJSON(lang('COMMON_ADD_AMOUNT_WRONG'));
         }
         $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $coin_id, $type,1, $user_id,'用户理财');
         if(empty($in_record_id)){
             $balanceM->rollback();
-            return $this->failJSON('更新余额失败');
+            return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
         }
         $data = [
                 'status'        =>1,
@@ -150,7 +150,7 @@ class Investment extends ApiBase
         $res = $finaM->where(['id'=>$financial_id])->update($data);
         if(!$res){
             $balanceM->rollback();
-            return $this->failJSON('添加投资失败');
+            return $this->failJSON(lang('INVESTMENT_ADD_FAIL'));
         }
         $balanceM->commit();
         return $this->successJSON();
