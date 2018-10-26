@@ -13,6 +13,7 @@ use addons\member\model\Balance;
 use addons\member\model\TradingRecord;
 use think\Log;
 use web\api\model\MemberNode;
+use web\api\model\Node;
 
 class NodeService extends \web\common\controller\Service
 {
@@ -122,6 +123,37 @@ class NodeService extends \web\common\controller\Service
         );
 
         return $data;
+    }
+
+    /**
+     * 赠送微信节点
+     */
+    public function sendNode($user_id)
+    {
+        $nodeM = new Node();
+        $memberNodeM = new MemberNode();
+        $node = $nodeM->where('type',1)->find();
+        if(empty($node))
+            return false;
+
+        $data = array(
+            'node_id'   => $node['id'],
+            'node_num'  => 1,
+            'user_id'   => $user_id,
+            'create_time'   => NOW_DATETIME,
+            'type'      => $node['type'],
+            'status'    => 1,
+            'release_num'   => $node['release_num'],
+            'total_num' => $node['total_num'],
+            'pass_time' => time() + ($node['days'] * 24 * 60 * 60),
+        );
+
+        $res = $memberNodeM->save($data);
+        if($res)
+            return true;
+        else
+            return false;
+
     }
 }
 

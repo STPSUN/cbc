@@ -579,7 +579,7 @@ class User extends ApiBase
         return $this->successJSON($data);
     }
 
-    /*
+    /**
      * 奖励社区
      */
     public function awardCommunity()
@@ -671,6 +671,36 @@ class User extends ApiBase
         );
 
         return $this->successJSON($data);
+    }
+
+    /**
+     * 用户信息修改验证
+     */
+    public function modifyAuth()
+    {
+        $param = Request::instance()->post();
+
+        $userM = new MemberAccountModel();
+        $user = $userM->getDetail($this->user_id);
+
+        if($param['type'] == 2)
+        {
+            $verifyM = new \addons\member\model\VericodeModel();
+            $_verify = $verifyM->VerifyCode($param['auth_code'], $user['phone'],7);
+            if(empty($_verify))
+            {
+                return $this->failJSON('验证码失效，请重新获取');
+            }
+
+            return $this->successJSON();
+        }else
+        {
+            $pay_password = md5($param['pay_password']);
+            if($pay_password != $user['pay_password'])
+                return $this->failJSON('密码错误');
+
+            return $this->successJSON();
+        }
     }
 
 }
