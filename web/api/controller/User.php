@@ -632,7 +632,16 @@ class User extends ApiBase
             }
         }
 
+        $one_num = count($pOne);
+        $two_num = count($user2);
+        $three_num = count($user3);
+        $total_num = $one_num + $two_num + $three_num;
+        $total_amount = 0;
         $total = array(
+            'total' => array(
+                'total_num' => $total_num,
+                'total_amount'  => $total_amount,
+            ),
             'one'   => array(
                 'people_num'    => count($pOne),
                 'amount'        => 0,

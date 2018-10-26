@@ -239,6 +239,14 @@ class Wallet extends ApiBase
 
         return $this->successJSON($data);
     }
+
+    /**
+     * 我的收益
+     */
+    public function income()
+    {
+
+    }
 }
 
 
