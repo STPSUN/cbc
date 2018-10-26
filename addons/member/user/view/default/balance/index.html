@@ -8,42 +8,20 @@
     <div id="js_main_header" class="ui-form main_header">
         <span>
             <select name="asset_type" id="asset_type" class="form-control" style="width:120px">
-                <option value="">筛选资产类型</option>
                 {volist name="confs" id="conf"}
                 <option value="{$conf.id}">{$conf.name}</option>
                 {/volist}
             </select>
         </span>
+
         <span>
-            <select name="change_type" id="change_type" class="form-control" style="width:120px">
-                <option value="">筛选变更类型</option>
-                <option value="0">减少</option>
-                <option value="1">增加</option>
+            <select name="order" id="order" class="form-control" style="width:120px">
+                <option value="0">默认排序</option>
+                <option value="1">金额由大到小</option>
+                <option value="2">金额由小到大</option>
             </select>
         </span>
-        <span>
-            <!--0=转账，1=OTC交易，2=提现转出，3=后台拨币, 4=注册  ,5=复投，6=补差升级 10=推荐奖金，11=对碰奖金，12=管理奖金，13=领导奖金，14=报单中心奖金，15=复投奖金-->
-            <select name="type" id="type" class="form-control" style="width:120px">
-                <option value="">筛选记录类型</option>
-                <option value="1">转账</option>
-                <option value="2">激活码转账</option>
-                <option value="3">购买节点</option>
-                <option value="4">投资理财</option>
-                <option value="5">超级节点消费</option>
-                <option value="6">用户挂卖</option>
-                <option value="7">确认收款</option>
-                <option value="8">取消订单</option>
-                <!-- 
-                <option value="10">推荐奖金结算</option>
-                <option value="11">对碰奖金结算</option>
-                <option value="12">管理奖金结算</option>
-                <option value="13">领导奖金结算</option>
-                <option value="14">报单中心奖金结算</option>
-                <option value="15">复投奖金结算</option>
- -->                
-                
-            </select>
-        </span>
+
         <div class="left margin-right-5">
             <input style="width:200px" class="form-control" id="month_picker" size="20" />
         </div>
@@ -53,20 +31,14 @@
             </a>
             <input type="text" id="js_keyword" placeholder="请输入手机号码" value="" class="frm_input" />
         </span>
-        
     </div>
     <table id="grid-table">
         <thead>
             <tr>
-                <th data-options="field:'username',width:120, align:'center',sortable: true">手机号</th>
-                <th data-options="field:'to_username',width:120, align:'center',sortable: true">对方手机号</th>
+                <th data-options="field:'phone',width:120, align:'center',sortable: true">手机号</th>
                 <th data-options="field:'name',width:100, align:'center',sortable: true">资产类型</th>
-                <th data-options="field:'change_type',width:120, align:'center',formatter:fromatChangeType">变更类型</th>
-                <th data-options="field:'type',width:120, align:'center',formatter:fromatType">记录类型</th>
                 <th data-options="field:'before_amount',width:140, align:'center',sortable: true">变更前余额</th>
                 <th data-options="field:'amount',width:140, align:'center',sortable: true">金额</th>
-                <th data-options="field:'after_amount',width:140, align:'center',sortable: true">变更后余额</th>
-                <th data-options="field:'remark',width:200, align:'center',sortable: true">备注</th>
                 <th data-options="field:'update_time',width:200, align:'center',sortable: true">更新时间</th>
             </tr>
         </thead>
@@ -93,13 +65,12 @@
     $("#js_export").click(function () {
         var keyword = $("#js_keyword").val();
         var asset_type = $("#asset_type").val();
-        var change_type = $("#change_type").val();
-        var type = $("#type").val();
+        var order = $("#order").val();
         var month_picker = $("#month_picker").val();
         var arr = month_picker.split(" 至 ");
         var startDate = arr[0];
         var endDate = arr[1];
-        var str = 'keyword='+keyword+'&asset_type='+asset_type+'&change_type='+change_type+'&type='+type+'&startDate='+startDate+'&endDate='+endDate;
+        var str = 'keyword='+keyword+'&asset_type='+asset_type+'&order='+order+'&startDate='+startDate+'&endDate='+endDate;
         window.open(getURL('exportout')+'?'+str);
         
     });
@@ -193,8 +164,7 @@
         var keyword = $("#js_keyword").val();
         var asset_type = $("#asset_type").val();
         var change_type = $("#change_type").val();
-        var type = $("#type").val();
-        
+        var order = $("#order").val();
         var month_picker = $("#month_picker").val();
         var arr = month_picker.split(" 至 ");
         var startDate = arr[0];
@@ -202,8 +172,7 @@
         $('#grid-table').datagrid('reload', {
             keyword: keyword,
             asset_type:asset_type,
-            change_type:change_type,
-            type:type,
+            order:order,
             startDate: startDate,
             endDate: endDate
         });

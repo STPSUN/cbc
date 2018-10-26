@@ -1,0 +1,106 @@
+{extend name="$BASE_LIST" /}
+{block name="body"}
+<style type="text/css">
+.voucher{max-height: 50px;max-width: 50px}
+</style>
+<div class="right-main">
+    <div class="page_nav" id="js_page_nav"><span class="page_title">{$page_nav}</span></div>
+    <div id="js_main_header" class="ui-form main_header">
+        <span class="frm_input_box search append" style="width: 240px">
+            <a href="javascript:void(0);" id="js_search" class="frm_input_append">
+                <i class="icon wb-search" title="搜索"></i>
+            </a>
+            <input type="text" id="js_keyword" placeholder="请输入卖家手机、订单编号" value="" class="frm_input" />
+        </span>
+    </div>
+    <table id="grid-table">
+        <thead frozen="true">
+        <th data-options="field:'sphone',width:100, align:'center'">卖家手机号</th>
+        <th data-options="field:'bphone',width:100, align:'center'">买家手机号</th>
+        </thead>
+        <thead>
+            <tr>
+                <th data-options="field:'order_id',width:160, align:'center'">订单编号</th>
+                <th data-options="field:'content',width:100, align:'center'">投诉内容</th>
+                <th data-options="field:'type',width:100, align:'center',formatter: formatStatus">类型</th>
+                <th data-options="field:'update_at',width:140,align:'center'">更新时间</th>
+                <th data-options="field:'create_at',width:140,align:'center'">创建时间</th>
+                <th data-options="field:'_oper',width:250,halign:'center',formatter: formatOper">操作</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+{/block}
+{block name="script"}
+<script type="text/javascript">
+
+    //状态
+    function formatStatus(value,row,index){
+        if(value==0){
+            var text = '<span style="color:red">未操作</span>';
+        }else{
+            var text = '<span style="color:red">已操作</span>';
+        }
+        return text;
+    }
+
+    function formatOper(value, row, index) {
+        var html = '<span class="grid-operation">';
+        if(row['type']==0){
+            html += '<button type="button" onclick="cancleOrder(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>操作</button>';
+        }
+        html += '</span>';
+        return html;
+    }
+
+    //审核
+    function cancleOrder(id){
+        var title = '确定操作?';
+        confirm(title, function () {
+            var url = getURL('cancleOrder');
+            $.getJSON(url, {id: id}, function (json) {
+                if (json.success)
+                    reload();
+                else
+                    alert(json.message);
+            });
+        });
+    }
+
+    
+    
+    $(function () {
+        $('#grid-table').datagrid({
+            url: getURL('loadList'),
+            method: "GET",
+            height: getGridHeight(),
+            rownumbers: true,
+            singleSelect: true,
+            remoteSort: false,
+            multiSort: true,
+            emptyMsg: '<span>无相关数据</span>',
+            pagination: true,
+            pageSize: 20
+        });
+        //设置分页控件 
+        $('#grid-table').datagrid('getPager').pagination({
+            pageSize: 20, //每页显示的记录条数，默认为10 
+            pageList: [20, 30, 50]
+        });
+    });
+
+
+    $("#js_search").click(function () {
+        reload();
+    });
+    function reload() {
+        var keyword = $("#js_keyword").val();
+        $('#grid-table').datagrid('reload', {keyword: keyword});
+    }
+    $("#type").change(function () {
+        var keyword = $("#js_keyword").val();
+        $('#grid-table').datagrid('reload', {keyword: keyword});
+    });
+</script>
+{/block}

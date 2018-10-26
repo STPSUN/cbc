@@ -20,9 +20,9 @@
     <table id="grid-table">
         <thead frozen="true">
         <th data-options="field:'phone',width:150, align:'center'">手机号</th>
-        <th data-options="field:'node_level',width:100,align:'center'">节点等级</th> 
-        <th data-options="field:'user_level',width:100, align:'center'">会员等级</th>
-        <th data-options="field:'credit_level',width:100, align:'center'">信用等级</th>
+        <th data-options="field:'node_level',width:100,align:'center', formatter:formatNode">节点等级</th> 
+        <th data-options="field:'user_level',width:100, align:'center', formatter:formatLevel">会员等级</th>
+        <th data-options="field:'credit_level',width:100, align:'center', formatter:formatStatus">信用状态</th>
         <th data-options="field:'head_img',width:100, align:'center', formatter:formatImg">用户头像</th>
         </thead>
         <thead>
@@ -31,11 +31,11 @@
                 <th data-options="field:'id_face',width:160, align:'center', formatter:formatImg">身份证正面</th>
                 <th data-options="field:'id_back',width:160, align:'center', formatter:formatImg">身份证反面</th>
                 <th data-options="field:'is_auth',width:140,align:'center', formatter:formatAuth">是否为认证</th>
-                <th data-options="field:'total_cbc',width:300, align:'center'">总额</th>
-                <th data-options="field:'can_use',width:300, align:'center'">可用余额</th>
-                <th data-options="field:'lock_cbc',width:300, align:'center'">锁仓</th>
-                <th data-options="field:'code_cbc',width:300, align:'center'">激活码</th>
-                <th data-options="field:'release_cbc',width:300, align:'center'">今日释放</th>
+                <th data-options="field:'total_cbc',width:200, align:'center'">总额</th>
+                <th data-options="field:'can_use',width:200, align:'center'">可用余额</th>
+                <th data-options="field:'lock_cbc',width:200, align:'center'">锁仓</th>
+                <th data-options="field:'code_cbc',width:200, align:'center'">激活码</th>
+                <th data-options="field:'release_cbc',width:200, align:'center'">节点日释放</th>
                 <th data-options="field:'register_time',width:150, align:'center'">注册时间</th>
                 <th data-options="field:'_oper',width:420,halign:'center',formatter: formatOper">操作</th>
             </tr>
@@ -50,9 +50,10 @@
         var html = '<span class="grid-operation">';
         
         html += '<button type="button" onclick="add_coin_stock(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>拨币</button>';
-        // html += '<button type="button" onclick="edit(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>编辑用户资料</button>';
-        if(row['id'] != 1)
-            html += '<button type="button" onclick="del(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon wb-close"></i>删除</button>';
+        if(row['is_auth']==2)
+        html += '<button type="button" onclick="auth(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>认证</button>';
+        html += '<button type="button" onclick="edit(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>修改</button>';
+            // html += '<button type="button" onclick="del(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon wb-close"></i>删除</button>';
         html += '</span>';
         return html;
     }
@@ -65,7 +66,67 @@
         }
         return text;
     }
+/*节点等级：1 微型 | 2 小型（SS） | 3 小型（S） | 4 中小型 | 5 中大型 | 6 大型 | 7 超大型 | 8 超级',
+  `user_level` tinyint(4) DEFAULT '0' COMMENT '会员等级：1 会员 | 2 盟友 | 3 盟主 | 4 酋长 | 5 联盟大使 | 6 联合创始人',
+*/
+    function formatStatus(value,row,index){
+        var name = '封号';
+        if(value==1){
+            name = '一星';
+        }else if(value==2){
+            name = '二星';
+        }else if(value==3){
+            name = '三星';
+        }
+        var text = '<span style="">'+name+'</span>';
+        if(value==0){
+            text = '<span style="color:red">'+name+'</span>';
+        }
+        return text;
+    }
+    function formatNode(value,row,index){
+        var name = '无';
+        if(value==1){
+            name = '微型';
+        }else if(value==2){
+            name = '小型（SS）';
+        }else if(value==3){
+            name = '小型（S）';
+        }else if(value==4){
+            name = '中小型';
+        }else if(value==5){
+            name = '中大型';
+        }else if(value==6){
+            name = '大型';
+        }else if(value==7){
+            name = '超大型';
+        }else if(value==8){
+            name = '超级';
+        }
+        
+        var text = '<span style="">'+name+'</span>';
+        return text;
+    }
 
+    function formatLevel(value,row,index){
+        var name = '新用户';
+        if(value==1){
+            name = '会员';
+        }else if(value==2){
+            name = '盟友';
+        }else if(value==3){
+            name = '盟主';
+        }else if(value==4){
+            name = '酋长';
+        }else if(value==5){
+            name = '联盟大使';
+        }else if(value==6){
+            name = '联合创始人';
+        }
+        
+        var text = '<span style="">'+name+'</span>';
+        return text;
+    }
     $("#js_export").click(function () {
         confirm('确认导出？', function () {
             window.open(getURL('exportout'));
@@ -79,12 +140,12 @@
         return text;
     }
     
-    function formatStatus(value,row,index){
-        var text = '<span style="color:red">否</span>';
-        if(value == '1')
-            text = '<span style="color:green">是</span>';
-        return text;
-    }
+    // function formatStatus(value,row,index){
+    //     var text = '<span style="color:red">否</span>';
+    //     if(value == '1')
+    //         text = '<span style="color:green">是</span>';
+    //     return text;
+    // }
     
     $(function () {
         $('#grid-table').datagrid({

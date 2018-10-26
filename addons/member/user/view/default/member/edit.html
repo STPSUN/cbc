@@ -23,73 +23,19 @@
                 </div>
             </div>
             <div class="control-group">
-                <label class="control-label">身份证号</label>
-                <div class="controls">
-                    <input type="text" id="card_no" name="card_no" class="form-control"  />
-                </div>
-            </div>
-            <div class="control-group">
                 <label class="control-label">推荐上级用户</label>
                 <div class="controls">
                     <input id="pid" name="pid" {if condition="$login_user_name neq 'admin1'"}disabled="true"{/if} data-ui="combosearch" data-options="{valueField:'id',textField:'username',showList:true,matchFields:['username'],data:user_data,searchWin:openSearchWin}" class="form-control"/>   
                 </div>
             </div>
             <div class="control-group">
-                <label class="control-label">报单中心用户</label>
+                <label class="control-label">信用等级</label>
                 <div class="controls">
-                    <input id="center_id" disabled="true" name="center_id" data-ui="combosearch" data-options="{valueField:'id',textField:'username',showList:true,matchFields:['username'],data:user_data,searchWin:centerOpenSearchWin}" class="form-control"/>   
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label">是否为报单中心</label>
-                <div class="controls">
-                    <select name="is_center" id="is_center" class="form-control required">
-                        <option value="0">否</option>
-                        <option value="1">是</option>
-                    </select>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label">查看网络图</label>
-                <div class="controls">
-                    <select name="can_see_map" id="can_see_map" class="form-control required">
-                        <option value="0">不可以</option>
-                        <option value="1">可以</option>
-                    </select>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label">允许空单回填</label>
-                <div class="controls">
-                    <select name="can_backfill" id="can_backfill" class="form-control required">
-                        <option value="0">否</option>
-                        <option value="1">是</option>
-                    </select>
-                </div>
-            </div><!--
-            <div class="control-group">
-                <label class="control-label">是否空单回填账号</label>
-                <div class="controls">
-                    <select name="is_backfill" id="is_backfill" class="form-control required" disabled="true">
-                        <option value="0">否</option>
-                        <option value="1">是</option>
-                    </select>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label">回填剩余金额</label>
-                <div class="controls">
-                    <input type="text" name="advance_amount" id="advance_amount" class="form-control" disabled="true">
- 
-                </div>
-            </div>-->
-            <div class="control-group">
-                <label class="control-label">套餐等级</label>
-                <div class="controls">
-                    <select name="meal_id" id="meal_id" class="form-control">
-                        {volist name="meals" id="meal"}
-                        <option value="{$meal.id}">{$meal.title}</option>
-                        {/volist}
+                    <select name="credit_level" id="credit_level" class="form-control required">
+                        <option value="0">封号</option>
+                        <option value="1">一星</option>
+                        <option value="2">二星</option>
+                        <option value="3">三星</option>
                     </select>
                 </div>
             </div>
@@ -98,26 +44,8 @@
                 <div class="controls">
                     <input type="text"  name="now_password" class="form-control" placeholder="不修改密码请勿填写"/>
                 </div>
-            </div><!--
-            <div class="control-group">
-                <label class="control-label">支付密码</label>
-                <div class="controls">
-                    <input type="text"  name="now_pass2" class="form-control" placeholder="不修改支付密码请勿填写" />
-                </div>
-            </div>-->
+            </div>
 
-        </div>
-        <div class="control-group">
-            <label class="control-label">住址</label>
-            <div class="controls">
-                <input type="text" style="width:260px" id="address" name="address" class="form-control" />
-            </div>
-        </div>
-        <div class="control-group">
-            <label class="control-label">银行卡号</label>
-            <div class="controls">
-                <input type="text" style="width:260px" id="bank_code" name="bank_code" class="form-control" />
-            </div>
         </div>
         
     </div>
