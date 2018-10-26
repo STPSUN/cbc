@@ -230,12 +230,14 @@ class AwardService extends \web\common\controller\Service
         $total_balance = $balanceM->getBalanceAmountByType($to_user_id,1);
         $total_balance_after = bcadd($total_balance,$amount,2);
         $recordM->addRecord($user_id,$amount,$total_balance,$total_balance_after,1,$type,1,$to_user_id,$remark);
+        $balanceM->updateBalance($to_user_id,1,$amount,true);
 
         //可用余额
         $use_balance = $balanceM->getBalanceAmountByType($to_user_id,2);
         $use_amount = bcmul($amount,0.7,2);
         $use_balance_after = $use_balance + $use_amount;
         $recordM->addRecord($user_id,$use_amount,$use_balance,$use_balance_after,2,$type,1,$to_user_id,$remark);
+        $balanceM->updateBalance($to_user_id,2,$use_amount,true);
 
         //平级奖金额
         if($to_user_id == $this->peer_user_id)

@@ -18,6 +18,7 @@ use web\api\model\Leave;
 use web\api\model\MemberNode;
 use web\api\service\AwardService;
 use web\api\service\MemberService;
+use web\api\service\NodeService;
 
 class User extends ApiBase
 {
@@ -496,7 +497,7 @@ class User extends ApiBase
     }
 
     /**
-     * 获取流量记录
+     * 获取留言记录
      */
     public function getLeaveRecord()
     {
@@ -671,6 +672,7 @@ class User extends ApiBase
 
         return $this->successJSON($data);
     }
+
 }
 
 

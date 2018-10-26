@@ -3,6 +3,7 @@
 namespace web\api\controller;
 
 use think\Lang;
+use web\api\service\NodeService;
 
 class Crontab extends \web\common\controller\Controller {
 
@@ -31,7 +32,15 @@ class Crontab extends \web\common\controller\Controller {
         if($res) $this->successJSON('update success');
         else $this->failJSON('update failed');
     }
-    
+
+    /**
+     * 节点释放
+     */
+    private function nodeRelease()
+    {
+        $nodeS = new NodeService();
+        $nodeS->nodeRelease();
+    }
 
     /**
      * 输出错误JSON信息。
