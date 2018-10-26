@@ -9,8 +9,6 @@
 
 namespace web\api\controller;
 
-// use think\Cache;
-
 class Investment extends ApiBase
 {
 
@@ -21,7 +19,7 @@ class Investment extends ApiBase
         $user_id = $this->user_id;
         if(!$user_id) return $this->failJSON("请登录");
         $financialM = new \web\common\model\sys\FinancialModel();
-        $list = $financialM->getDataList();
+        $list = $financialM->getDataList(-1, -1, $filter = 'status=0', $fileds = '', $order = 'id asc');
         $finaM = new \addons\member\model\Financial();
         $data['sum'] = $finaM->where(['user_id'=>$user_id])->sum('amount')+0;
         $data['interset'] = $finaM->where(['user_id'=>$user_id,'status'=>1])->sum('interset');
@@ -38,9 +36,6 @@ class Investment extends ApiBase
         $data['list'] = $list;
         $this->successJSON($data);
     }
-
-
-    
 
 
     /**
