@@ -227,7 +227,42 @@ class Node extends ApiBase
     }
 
 
+    /**
+     * 节点释放
+     */
+    public function release()
+    {
+        $nodeM = new \web\api\model\Node();
+        $memberNodeM = new MemberNode();
+        $nodes = $memberNodeM->alias('m')
+                    ->join('node n', 'n.id = m.node_id')
+                    ->where(['m.user_id' => 56, 'm.status' => 1])
+                    ->sum('n.release_num');
+
+        $num = $nodeM->alias('n')
+                    ->join('member_node m', 'm.node_id = n.id')
+                    ->where('m.user_id',56)
+                    ->sum('n.release_num');
+
+        $nodes = $memberNodeM->where(['user_id' => $this->user_id, 'status' => 1])->column('node_id');
+        $node_ids = '';
+        foreach ($nodes as $v)
+        {
+            $node_ids .= $v . ',';
+        }
+
+        print_r($node_ids);exit();
+    }
+
+    /**
+     * 普通节点释放
+     */
+    private function normaoRelease()
+    {
+
+    }
 }
+
 
 
 
