@@ -48,20 +48,20 @@ class Wallet extends ApiBase
 
         $member = $memberM->getDetail($this->user_id);
         if(empty($member))
-            return $this->failJSON('登录信息出错，请重新登录');
+            return $this->failJSON(lang('WALLET_LOGIN_WRONG'));
 
         $to_user_id = $memberM->getUserByAddress($address);
         if(empty($to_user_id))
-            return $this->failJSON('转出钱包地址不存在');
+            return $this->failJSON(lang('WALLET_TRUNOUT'));
 
         if($member['pay_password'] != md5($pay_password))
-            return $this->failJSON('支付密码错误，请重新输入');
+            return $this->failJSON(lang('WALLET_PAYPASS'));
 
         $verifyM = new \addons\member\model\VericodeModel();
         $_verify = $verifyM->VerifyCode($auth_code, $member['phone'],3);
         if(empty($_verify))
         {
-            return $this->failJSON('验证码失效,请重新获取');
+            return $this->failJSON(lang('USER_VERI_WRONG'));
         }
 
         $paramM = new \web\common\model\sys\SysParameterModel();
@@ -70,10 +70,10 @@ class Wallet extends ApiBase
         $total_amount = $amount + $tax_amount;
         $balance = $balanceM->verifyStock($this->user_id,$total_amount,$sub_type);
         if(empty($balance)){
-            return $this->failJSON('余额不足');
+            return $this->failJSON(lang('NODE_LESS_AMOUNT'));
         }
         if($total_amount > $balance['amount']){
-            return $this->failJSON('余额不足');
+            return $this->failJSON(lang('NODE_LESS_AMOUNT'));
         }
 
         try{
@@ -140,20 +140,20 @@ class Wallet extends ApiBase
 
         $member = $memberM->getDetail($this->user_id);
         if(empty($member))
-            return $this->failJSON('登录信息出错，请重新登录');
+            return $this->failJSON(lang('WALLET_LOGIN_WRONG'));
 
         $to_user_id = $memberM->getUserByAddress($address);
         if(empty($to_user_id))
-            return $this->failJSON('转出钱包地址不存在');
+            return $this->failJSON(lang('WALLET_TRUNOUT'));
 
         if($member['pay_password'] != md5($pay_password))
-            return $this->failJSON('支付密码错误，请重新输入');
+            return $this->failJSON(lang('WALLET_PAYPASS'));
 
         $verifyM = new \addons\member\model\VericodeModel();
         $_verify = $verifyM->VerifyCode($auth_code, $member['phone'],3);
         if(empty($_verify))
         {
-            return $this->failJSON('验证码失效,请重新获取');
+            return $this->failJSON(lang('USER_VERI_WRONG'));
         }
 
 //        $paramM = new \web\common\model\sys\SysParameterModel();
@@ -162,10 +162,10 @@ class Wallet extends ApiBase
 //        $total_amount = $amount + $tax_amount;
         $balance = $balanceM->verifyStock($this->user_id,$amount,$sub_type);
         if(empty($balance)){
-            return $this->failJSON('余额不足');
+            return $this->failJSON(lang('NODE_LESS_AMOUNT'));
         }
         if($amount > $balance['amount']){
-            return $this->failJSON('余额不足');
+            return $this->failJSON(lang('NODE_LESS_AMOUNT'));
         }
 
         try{

@@ -43,7 +43,7 @@ class Node extends ApiBase
         $memberNodeM = new MemberNode();
         $node = $nodeM->getDetail($node_id);
         if(empty($node))
-            return $this->failJSON('该节点为空');
+            return $this->failJSON(lang('NODE_EMPTY'));
 
         $amount = $node['cbc_num'];
         $recordM = new \addons\member\model\TradingRecord();
@@ -55,7 +55,7 @@ class Node extends ApiBase
         {
             $give_user_id = $memberM->getUserByPhone($give_username);
             if(empty($give_user_id))
-                return $this->failJSON("该赠送账号不存在");
+                return $this->failJSON(lang('NODE_USER_EXISTS'));
         }
 
         $data = array(
@@ -73,15 +73,15 @@ class Node extends ApiBase
             $filter = 'user_id = ' . $give_user_id . ' and type = ' . $node['type'];
             $user_node_num = $memberNodeM->getSum($filter,'node_num');
             if($user_node_num > $node['node_num'])
-                return $this->failJSON('已达到节点认购上限');
+                return $this->failJSON(lang('NODE_BUY_LIMIT'));
         }
 
         $balance = $balanceM->verifyStock($this->user_id,$amount,$balance_type);
         if(empty($balance)){
-            return $this->failJSON('余额不足');
+            return $this->failJSON(lang('NODE_LESS_AMOUNT'));
         }
         if($amount > $balance['amount']){
-            return $this->failJSON('余额不足');
+            return $this->failJSON(lang('NODE_LESS_AMOUNT'));
         }
 
         $memberNodeM->startTrans();
@@ -136,24 +136,24 @@ class Node extends ApiBase
 
         $node = $nodeM->getDetail($param['node_id']);
         if(empty($node))
-            return $this->failJSON('该节点不存在');
+            return $this->failJSON(lang('NODE_NOT_EXISTS'));
 
         $apply = $nodeApplyM->where(['username' => $username, 'status' => 1])->find();
         if($apply)
-            return $this->failJSON('审核未通过，不可重复申请');
+            return $this->failJSON(lang('NODE_EXAMINE'));
 
         $user = $memberM->getUserByPhone($param['username']);
         if(empty($user))
-            return $this->failJSON('账号不存在');
+            return $this->failJSON(lang('NODE_USER_NOT_EXISTS'));
 
         $pUser = $memberM->getUserByPhone($param['pusername']);
         if(empty($pUser))
-            return $this->failJSON('直属领导账号不存在');
+            return $this->failJSON(lang('NODE_USER_PID_EXISTS'));
 
         $filter = 'user_id = ' . $this->user_id . ' and type = ' . $node['type'];
         $user_node_num = $memberNodeM->getSum($filter,'node_num');
         if($user_node_num > $node['node_num'])
-            return $this->failJSON('已达到节点认购上限');
+            return $this->failJSON(lang('NODE_BUY_LIMIT'));
 
         $data = array(
             'username'  => $param['username'],
@@ -184,9 +184,9 @@ class Node extends ApiBase
         foreach ($data as &$v)
         {
             if($v['status'] == 1)
-                $v['status'] = '启动中';
+                $v['status'] = lang('NODE_START');
             else
-                $v['status'] = '已关闭';
+                $v['status'] = lang('NODE_DOWN');
         }
 
         return $this->successJSON($data);

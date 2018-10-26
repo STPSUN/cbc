@@ -18,7 +18,7 @@ class Transfer extends ApiBase
     public function forbiddenTime($sysM){
         $time_start = strtotime(date('Y-m-d ').$sysM->getValByName('time_start'));
         $time_end = strtotime(date('Y-m-d ').$sysM->getValByName('time_end'));
-        if(!(time()>=$time_start&&time()<=$time_end)) return $this->failJSON('当前时间禁止交易');
+        if(!(time()>=$time_start&&time()<=$time_end)) return $this->failJSON(lang('TRANSFER_TIME_BAN'));
     }
 
     /**
@@ -29,7 +29,7 @@ class Transfer extends ApiBase
         $userM = new \addons\member\model\MemberAccountModel();
         $user = $userM->getDetail($user_id);
         if($user['pay_password'] != $pay_password){
-            return $this->failJSON('支付密码错误');
+            return $this->failJSON(lang('TRANSFER_PAYPWD_WRONG'));
         }
         return $user;
     }
@@ -38,7 +38,7 @@ class Transfer extends ApiBase
      */
     public function getToday(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $m = new \addons\config\model\Quotation();
         $data = $m->field('price_now,price_top top,price_low low,create_at')->order('id desc')->find();
         return $this->successJSON($data);
@@ -57,10 +57,10 @@ class Transfer extends ApiBase
      */
     public function sellOut(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $pay_password = $this->_post('pay_password');
         $user = $this->checkPwd($user_id,$pay_password);
-        if($user['is_auth']!=1)  return $this->failJSON('没有实名认证无法挂卖');
+        if($user['is_auth']!=1)  return $this->failJSON(lang('TRANSFER_NOT_AUTH'));
         $m = new \addons\config\model\Quotation();
         $data = $m->field('price_now,price_top top,price_low low,create_at')->order('id desc')->find();
         $top = $data['top'];
@@ -68,32 +68,32 @@ class Transfer extends ApiBase
         $sysM = new \web\common\model\sys\SysParameterModel();
         $this->forbiddenTime($sysM);
         $number = $this->_post('number');
-        if($number<=0) return $this->failJSON('请输入正确的挂卖数量');
+        if($number<=0) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER'));
         $price = $this->_post('price');
         $code = $this->_post('code');
         $verifyM = new \addons\member\model\VericodeModel();
         $_verify = $verifyM->VerifyCode($code, $user['phone'],6);
-        if(empty($_verify)) return $this->failJSON('验证码失效,请重新发送');
-        if($price>$top)  return $this->failJSON('价格大于今日最高价');
-        if($price<$low)  return $this->failJSON('价格小于今日最低价');
+        if(empty($_verify)) return $this->failJSON(lang('TRANSFER_VERIGYCODE_WRONG'));
+        if($price>$top)  return $this->failJSON(lang('TRANSFER_PLUS_TODAY'));
+        if($price<$low)  return $this->failJSON(lang('TRANSFER_LESS_TODAY'));
         $amount = bcmul($number, $price,4);
-        if($amount<=0) return $this->failJSON('请输入正确的挂卖金额');
+        if($amount<=0) return $this->failJSON(lang('TRANSFER_RIGHT_AMOUNT'));
         $payM = new \addons\member\model\PayConfig();
         $paylist = $payM->getUserPay($user_id);
-        if(!$paylist)  return $this->failJSON('没有设置支付方式，请设置');
+        if(!$paylist)  return $this->failJSON(lang('TRANSFER_NOT_SET_PAY'));
         $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
         $fee_num = bcmul($number,($rate/100),2);
         $total = $number+$fee_num;
         $balanceM = new \addons\member\model\Balance();
         $coin_id = 2;//CBC
         $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
-        if($number>$userAmount['amount']) return $this->failJSON('你的CBC余额少于'.$number);
+        if($number>$userAmount['amount']) return $this->failJSON(lang('TRANSFER_CBC_LESS').$number);
         try{
             $balanceM->startTrans();
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$number);
             if(!$userAmount){
                 $balanceM->rollback();
-                return $this->failJSON('减少CBC余额失败');
+                return $this->failJSON(lang('TRANSFER_CBC2_LESS'));
             }
 
             $type = 6;
@@ -103,14 +103,14 @@ class Transfer extends ApiBase
             $r_id = $recordM->addRecord($user_id, $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
             if(!$r_id){
                 $balanceM->rollback();
-                return $this->failJSON('增加记录失败');
+                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
             }
 
             $coin_id = 1;//CBC总额
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
             if(!$userAmount){
                 $balanceM->rollback();
-                return $this->failJSON('减少CBC总额失败');
+                return $this->failJSON(lang('TRANSFER_CBC1_LESS'));
             }
             $type = 6;
             $change_type = 0; //减少
@@ -119,14 +119,14 @@ class Transfer extends ApiBase
             $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
             if(!$r_id){
                 $balanceM->rollback();
-                return $this->failJSON('增加记录失败');
+                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
             }
 
             $coin_id = 3;//CBC
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total,1);
             if(!$userAmount){
                 $balanceM->rollback();
-                return $this->failJSON('增加CBC锁仓失败');
+                return $this->failJSON(lang('TRANSFER_CBC3_ADD'));
             }
             $type = 6;
             $change_type = 1; //增加
@@ -135,7 +135,7 @@ class Transfer extends ApiBase
             $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
             if(!$r_id){
                 $balanceM->rollback();
-                return $this->failJSON('增加记录失败');
+                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
             }
 
             $data = [
@@ -155,10 +155,10 @@ class Transfer extends ApiBase
             $res = $tradingM->add($data);
             if($res){
                 $balanceM->commit();
-                return $this->successJSON('挂卖成功');
+                return $this->successJSON(lang('TRANSFER_SELL_SUC'));
             }else{
                 $balanceM->rollback();
-                return $this->failJSON('挂卖失败');
+                return $this->failJSON(lang('TRANSFER_SELL_FAIL'));
             }
         }catch(\Exception $e){
             return $this->successJSON($e->getMessage());
@@ -172,15 +172,14 @@ class Transfer extends ApiBase
      */
     public function purchaseOrder(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $trad_id = $this->_post('trad_id');
-        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+        if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
-        if(!$trading) return $this->failJSON('订单不存在');
-        if($trading['status']!=0) return $this->failJSON('不能买入买单');
-        if($user_id==$trading['user_id']) return $this->failJSON('不能买入自己挂卖的订单');
-        if($trading['type']==1) return $this->failJSON('订单已买入');
+        if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
+        if($user_id==$trading['user_id']) return $this->failJSON(lang('TRANSFER_BUY_OWN'));
+        if($trading['type']==1) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
         $pay_password = $this->_post('pay_password');
         $this->checkPwd($user_id,$pay_password);
         $data = [
@@ -191,9 +190,9 @@ class Transfer extends ApiBase
         $tradingM = new \addons\member\model\Trading();
         $res = $tradingM->where(['id'=>$trad_id])->update($data);
         if($res){
-            return $this->successJSON('买入成功');
+            return $this->successJSON(lang('TRANSFER_BUY_SUC'));
         }else{
-            return $this->failJSON('买入失败');
+            return $this->failJSON(lang('TRANSFER_BUY_FAIL'));
         }
     }
 
@@ -204,28 +203,28 @@ class Transfer extends ApiBase
      */
     public function referOrder(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         try{
             $trad_id = $this->_post('trad_id');
-            if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+            if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
             $trading = $tradingM->findTrad($trad_id);
-            if(!$trading) return $this->failJSON('订单不存在');
-            if($user_id!=$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
-            if($trading['type']!=1) return $this->failJSON('订单状态错误');
+            if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
+            if($user_id!=$trading['to_user_id']) return $this->failJSON(lang('TRANSFER_NOT_YOUR'));
+            if($trading['type']!=1) return $this->failJSON(lang('TRANSFER_WRONG_STATUS'));
             $pay_password = $this->_post('pay_password');
             $this->checkPwd($user_id,$pay_password);
 
             $qrcode = $this->_post('file');
             $savePath = 'transaction/proof/'.$user_id.'/';
             $data = $this->base_img_upload($qrcode, $user_id, $savePath);
-            if(!$data['success']) return $this->failJSON('上传付款凭证失败');
+            if(!$data['success']) return $this->failJSON(lang('TRANSFER_UPLOAD_VOUCHER_FAIL'));
             $trading['type'] = 2;
             $trading['voucher'] = $data['path'];
             $trading['update_time'] = NOW_DATETIME;
             $res = $tradingM->save($trading);
-            if(!$res) return $this->failJSON('订单保存失败');
-            return $this->successJSON('上传打款凭证成功');
+            if(!$res) return $this->failJSON(lang('TRANSFER_SAVE_FAIL'));
+            return $this->successJSON(lang('TRANSFER_SAVE_SUC'));
         }catch(\Exception $e){
             return $this->successJSON($e->getMessage());
         }  
@@ -239,17 +238,17 @@ class Transfer extends ApiBase
      */
     public function ConfirmOrder(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $pay_password = $this->_post('pay_password');
         $user = $this->checkPwd($user_id,$pay_password);
         $trad_id = $this->_post('trad_id');
-        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+        if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
-        if(!$trading) return $this->failJSON('订单不存在');
-        if($user_id!=$trading['user_id']) return $this->failJSON('该订单不是您的订单');
-        if($trading['type']!=2) return $this->failJSON('订单状态错误');
+        if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
+        if($user_id!=$trading['user_id']) return $this->failJSON(lang('TRANSFER_NOT_YOUR'));
+        if($trading['type']!=2) return $this->failJSON(lang('TRANSFER_WRONG_STATUS'));
         try{
             $balanceM = new \addons\member\model\Balance();
             $balanceM->startTrans();
@@ -258,13 +257,13 @@ class Transfer extends ApiBase
             $res = $tradingM->save($trading);
             if(!$res){
                 $balanceM->rollback();
-                return $this->failJSON('订单保存失败');
+                return $this->failJSON(lang('TRANSFER_SAVE_FAIL'));
             }
             $coin_id = 4;//CBC余额
             $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['number'],1);
             if(!$userAmount){
                 $balanceM->rollback();
-                return $this->failJSON('增加激活码失败');
+                return $this->failJSON(lang('TRANSFER_CBC3_ADD'));
             }
 
             $type = 7;
@@ -274,7 +273,7 @@ class Transfer extends ApiBase
             $r_id = $recordM->addRecord($trading['to_user_id'], $trading['number'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
             if(!$r_id){
                 $balanceM->rollback();
-                return $this->failJSON('增加记录失败');
+                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
             }
 
             //删除锁仓金额
@@ -288,7 +287,7 @@ class Transfer extends ApiBase
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount);
             if(!$userAmount){
                 $balanceM->rollback();
-                return $this->failJSON('减少CBC锁仓失败');
+                return $this->failJSON(lang('TRANSFER_CBC3_LESS'));
             }
             $type = 7;
             $change_type = 0; //减少
@@ -297,17 +296,17 @@ class Transfer extends ApiBase
             $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, $user_id,$remark);
             if(!$r_id){
                 $balanceM->rollback();
-                return $this->failJSON('增加记录失败');
+                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
             }
             $AwardService = new \web\api\service\AwardService();
             $res = $AwardService->tradingReward($trading['fee_num'],$trading['user_id']);
             //计算奖金
             if(!$res){
                 $balanceM->rollback();
-                return $this->failJSON('奖金发放失败');
+                return $this->failJSON(lang('TRANSFER_REWARD_FAIL'));
             }
             $balanceM->commit();
-            return $this->successJSON('确认收款成功');
+            return $this->successJSON(lang('TRANSFER_CONFIRM_SUC'));
         }catch(\Exception $e){
             return $this->successJSON($e->getMessage());
         }
@@ -318,7 +317,7 @@ class Transfer extends ApiBase
      */
     public function orderList(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $row = $this->_post('row')?$this->_post('row'):20;
         $page = $this->_post('page')?$this->_post('page')*$row:0;
@@ -354,7 +353,7 @@ class Transfer extends ApiBase
      */
     public function TradingHall(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
 
         $sort = $this->_post('sort_type');
         if($sort==1){
@@ -407,7 +406,7 @@ class Transfer extends ApiBase
      */
     public function getCoinInfo(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $payM = new \addons\member\model\PayConfig();
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $arr = $redis->get('hotapi_price');
@@ -458,13 +457,13 @@ class Transfer extends ApiBase
      */
     public function orderDetail(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $trad_id = $this->_post('trad_id');
-        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+        if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
-        if(!$trading)  return $this->failJSON('该订单不存在');
-        if(!($user_id==$trading['user_id']||$user_id==$trading['to_user_id'])) return $this->failJSON('该订单不是您的订单');
+        if(!$trading)  return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
+        if(!($user_id==$trading['user_id']||$user_id==$trading['to_user_id'])) return $this->failJSON(lang('TRANSFER_NOT_YOUR'));
         $userM = new \addons\member\model\MemberAccountModel();
         if($user_id==$trading['user_id']){
             $trading['pay_type'] = 1;
@@ -502,13 +501,13 @@ class Transfer extends ApiBase
      */
     public function getSellInfo(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $trad_id = $this->_post('trad_id');
-        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+        if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
-        if(!$trading) return $this->failJSON('订单不存在');
+        if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
         $user = $userM->getDetail($trading['user_id']);
         $count = $tradingM->getCount(['user_id'=>$trading['user_id']]);
         $trading['phone'] = $user['phone'];
@@ -527,14 +526,14 @@ class Transfer extends ApiBase
      */
     public function cancleTrading(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $user = $userM->where(['id'=>$user_id])->find();
         $trad_id = $this->_post('trad_id');
-        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+        if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
-        if(!$trading) return $this->failJSON('订单不存在');
+        if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
         if($user_id==$trading['user_id']&&0==$trading['type']&&0==$trading['status']){
             try{
                 $balanceM = new \addons\member\model\Balance();
@@ -544,7 +543,7 @@ class Transfer extends ApiBase
                 $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
                 if(!$userAmount){
                     $balanceM->rollback();
-                    return $this->failJSON('增加CBC余额失败');
+                    return $this->failJSON(lang('TRANSFER_CBC2_ADD'));
                 }
 
                 $type = 8;
@@ -554,7 +553,7 @@ class Transfer extends ApiBase
                 $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
                 if(!$r_id){
                     $balanceM->rollback();
-                    return $this->failJSON('增加记录失败');
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
                 }
 
                 $coin_id = 1;//CBC
@@ -562,7 +561,7 @@ class Transfer extends ApiBase
                 $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total,1);
                 if(!$userAmount){
                     $balanceM->rollback();
-                    return $this->failJSON('增加CBC总额失败');
+                    return $this->failJSON(lang('TRANSFER_CBC1_ADD'));
                 }
                 $type = 8;
                 $change_type = 1; //减少
@@ -571,7 +570,7 @@ class Transfer extends ApiBase
                 $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
                 if(!$r_id){
                     $balanceM->rollback();
-                    return $this->failJSON('增加记录失败');
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
                 }
 
                 $coin_id = 3;//CBC
@@ -579,7 +578,7 @@ class Transfer extends ApiBase
                 $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
                 if(!$userAmount){
                     $balanceM->rollback();
-                    return $this->failJSON('减少CBC锁仓失败');
+                    return $this->failJSON(lang('TRANSFER_CBC3_LESS'));
                 }
                 $type = 8;
                 $change_type = 0; //减少
@@ -588,24 +587,24 @@ class Transfer extends ApiBase
                 $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
                 if(!$r_id){
                     $balanceM->rollback();
-                    return $this->failJSON('增加记录失败');
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
                 }
                 $trading['status'] = 1;
                 $trading['update_time'] = NOW_DATETIME;
                 $res = $tradingM->save($trading);
                 if($res){
                     $balanceM->commit();
-                    $this->successJSON('取消成功');
+                    $this->successJSON(lang('TRANSFER_CANCLE_SUC'));
                 }else{
                     $balanceM->rollback();
-                    $this->failJSON('取消失败');
+                    $this->failJSON(lang('TRANSFER_CANCLE_FAIL'));
                 } 
             }catch(\Exception $e){
                 $this->failJSON($e->getMessage());
             }
         }else{
-            // if(!($user_id==$trading['user_id']||$user_id==$trading['to_user_id'])) return $this->failJSON('该订单不是您的订单');
-            // if($trading['type']==3||$trading['type']==2) return $this->failJSON('订单状态错误');
+            // if(!($user_id==$trading['user_id']||$user_id==$trading['to_user_id'])) return $this->failJSON(lang('TRANSFER_NOT_YOUR'));
+            // if($trading['type']==3||$trading['type']==2) return $this->failJSON(lang('TRANSFER_WRONG_STATUS'));
             // $pay_password = $this->_post('pay_password');
             // $pay_password = md5($pay_password);
             // $userM = new \addons\member\model\MemberAccountModel();
@@ -616,7 +615,7 @@ class Transfer extends ApiBase
             // $trading['update_time'] = NOW_DATETIME;
             // $res = $tradingM->save($trading);
             // if($res) $this->successJSON('取消成功');
-            return $this->failJSON('订单错误');
+            return $this->failJSON(lang('TRANSFER_ORDER_WRONG'));
         }
     }
 
@@ -643,7 +642,7 @@ class Transfer extends ApiBase
 
         if($type == 3){
             if(empty($name) || empty($bank_address)){
-                return $this->failJSON('姓名与开户行地址不能为空');
+                return $this->failJSON(lang('TRANSFER_NAME_ADDRESS'));
             }
             $data['bank_address'] = $bank_address;
             $data['bank_name'] = $bank_name;
@@ -680,7 +679,7 @@ class Transfer extends ApiBase
             if($ret > 0){
                 return $this->successJSON();
             }else{
-                return $this->failJSON('添加或更新数据失败');
+                return $this->failJSON(lang('TRANSFER_SET_PAY'));
             }
         } catch (\Exception $ex) {
             return $this->failJSON($ex->getMessage());
@@ -711,15 +710,15 @@ class Transfer extends ApiBase
      */
     public function sendSellMessage(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $trad_id = $this->_post('trad_id');
-        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+        if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
-        if(!$trading) return $this->failJSON('订单不存在');
-        if($trading['type']!=2) return $this->failJSON('订单状态错误');
-        if($user_id!=$trading['to_user_id']) return $this->failJSON('该订单不是您的订单');
+        if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
+        if($trading['type']!=2) return $this->failJSON(lang('TRANSFER_WRONG_STATUS'));
+        if($user_id!=$trading['to_user_id']) return $this->failJSON(lang('TRANSFER_NOT_YOUR'));
         $user = $userM->getDetail($trading['user_id']);
         $msg = '【CBC】尊敬的'.$user['real_name'].'先生/女士，您的订单在CBC系统出售成功，买家已经打款，请您在收到款之后去平台确认发货。';
         $res = \addons\member\utils\Sms::sendOrder($user['phone'],$msg);
@@ -737,16 +736,16 @@ class Transfer extends ApiBase
     public function UserComplaint(){
         $user_id = $this->user_id;
         $user_id = 56;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $trad_id = $this->_post('trad_id');
-        if($trad_id<=0) return $this->failJSON('请选择正确的订单');
+        if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
-        if(!$trading) return $this->failJSON('订单不存在');
-        if(!($user_id==$trading['to_user_id']||$user_id==$trading['user_id'])) return $this->failJSON('该订单不是您的订单');
+        if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
+        if(!($user_id==$trading['to_user_id']||$user_id==$trading['user_id'])) return $this->failJSON(lang('TRANSFER_NOT_YOUR'));
         $content = $this->_post('content');
-        if(!$content) return $this->failJSON('投诉内容不能为空');
+        if(!$content) return $this->failJSON(lang('TRANSFER_COMPLAINT_EMPTY'));
         $data = [
             'user_id'=>$user_id,
             'trad_id'=>$trad_id,
@@ -754,8 +753,8 @@ class Transfer extends ApiBase
         ];
         $TradingComplaint = new \addons\member\model\TradingComplaint();
         $res = $TradingComplaint->addComplaint($data);
-        if($res) $this->successJSON('投诉成功');
-        else $this->failJSON('投诉失败');
+        if($res) $this->successJSON(lang('TRANSFER_COMPLAINT_SUC'));
+        else $this->failJSON(lang('TRANSFER_COMPLAINT_FAIL'));
 
     }
 

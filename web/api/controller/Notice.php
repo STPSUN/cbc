@@ -17,7 +17,7 @@ class Notice extends ApiBase
      */
     public function getMessage(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $m = new \addons\config\model\Notice();
         $lang = $this->_post('lang');
         if($lang == 'en'){
@@ -38,7 +38,7 @@ class Notice extends ApiBase
      */
     public function getNotice(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData('请登录');
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $m = new \addons\config\model\Notice();
         $lang = $this->_post('lang');
         if($lang == 'en'){

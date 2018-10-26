@@ -46,12 +46,12 @@ class ApiBase extends \web\common\controller\Controller {
         if (!empty($token)) {
             $this->user_id = intval($this->getGlobalCache($token)); //redis中获取user_id
             if(!$this->user_id){
-                return $this->failJSON("登录失效，请重新登录");
+                return $this->failJSON(lang('API_LOGIN'));
             }
             $userM = new \addons\member\model\MemberAccountModel();
             $status = $userM->getSingleField($this->user_id,'credit_level');
             if(!$status){
-                return $this->failJSON("您的账户已被封号，请联系管理员解除");
+                return $this->failJSON(lang('API_BAN'));
             }
         }
     }
@@ -81,7 +81,7 @@ class ApiBase extends \web\common\controller\Controller {
         $data = null;
         if ($this->globalCache) {
             if (empty($key)){
-                return $this->failJSON("登录已失效");
+                return $this->failJSON(lang('API_INVALID'));
             }
             $data = $this->globalCache->get($key);
         }
