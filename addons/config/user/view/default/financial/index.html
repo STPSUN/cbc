@@ -49,11 +49,10 @@
         html += '<button type="button" onclick="edit(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>编辑</button>';
 
         html += '<button type="button" onclick="del(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon wb-close"></i>删除</button>';
-        if(row['limit']==1){
-            html += '<button type="button" onclick="change(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon "></i>开启</button>';
+        if(row['status']==1){
+            html += '<button type="button" onclick="change('+row['id']+')" class="btn btn-xs btn-default del-btn"><i class="icon "></i>开启</button>';
         }else{
-            html += '<button type="button" onclick="change(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon "></i>关闭</button>';
-
+            html += '<button type="button" onclick="change('+row['id']+')" class="btn btn-xs btn-default del-btn"><i class="icon "></i>关闭</button>';
         }
         html += '</span>';
         return html;

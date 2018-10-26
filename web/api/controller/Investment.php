@@ -9,8 +9,6 @@
 
 namespace web\api\controller;
 
-// use think\Cache;
-
 class Investment extends ApiBase
 {
 
@@ -38,9 +36,6 @@ class Investment extends ApiBase
         $data['list'] = $list;
         $this->successJSON($data);
     }
-
-
-    
 
 
     /**
