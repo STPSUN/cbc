@@ -19,7 +19,6 @@ class Investment extends ApiBase
      */
     public function getInvestmentList(){
         $user_id = $this->user_id;
-        $user_id = 60;
         if(!$user_id) return $this->failJSON("请登录");
         $financialM = new \web\common\model\sys\FinancialModel();
         $list = $financialM->getDataList();

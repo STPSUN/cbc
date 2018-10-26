@@ -110,7 +110,7 @@ class Transfer extends ApiBase
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
             if(!$userAmount){
                 $balanceM->rollback();
-                return $this->failJSON('增加CBC锁仓失败');
+                return $this->failJSON('减少CBC总额失败');
             }
             $type = 6;
             $change_type = 0; //减少
@@ -264,7 +264,7 @@ class Transfer extends ApiBase
             $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['number'],1);
             if(!$userAmount){
                 $balanceM->rollback();
-                return $this->failJSON('增加CBC失败');
+                return $this->failJSON('增加激活码失败');
             }
 
             $type = 7;

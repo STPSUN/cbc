@@ -42,10 +42,20 @@ class Balance extends \web\common\model\BaseModel {
     
     public function getList($pageIndex = -1, $pageSize = -1, $filter = '', $fields = '', $order = 'id desc') {
         $c = new \addons\config\model\BalanceConf();
-        $sql = 'select tab.*,c.name from '.$this->getTableName().' as tab left join '.$c->getTableName().' c on tab.type=c.id';
+        $m = new \addons\member\model\MemberAccountModel();
+
+        $sql = 'select tab.*,c.name,m.phone from '.$this->getTableName().' as tab left join '.$c->getTableName().' c on tab.type=c.id left join '.$m->getTableName().' m on tab.user_id=m.id';
         if (!empty($filter))
             $sql =  'select * from ('.$sql.') t where '.$filter;
+        // echo $sql;exit();
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
+    }
+
+    public function getCountTotal($filter = '') {
+        $sql = 'select sum(amount) as count_total from '.$this->getTableName().' where '.$filter;
+        
+        $count = $this->query($sql);
+        return $count[0]['count_total'];
     }
 
     /**

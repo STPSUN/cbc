@@ -21,15 +21,15 @@
     </div>
     <table id="grid-table">
         <thead frozen="true">
-        <!-- <th data-options="field:'susername',width:150,align:'center'">卖家账号</th> -->
         <th data-options="field:'sphone',width:100, align:'center'">卖家手机号</th>
-        <!-- <th data-options="field:'busername',width:150,align:'center'">买家账号</th> -->
         <th data-options="field:'bphone',width:100, align:'center'">买家手机号</th>
         </thead>
         <thead>
             <tr>
                 <th data-options="field:'order_id',width:160, align:'center'">订单编号</th>
                 <th data-options="field:'type',width:100, align:'center',formatter:formatType">订单状态</th>
+                <th data-options="field:'price',width:100, align:'center'">单价</th>
+                <th data-options="field:'number',width:100, align:'center'">数量</th>
                 <th data-options="field:'amount',width:100, align:'center'">金额</th>
                 <th data-options="field:'voucher',width:100, align:'center',formatter:formatImg"">付款凭证</th>
                 <th data-options="field:'fee_num',width:100, align:'center'">手续费</th>
@@ -110,6 +110,7 @@
 //            reload();
 //        }, ['确定','取消']);
 //    }
+
     //审核
     function cancleOrder(id){
         var title = '取消订单?';

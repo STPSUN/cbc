@@ -21,7 +21,7 @@ class Crontab extends \web\common\controller\Controller {
         $map['status'] = 0;
         $map['update_time'] = ['gt',date('Y-m-d H:i:s',(time()+30*60))];
         $list = $tradingM->where($map)->select();
-        if(!$list) return $this->failJSON('暂无订单');
+        if(!$list) return $this->failJSON('no trading list');
         foreach ($list as $key => $value) {
             $list[$key]['to_user_id'] = 0;
             $list[$key]['type'] = 0;

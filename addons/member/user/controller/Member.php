@@ -161,6 +161,7 @@ class Member extends \web\user\controller\AddonUserBase{
                     $m->save($balance);
 
                 }else{
+                    $before_amount = 0;
                     $balance['user_id'] = $user_id;
                     $balance['type'] = $type;
                     $balance['amount'] = $amount;
@@ -177,7 +178,7 @@ class Member extends \web\user\controller\AddonUserBase{
                         $change_type= 0;//减少
                         $amount = abs($amount);
                     }
-                    $type = 3;//后台拨币
+                    $type = 13;//后台拨币
 //                    $remark = '系统后台拨币';
                     $r_id = $rm->addRecord($user_id, $amount, $before_amount, $after_amount,$asset_type, $type, $change_type,0, $remark);
                     if($r_id > 0){
