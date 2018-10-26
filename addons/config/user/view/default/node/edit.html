@@ -1,0 +1,68 @@
+{extend name="$BASE_POPUP_FORM" /}
+{block name="body"}
+<style>
+    .edui-editor, .edui-editor-iframeholder {
+        width: 790px !important;
+    }
+</style>
+<div class="box-content">   
+    <input type="hidden" id="id" name="id" value="{$id}"/>
+    <div class="control-row col-2">
+        <div class="control-group">
+            <label class="control-label">节点类型</label>
+            <div class="controls">
+<!--                 <input type="number" id="time_length" name="time_length" placeholder="请使用数字" class="form-control required" />
+ -->                <select name="type">
+                    <option value="1">微型</option>
+                    <option value="2">小型（SS）</option>
+                    <option value="3">小型（S）</option>
+                    <option value="4">中小型</option>
+                    <option value="5">中大型</option>
+                    <option value="6">大型</option>
+                    <option value="7">超大型</option>
+                    <option value="8">超级</option>
+                </select>                                 
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label class="control-label">可购节点数量</label>
+            <div class="controls">
+                <input type="number" id="node_num" name="node_num" placeholder="请使用数字" class="form-control required" />                                      
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label class="control-label">CBC数量</label>
+            <div class="controls">
+                <input type="text" id="cbc_num" name="cbc_num" class="form-control required" />    
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">周期</label>
+            <div class="controls">
+                <input type="text" id="days" name="days" class="form-control required" /> （日）
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">日释放量</label>
+            <div class="controls">
+                <input type="text" id="release_num" name="release_num" class="form-control required" /> 
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label">总释放量</label>
+            <div class="controls">
+                <input type="text" id="total_num" name="total_num" class="form-control required" /> 
+            </div>
+        </div>
+    </div>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+
+</script>
+{/block}
+
+
