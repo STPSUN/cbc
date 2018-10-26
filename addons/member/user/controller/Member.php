@@ -3,6 +3,7 @@
 namespace addons\member\user\controller;
 
 use PHPExcel;
+use web\api\service\NodeService;
 
 class Member extends \web\user\controller\AddonUserBase{
     
@@ -111,9 +112,21 @@ class Member extends \web\user\controller\AddonUserBase{
                 $m = new \addons\member\model\MemberAccountModel();
                 $data['id'] = $user_id;
                 $data['is_auth'] = $is_auth;
-                $ret = $m->save($data);
-                if($ret > 0){
+
+                $m->startTrans();
+                try
+                {
+                    $m->save($data);
+                    //赠送微信节点
+                    $nodeS = new NodeService();
+                    $nodeS->sendNode($user_id);
+
+                    $m->commit();
                     return $this->successData();
+                }catch (\Exception $e)
+                {
+                    $m->rollback();
+                    return $this->failData('失败');
                 }
            }else{
                return $this->failData('缺少参数');
