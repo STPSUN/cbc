@@ -132,9 +132,9 @@ class TradingRecord extends \web\common\model\BaseModel{
      */
     public function getRecordList($asset_type,$pageIndex=1,$pageSize=10,$user_id,$order)
     {
-        $sql = "SELECT u.phone,r.amount,r.type,r.change_type,r.type,r.update_time "
+        $sql = "SELECT u.phone,r.amount,r.type,r.change_type,r.asset_type,r.update_time "
             . " FROM tp_trading_record AS r "
-            . " JOIN tp_member_account AS u ON u.id = r.to_user_id "
+            . " JOIN tp_member_account AS u ON u.id = r.user_id "
             . " WHERE r.asset_type = $asset_type and r.user_id = $user_id";
 
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
