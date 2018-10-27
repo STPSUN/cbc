@@ -81,8 +81,7 @@ class Transfer extends ApiBase
         $payM = new \addons\member\model\PayConfig();
         $paylist = $payM->getUserPay($user_id);
         if(!$paylist)  return $this->failJSON(lang('TRANSFER_NOT_SET_PAY'));
-        $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
-        $fee_num = bcmul($number,($rate/100),2);
+        $fee_num = bcmul(($number/7*3),1,2);
         $total = $number+$fee_num;
         $balanceM = new \addons\member\model\Balance();
         $coin_id = 2;//CBC
