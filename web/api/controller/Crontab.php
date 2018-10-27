@@ -24,11 +24,12 @@ class Crontab extends \web\common\controller\Controller {
         $list = $tradingM->where($map)->select();
         if(!$list) return $this->failJSON('no trading list');
         foreach ($list as $key => $value) {
-            $list[$key]['to_user_id'] = 0;
-            $list[$key]['type'] = 0;
-            $list[$key]['update_time']=NOW_DATETIME;
+            $data = $value;
+            $data['to_user_id'] = 0;
+            $data['type'] = 0;
+            $data['update_time']=NOW_DATETIME;
+            $res = $tradingM->save($data);
         }
-        $res = $tradingM->save($list);
         if($res) $this->successJSON('update success');
         else $this->failJSON('update failed');
     }
