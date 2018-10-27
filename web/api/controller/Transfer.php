@@ -364,7 +364,7 @@ class Transfer extends ApiBase
     public function TradingHall(){
         $user_id = $this->user_id;
         if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
-
+        $map['user_id'] = ['neq',$user_id];
         $sort = $this->_post('sort_type');
         if($sort==1){
             $map['amount'] = ['lt',100];
