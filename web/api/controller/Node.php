@@ -66,8 +66,10 @@ class Node extends ApiBase
                 'type'  => $node['type'],
             );
 
+        $node_level_user_id = $this->user_id;
         if(!empty($give_username))
         {
+            $node_level_user_id = $give_user_id;
             $data['user_id'] = $give_user_id;
             $data['give_user_id'] = $this->user_id;
             $filter = 'user_id = ' . $give_user_id . ' and type = ' . $node['type'];
@@ -100,6 +102,16 @@ class Node extends ApiBase
             //会员升级
             $memberS = new MemberService();
             $memberS->memberLevel($this->user_id);
+
+            $node_user = $memberM->getDetail($node_level_user_id);
+            if($node_user['node_level'] < $node['type'])
+            {
+                $memberM->save([
+                    'node_level' => $node['type'],
+                ],[
+                    'id' => $node_user['id'],
+                ]);
+            }
 
             $memberNodeM->commit();
             return $this->successJSON();
