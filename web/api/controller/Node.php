@@ -187,18 +187,18 @@ class Node extends ApiBase
     public function getNode()
     {
         $memberNodeM = new MemberNode();
-        $data = $memberNodeM->alias('m')
-                    ->field('m.type,n.release_num,m.status,m.node_id')
-                    ->join('node n', 'm.node_id = n.id')
-                    ->where('m.user_id',$this->user_id)
-                    ->select();
 
+        $data = $memberNodeM->field('type,status,id node_id')->where('user_id',$this->user_id)->select();
+
+        $incomeM = new MemberNodeIncome();
         foreach ($data as &$v)
         {
             if($v['status'] == 1)
                 $v['status'] = lang('NODE_START');
             else
                 $v['status'] = lang('NODE_DOWN');
+
+            $v['release_num'] = $incomeM->where('member_node_id',$v['node_id'])->sum('amount');
         }
 
         return $this->successJSON($data);
@@ -223,7 +223,7 @@ class Node extends ApiBase
             return $this->failJSON($validate->getError());
 
         $incomeM = new MemberNodeIncome();
-        $filter = "user_id = " . $this->user_id . " and node_id = " . $param['node_id'];
+        $filter = "user_id = " . $this->user_id . " and member_node_id = " . $param['node_id'];
         $fields = "id,create_time,amount,type";
         $data = $incomeM->getDataList2($conf['page'],$conf['list_rows'],$filter,$fields,'create_time desc');
 
