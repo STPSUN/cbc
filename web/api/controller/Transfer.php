@@ -73,7 +73,7 @@ class Transfer extends ApiBase
         $map['type'] = ['neq',3];
         $r = $tradingM->where($map)->find();
         if($r) return $this->failJSON(lang('TRANSFER_ALREADY'));
-        $m['update_time'] = ['between',[date('Y-m-d'),date('Y-m-d').' 23:59:59']];
+        $m['update_time'] = ['between',[date('Y-m-d'),(date('Y-m-d').' 23:59:59')]];
         $m['status'] = 0;
         $r = $tradingM->where($m)->find();
         if($r) return $this->failJSON(lang('TRANSFER_TODAY'));
