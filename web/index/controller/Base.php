@@ -17,44 +17,44 @@ class Base extends \web\common\controller\BaseController {
 
 
     protected function _initialize() {
-        $memberData = session('memberData');
-        if (!empty($memberData)) {
-            $this->user_id = $memberData['user_id'];
-            $this->username = $memberData['username'];
-        }else{
-            $url = getUrl('/index/login');
+        // $memberData = session('memberData');
+        // if (!empty($memberData)) {
+        //     $this->user_id = $memberData['user_id'];
+        //     $this->username = $memberData['username'];
+        // }else{
+            $url = getUrl('/user/login');
             $this->redirect($url);
             exit;
-        }
-        parent::_initialize();
-        if (!IS_AJAX || IS_PJAX) {
-            $this->base_view_path = $this->view_path;
-            $addon = '';
-            if (defined('ADDON_NAME'))
-                $addon = ADDON_NAME;
-            $__c = explode('.', CONTROLLER_NAME);
-            if (count($__c) > 1)
-                $controller = $__c[1];
-            else
-                $controller = $__c[0];
-            $__controller = \think\Loader::parseName($controller);
-            $this->addon = $addon;
-            $this->module = MODULE_NAME;
-            $this->controller = $__controller;
-            $this->assign('_CONTROLLER_NAME', $__controller);
-            $this->assign('_ADDON_NAME', $addon);
-            $templateConfig = config('template');
-            $suffix = ltrim($templateConfig['view_suffix'], '.');
-            $this->assign('PUBLIC_HEADER', APP_PATH . MODULE_NAME . DS . 'view' . DS . 'default' . DS . 'public' . DS . 'header' . '.' . $suffix);
-            $this->assign('PUBLIC_SIDEBAR', APP_PATH . MODULE_NAME . DS . 'view' . DS . 'default' . DS . 'public' . DS . 'sidebar' . '.' . $suffix);
-            //查询用户套餐
-            $u = new \addons\member\model\MemberAccountModel();
-            $meal_id = $u->where('id='.$this->user_id)->value('meal_id');
-            $this->assign('meal_id',$meal_id);
-            $this->assign('username', $this->username);
-            $this->assign('user_id', $this->user_id);
+        // }
+        // parent::_initialize();
+        // if (!IS_AJAX || IS_PJAX) {
+        //     $this->base_view_path = $this->view_path;
+        //     $addon = '';
+        //     if (defined('ADDON_NAME'))
+        //         $addon = ADDON_NAME;
+        //     $__c = explode('.', CONTROLLER_NAME);
+        //     if (count($__c) > 1)
+        //         $controller = $__c[1];
+        //     else
+        //         $controller = $__c[0];
+        //     $__controller = \think\Loader::parseName($controller);
+        //     $this->addon = $addon;
+        //     $this->module = MODULE_NAME;
+        //     $this->controller = $__controller;
+        //     $this->assign('_CONTROLLER_NAME', $__controller);
+        //     $this->assign('_ADDON_NAME', $addon);
+        //     $templateConfig = config('template');
+        //     $suffix = ltrim($templateConfig['view_suffix'], '.');
+        //     $this->assign('PUBLIC_HEADER', APP_PATH . MODULE_NAME . DS . 'view' . DS . 'default' . DS . 'public' . DS . 'header' . '.' . $suffix);
+        //     $this->assign('PUBLIC_SIDEBAR', APP_PATH . MODULE_NAME . DS . 'view' . DS . 'default' . DS . 'public' . DS . 'sidebar' . '.' . $suffix);
+        //     //查询用户套餐
+        //     $u = new \addons\member\model\MemberAccountModel();
+        //     $meal_id = $u->where('id='.$this->user_id)->value('meal_id');
+        //     $this->assign('meal_id',$meal_id);
+        //     $this->assign('username', $this->username);
+        //     $this->assign('user_id', $this->user_id);
 
-        }
+        // }
     }
     
     
