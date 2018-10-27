@@ -342,7 +342,7 @@ class Transfer extends ApiBase
             }else{
                 $list[$key]['pay_type'] = 0;
             }
-            $count = $tradingM->where(['user_id'=>$value['user_id']])->count();
+            $count = $tradingM->where(['user_id'=>$value['user_id'],'status'=>0])->count();
             $list[$key]['count'] = $count;
         }
         $this->successJSON($list);
@@ -396,7 +396,7 @@ class Transfer extends ApiBase
             }else{
                 $list[$key]['pay_type'] = 0;
             }
-            $count = $tradingM->where(['user_id'=>$value['user_id']])->count();
+            $count = $tradingM->where(['user_id'=>$value['user_id'],'status'=>0])->count();
             $list[$key]['count'] = $count;
         }
         $this->successJSON($list);
@@ -510,7 +510,7 @@ class Transfer extends ApiBase
         $trading = $tradingM->findTrad($trad_id);
         if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
         $user = $userM->getDetail($trading['user_id']);
-        $count = $tradingM->getCount(['user_id'=>$trading['user_id']]);
+        $count = $tradingM->getCount(['user_id'=>$trading['user_id'],'status'=>0]);
         $trading['phone'] = $user['phone'];
         $trading['username'] = $user['username'];
         $trading['head_img'] = $user['head_img'];
