@@ -22,7 +22,7 @@
             </select>
         </span>
         <span>
-            <!--0=转账，1=OTC交易，2=提现转出，3=后台拨币, 4=注册  ,5=复投，6=补差升级 10=推荐奖金，11=对碰奖金，12=管理奖金，13=领导奖金，14=报单中心奖金，15=复投奖金-->
+           
             <select name="type" id="type" class="form-control" style="width:120px">
                 <option value="">筛选记录类型</option>
                 <option value="1">转账</option>
@@ -33,14 +33,13 @@
                 <option value="6">用户挂卖</option>
                 <option value="7">确认收款</option>
                 <option value="8">取消订单</option>
-                <!-- 
-                <option value="10">推荐奖金结算</option>
-                <option value="11">对碰奖金结算</option>
-                <option value="12">管理奖金结算</option>
-                <option value="13">领导奖金结算</option>
-                <option value="14">报单中心奖金结算</option>
-                <option value="15">复投奖金结算</option>
- -->                
+                <option value="9">交易奖励</option>
+                <option value="10">分享奖励</option>
+                <option value="11">平级奖励</option>
+                <option value="12">理财收益</option>
+                <option value="13">后台拨币</option>
+                <!-- <option value="14">报单中心奖金结算</option> -->
+                <!-- <option value="15">复投奖金结算</option> -->
                 
             </select>
         </span>
@@ -131,8 +130,8 @@
             pageList: [20, 30, 50]
         });
     });
-    //记录类型：0=转账，1=OTC交易，2=提现转出，3=后台拨币, 4=注册  ,5=复投，
-    // 10=推荐奖金，11=对碰奖金，12=管理奖金，13=领导奖金，14=报单中心奖金，15=复投奖金
+    // <!-- 记录类型：1=CBC转账，2=激活码转账 | 3 购买节点 4-投资理财 5-超级节点消费 6-用户挂卖 7-确认收款 8-订单取消 | 9 交易奖励 | 10 分享奖励 | 11 平级奖励 |12-理财收益|13-后台拨币', -->
+  
     function fromatType(value, row, index){
         if(row['id']){
             var text = '转账'
@@ -152,19 +151,16 @@
                 text = '确认收款'
             else if(value == 8)
                 text = '取消订单'
-            
-            // else if(value == 10)
-            //     text = '推荐奖金'
-            // else if(value == 11)
-            //     text = '对碰奖金'
-            // else if(value == 12)
-            //     text = '管理奖金'
-            // else if(value == 13)
-            //     text = '领导奖金'
-            // else if(value == 14)
-            //     text = '报单中心奖金'
-            // else if(value == 15)
-            //     text = '复投奖金'
+            else if(value == 9)
+                text = '交易奖励'
+            else if(value == 10)
+                text = '分享奖励'
+            else if(value == 11)
+                text = '平级奖励'
+            else if(value == 12)
+                text = '理财收益'
+            else if(value == 13)
+                text = '后台拨币'
 
             return text;
         }
