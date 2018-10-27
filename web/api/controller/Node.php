@@ -64,6 +64,10 @@ class Node extends ApiBase
                 'user_id'   => $this->user_id,
                 'create_time'   => NOW_DATETIME,
                 'type'  => $node['type'],
+                'status'    => 1,
+                'release_num'   => $node['release_num'],
+                'total_num' => $node['total_num'],
+                'pass_time' => time() + ($node['days'] * 24 * 60 * 60),
             );
 
         $node_level_user_id = $this->user_id;
