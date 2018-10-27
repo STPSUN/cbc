@@ -31,6 +31,7 @@ class AwardService extends \web\common\controller\Service
         $pusers = $this->getParentUser($user['pid']);
         $this->peer_user_id = $pusers[0]['user_id'];
 
+        print_r($pusers);
         $userM->startTrans();
         try
         {
