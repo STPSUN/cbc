@@ -42,7 +42,6 @@ class Member extends \web\user\controller\AddonUserBase{
                     $rows[$key]['release_cbc'] = $v['amount']+0;
                 }
             }
-                
         }
         return $this->toDataGrid($total, $rows);
     }
@@ -81,6 +80,8 @@ class Member extends \web\user\controller\AddonUserBase{
         $id = $this->_get('id');
         $m = new \addons\member\model\MemberAccountModel();
         $data = $m->getDetail($id);
+        $father = $m->getSingleField($data['pid'],'phone');
+        $data['father'] = $father;
         return $data;
     }
     

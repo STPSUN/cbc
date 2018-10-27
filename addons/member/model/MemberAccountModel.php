@@ -140,7 +140,7 @@ class MemberAccountModel extends \web\common\model\BaseModel {
     }
 
     public function getList($pageIndex = -1, $pageSize = -1, $filter = '', $order = 'id asc') {
-        $sql = 'select tab.*,c.username as invite_user_name,d.username as aid_name from ' . $this->getTableName() . ' as tab left join ' . $this->getTableName() . ' c on tab.pid=c.id left join ' . $this->getTableName() . ' d on tab.aid=d.id';
+        $sql = 'select tab.*,c.phone as invite_user_phone,d.username as aid_name from ' . $this->getTableName() . ' as tab left join ' . $this->getTableName() . ' c on tab.pid=c.id left join ' . $this->getTableName() . ' d on tab.aid=d.id';
         if (!empty($filter))
             $sql = 'select * from (' . $sql . ') t where ' . $filter;
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
