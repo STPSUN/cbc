@@ -754,7 +754,21 @@ class Transfer extends ApiBase
         $res = $TradingComplaint->addComplaint($data);
         if($res) $this->successJSON(lang('TRANSFER_COMPLAINT_SUC'));
         else $this->failJSON(lang('TRANSFER_COMPLAINT_FAIL'));
+    }
 
+    /**
+     * 用户投诉记录
+     */
+    public function UserComplaintList(){
+        $user_id = $this->user_id;
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        $TradingComplaint = new \addons\member\model\TradingComplaint();
+        $filter = 'user_id = '.$user_id;
+        $page = $this->_post('page')?$this->_post('page'):0;
+        $size = $this->_post('rows')?$this->_post('rows'):15;
+        $res = $TradingComplaint->getList($filter,$page*$size,$size);
+        if($res) $this->successJSON($res);
+        else $this->failJSON(lang('TRANSFER_ASSET'));
     }
 
     /**

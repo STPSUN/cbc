@@ -60,6 +60,7 @@ return array(
     'TRANSFER_COMPLAINT_EMPTY'=>'投诉内容不能为空',
     'TRANSFER_COMPLAINT_SUC'=>'投诉成功',
     'TRANSFER_COMPLAINT_FAIL'=>'投诉失败',
+    'TRANSFER_ASSET'=>'获取失败',
 
     'NODE_EMPTY'=>'该节点为空',
     'NODE_USER_EXISTS'=>'该赠送账号不存在',

@@ -60,6 +60,7 @@ return array(
     'TRANSFER_COMPLAINT_EMPTY'=>'Complaints can not be empty.',
     'TRANSFER_COMPLAINT_SUC'=>'Complaint success',
     'TRANSFER_COMPLAINT_FAIL'=>'Complaint failure',
+    'TRANSFER_ASSET'=>'Gain failure',
 
     'NODE_EMPTY'=>'The node is empty.',
     'NODE_USER_EXISTS'=>'The donation account does not exist.',
