@@ -36,7 +36,7 @@ class User extends ApiBase
                     return $this->failJSON(lang('USER_PHONE'));
                 }
                 $m = new \addons\member\model\MemberAccountModel();
-                $res = $m->getLoginData($password, $phone, 'phone,id,username', 'id,phone,username');
+                $res = $m->getLoginData($password, $phone, 'phone,id,username,head_img', 'id,phone,username');
                 if ($res) {
                     $memberData['username'] = $res['phone'];
 //                    $memberData['address'] = $res['address'];
