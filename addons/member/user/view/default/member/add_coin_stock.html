@@ -6,10 +6,10 @@
             <label class="control-label">选择资产类型</label>
             <div class="controls">
                 <select name="type" id="type" class="form-control required">
-                    {volist name="types" id="vo"}
-                        <option value="{$vo.id}">{$vo.name}</option>
-                    {/volist}
-                </select>    
+                    <option value="1">CBC总额</option>
+                    <option value="2">CBC可用</option>
+                    <option value="4">激活码</option>
+                </select>
             </div>
         </div>
         <div class="control-group">
