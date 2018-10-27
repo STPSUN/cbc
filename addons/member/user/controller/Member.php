@@ -189,8 +189,10 @@ class Member extends \web\user\controller\AddonUserBase{
                 $after_amount = $balance['amount'];
                 $asset_type = $type;
                 if($amount > 0){
+                    $plus = 1;
                     $change_type = 1; //增加
                 }else{
+                    $plus = 0;
                     $change_type= 0;//减少
                     $amount = abs($amount);
                 }
@@ -201,6 +203,9 @@ class Member extends \web\user\controller\AddonUserBase{
                     return $this->failData();
                 }
                 if($asset_type==1){
+                    if(!$plus){
+                        $amount = -$amount;
+                    }
                     $balance = $m->getBalanceByType($user_id,2);
                     $amount2 = bcmul($amount, 0.7,2);
                     if(!empty($balance)){
