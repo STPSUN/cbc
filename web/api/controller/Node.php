@@ -198,7 +198,8 @@ class Node extends ApiBase
             else
                 $v['status'] = lang('NODE_DOWN');
 
-            $v['release_num'] = $incomeM->where('member_node_id',$v['node_id'])->sum('amount');
+            $amount = $incomeM->where('member_node_id',$v['node_id'])->sum('amount');
+            $v['release_num'] = empty($amount) ? 0 : $amount;
         }
 
         return $this->successJSON($data);
