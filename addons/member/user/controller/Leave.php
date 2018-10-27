@@ -1,12 +1,12 @@
 <?php
 
-namespace addons\order\user\controller;
+namespace addons\member\user\controller;
 
 /**
  @author zhuangminghan 
- * 订单管理
+ * 用户留言
  */
-class TradingComplaint extends \web\user\controller\AddonUserBase {
+class Leave extends \web\user\controller\AddonUserBase {
 
     public function index() {
         $type = $this->_get('type');
@@ -23,15 +23,15 @@ class TradingComplaint extends \web\user\controller\AddonUserBase {
         if ($keyword != null) {
             $filter .= ' and sphone like "%' . $keyword . '%" or order_id like "%' . $keyword . '%"';
         }
-        $r = new \addons\member\model\TradingComplaint();
-        $total = $r->getTrandTotal($filter);
+        $r = new \web\api\model\Leave();
+        $total = $r->getTotal($filter);
         $rows = $r->getList($filter,$this->getPageIndex(), $this->getPageSize());
         return $this->toDataGrid($total, $rows);
     }
 
     public function loadData(){
         $id = $this->_get('id');
-        $m = new \addons\member\model\TradingComplaint();
+        $m = new \web\api\model\Leave();
         $data = $m->getDetail($id);
         return $data;
     }
@@ -42,7 +42,7 @@ class TradingComplaint extends \web\user\controller\AddonUserBase {
             $id = $data['id'];
             $data['update_at'] = NOW_DATETIME;
             $data['type'] = 1;
-            $m = new \addons\member\model\TradingComplaint();
+            $m = new \web\api\model\Leave();
             try {
                 $ret = $m->save($data);
                 return $this->successData();
@@ -51,7 +51,7 @@ class TradingComplaint extends \web\user\controller\AddonUserBase {
             }
         } else {
             $this->assign('id', $this->_get('id'));
-            $m = new \addons\member\model\TradingComplaint();
+            $m = new \web\api\model\Leave();
             $role = $m->getDataList();
             $this->assign('role',$role);
             $this->setLoadDataAction('loadData');
@@ -63,7 +63,7 @@ class TradingComplaint extends \web\user\controller\AddonUserBase {
     * 操作投诉
     */
     public function cancleOrder(){
-        $r = new \addons\member\model\TradingComplaint();
+        $r = new \web\api\model\Leave();
         $id = $this->_get('id');
         $res = $r->where(['id'=>$id])->update(['type'=>1]);
         if($res){

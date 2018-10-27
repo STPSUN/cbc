@@ -10,22 +10,19 @@
             <a href="javascript:void(0);" id="js_search" class="frm_input_append">
                 <i class="icon wb-search" title="搜索"></i>
             </a>
-            <input type="text" id="js_keyword" placeholder="请输入卖家手机、订单编号" value="" class="frm_input" />
+            <input type="text" id="js_keyword" placeholder="请输入手机号" value="" class="frm_input" />
         </span>
     </div>
     <table id="grid-table">
         <thead frozen="true">
-        <th data-options="field:'sphone',width:100, align:'center'">卖家手机号</th>
-        <th data-options="field:'bphone',width:100, align:'center'">买家手机号</th>
+        <th data-options="field:'phone',width:100, align:'center'">手机号</th>
         </thead>
         <thead>
             <tr>
-                <th data-options="field:'order_id',width:160, align:'center'">订单编号</th>
-                <th data-options="field:'content',width:200, align:'center'">投诉内容</th>
-                <th data-options="field:'remark',width:200, align:'center'">回复内容</th>
-                <th data-options="field:'type',width:100, align:'center',formatter: formatStatus">类型</th>
-                <th data-options="field:'update_at',width:140,align:'center'">更新时间</th>
-                <th data-options="field:'create_at',width:140,align:'center'">创建时间</th>
+                <th data-options="field:'issue',width:200, align:'center'">问题</th>
+                <th data-options="field:'reply',width:200, align:'center'">回复</th>
+                <th data-options="field:'update_time',width:140,align:'center'">更新时间</th>
+                <th data-options="field:'create_time',width:140,align:'center'">创建时间</th>
                 <th data-options="field:'_oper',width:250,halign:'center',formatter: formatOper">操作</th>
             </tr>
         </thead>
@@ -47,8 +44,9 @@
     }
 
     function formatOper(value, row, index) {
+        console.log(row);
         var html = '<span class="grid-operation">';
-        if(row['type']==0){
+        if(row['reply']==null){
             html += '<button type="button" onclick="edit(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>操作</button>';
         }
         html += '</span>';

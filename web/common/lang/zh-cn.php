@@ -17,6 +17,7 @@ return array(
     'INVESTMENT_NOT_YOUR'=>'不是你的理财订单',
     'INVESTMENT_TIME_END'=>'理财时间还没结束',
     'INVESTMENT_ADD_FAIL'=>'添加投资失败',
+    'INVESTMENT_INT'=>'投资金额必须为100的整数倍',
 
     'TRANSFER_TIME_BAN'=>'当前时间禁止交易',
     'TRANSFER_PAYPWD_WRONG'=>'支付密码错误',
@@ -60,6 +61,7 @@ return array(
     'TRANSFER_COMPLAINT_EMPTY'=>'投诉内容不能为空',
     'TRANSFER_COMPLAINT_SUC'=>'投诉成功',
     'TRANSFER_COMPLAINT_FAIL'=>'投诉失败',
+    'TRANSFER_ASSET'=>'获取失败',
 
     'NODE_EMPTY'=>'该节点为空',
     'NODE_USER_EXISTS'=>'该赠送账号不存在',

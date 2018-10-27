@@ -249,6 +249,8 @@ class Transfer extends ApiBase
         if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
         if($user_id!=$trading['user_id']) return $this->failJSON(lang('TRANSFER_NOT_YOUR'));
         if($trading['type']!=2) return $this->failJSON(lang('TRANSFER_WRONG_STATUS'));
+        $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
+        $number = bcmul(($trading['number'] + $trading['number']*$rate/100), 1,2);
         try{
             $balanceM = new \addons\member\model\Balance();
             $balanceM->startTrans();
@@ -260,7 +262,7 @@ class Transfer extends ApiBase
                 return $this->failJSON(lang('TRANSFER_SAVE_FAIL'));
             }
             $coin_id = 4;//CBC余额
-            $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$trading['number'],1);
+            $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$number,1);
             if(!$userAmount){
                 $balanceM->rollback();
                 return $this->failJSON(lang('TRANSFER_CBC3_ADD'));
@@ -270,7 +272,7 @@ class Transfer extends ApiBase
             $change_type = 1; //增加
             $remark = '确认收款-用户增加激活码';
             $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($trading['to_user_id'], $trading['number'], $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
+            $r_id = $recordM->addRecord($trading['to_user_id'], $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
             if(!$r_id){
                 $balanceM->rollback();
                 return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
@@ -735,7 +737,6 @@ class Transfer extends ApiBase
      */
     public function UserComplaint(){
         $user_id = $this->user_id;
-        $user_id = 56;
         if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
@@ -755,7 +756,20 @@ class Transfer extends ApiBase
         $res = $TradingComplaint->addComplaint($data);
         if($res) $this->successJSON(lang('TRANSFER_COMPLAINT_SUC'));
         else $this->failJSON(lang('TRANSFER_COMPLAINT_FAIL'));
+    }
 
+    /**
+     * 用户投诉记录
+     */
+    public function UserComplaintList(){
+        $user_id = $this->user_id;
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        $TradingComplaint = new \addons\member\model\TradingComplaint();
+        $filter = 'user_id = '.$user_id;
+        $page = $this->_post('page')?$this->_post('page'):0;
+        $size = $this->_post('rows')?$this->_post('rows'):15;
+        $res = $TradingComplaint->getList($filter,$page*$size,$size);
+        $this->successJSON($res);
     }
 
     /**
