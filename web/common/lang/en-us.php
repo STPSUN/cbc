@@ -27,6 +27,7 @@ return array(
     'TRANSFER_LESS_TODAY'=>"Price is less than today's lowest price.",
     'TRANSFER_RIGHT_AMOUNT'=>'Please enter the correct amount of sale.',
     'TRANSFER_NOT_SET_PAY'=>'No payment is set. Please set up the payment method.',
+    'INVESTMENT_INT'=>'The amount of investment must be 100 times the total.',
 
     'TRANSFER_CBC_LESS'=>'Your CBC balance is less than',
     'TRANSFER_CBC1_LESS'=>'Total CBC reduction failed',
