@@ -31,7 +31,6 @@ class AwardService extends \web\common\controller\Service
         $pusers = $this->getParentUser($user['pid']);
         $this->peer_user_id = $pusers[0]['user_id'];
 
-        echo json_encode($pusers);
         $userM->startTrans();
         try
         {
@@ -151,7 +150,6 @@ class AwardService extends \web\common\controller\Service
                     $use_rate = 0.12;
                     $rate = 0.12;
                     $user_amount = bcmul($amount,$rate,2);
-                    echo '交易盟主'.$v['phone'].' 比例：'.$rate.'---<br>---';
                     $this->sendTradeReward($user_amount,$user_id,$v['user_id'],$type,$remark);
                     break;
                 }
@@ -166,7 +164,6 @@ class AwardService extends \web\common\controller\Service
                     $level = 3;
                     $rate = 0.21 - $use_rate;
                     $use_rate = 0.21;
-                    echo '交易盟主'.$v['phone'].' 比例：'.$rate.'---<br>---';
                     $user_amount = $amount * $rate;
                     $this->sendTradeReward($user_amount,$user_id,$v['user_id'],$type,$remark);
                     break;
@@ -181,7 +178,6 @@ class AwardService extends \web\common\controller\Service
                     $level = 4;
                     $rate = 0.3 - $use_rate;
                     $use_rate = 0.3;
-                    echo '交易盟主'.$v['phone'].' 比例：'.$rate.'---<br>---';
                     $user_amount = $amount * $rate;
                     $this->sendTradeReward($user_amount,$user_id,$v['user_id'],$type,$remark);
                     break;
@@ -196,7 +192,6 @@ class AwardService extends \web\common\controller\Service
                     $level = 5;
                     $rate = 0.4 - $use_rate;
                     $use_rate = 0.4;
-                    echo '交易盟主'.$v['phone'].' 比例：'.$rate.'---<br>---';
                     $user_amount = $amount * $rate;
                     $this->sendTradeReward($user_amount,$user_id,$v['user_id'],$type,$remark);
                     break;
@@ -210,7 +205,6 @@ class AwardService extends \web\common\controller\Service
                     }
                     $level = 6;
                     $rate = 0.45 - $use_rate;
-                    echo '交易盟主'.$v['phone'].' 比例：'.$rate.'---<br>---';
                     $user_amount = $amount * $rate;
                     $this->sendTradeReward($user_amount,$user_id,$v['user_id'],$type,$remark);
                     break;
