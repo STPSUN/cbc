@@ -136,7 +136,7 @@ class TradingRecord extends \web\common\model\BaseModel{
             . " FROM tp_trading_record AS r "
             . " JOIN tp_member_account AS u ON u.id = r.to_user_id "
             . " WHERE r.asset_type = $asset_type and r.user_id = $user_id";
-
+        echo $sql;exit();
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
     }
 }
