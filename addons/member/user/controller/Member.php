@@ -21,7 +21,7 @@ class Member extends \web\user\controller\AddonUserBase{
         $keyword = $this->_get('keyword');
         $filter = 'logic_delete=0';
         if ($keyword != null) {
-            $filter .= ' and username like \'%' . $keyword . '%\'';
+            $filter .= ' and phone like \'%' . $keyword . '%\'';
         }
         $m = new \addons\member\model\MemberAccountModel();
         $Balance = new \addons\member\model\Balance();
