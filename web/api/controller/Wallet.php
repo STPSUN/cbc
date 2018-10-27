@@ -65,8 +65,8 @@ class Wallet extends ApiBase
         }
 
         $paramM = new \web\common\model\sys\SysParameterModel();
-        $tax_rate = $paramM->getValByName('deal_tax'); //手续费比率
-        $tax_amount = $tax_rate * $amount / 100;
+        // $tax_rate = $paramM->getValByName('deal_tax'); //手续费比率
+        $tax_amount = $amount/7*3;
         $total_amount = $amount + $tax_amount;
         $balance = $balanceM->verifyStock($this->user_id,$total_amount,$sub_type);
         if(empty($balance)){
