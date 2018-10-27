@@ -30,7 +30,6 @@ class AwardService extends \web\common\controller\Service
         $user = $userM->getDetail($user_id);
         $pusers = $this->getParentUser($user['pid']);
         $this->peer_user_id = $pusers[0]['user_id'];
-
         $userM->startTrans();
         try
         {
@@ -48,6 +47,7 @@ class AwardService extends \web\common\controller\Service
         }catch (\Exception $e)
         {
             Log::record("奖励发放失败");
+            Log::record($e->getMessage());
             $userM->rollback();
             return false;
         }
