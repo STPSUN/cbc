@@ -54,8 +54,8 @@ class Wallet extends ApiBase
         if(empty($to_user_id))
             return $this->failJSON(lang('WALLET_TRUNOUT'));
 
-        if($member['pay_password'] != md5($pay_password))
-            return $this->failJSON(lang('WALLET_PAYPASS'));
+//        if($member['pay_password'] != md5($pay_password))
+//            return $this->failJSON(lang('WALLET_PAYPASS'));
 
         $verifyM = new \addons\member\model\VericodeModel();
         $_verify = $verifyM->VerifyCode($auth_code, $member['phone'],3);
@@ -79,21 +79,40 @@ class Wallet extends ApiBase
         try{
             $balanceM->startTrans();
             //扣除当前用户余额, 添加转出用户余额
+            //转出方
             $balance = $balanceM->updateBalance($this->user_id, $sub_type, $total_amount);
             $use_balance = $balanceM->updateBalance($this->user_id,$use_type,$amount);
+
+            //收入方
+//            $to_type = 4;
+//            $to_balance = $balanceM->updateBalance($to_user_id,$to_type,$total_amount,true);
+//            $to_use_balance = $balanceM->updateBalance($to_user_id,$use_type,$amount,true);
             if($balance != false){
                 $type = 1; //转账
+
+                //转出方
                 $change_type = 0; //减少
                 $remark = '用户CBC转出,手续费金额:'.$tax_amount;
                 $remark2 = '用户CBC转出';
                 $recordM->addRecord($this->user_id,$amount,$use_balance['before_amount'],$use_balance['amount'],$use_type,$type,$change_type,$to_user_id,$remark2);
                 $record_id = $recordM->addRecord($this->user_id, $total_amount, $balance['before_amount'], $balance['amount'], $sub_type, $type, $change_type, $to_user_id, $remark);
+
+                //收入方
+//                $to_change_type = 1; //增加
+//                $to_remark = '用户CBC转入';
+//                $recordM->addRecord($to_user_id,$amount,$to_balance['before_amount'],$to_balance['before_amount'],$to_balance['amount'],$to_type,$type,$to_change_type,$this->user_id,$to_remark);
+//
+//                $balanceM->commit();
+//                $awardS = new AwardService();
+//                $awardS->tradingReward($tax_amount,$this->user_id);
+//                return $this->successJSON();
+
                 if($record_id > 0){
                     $to_balance = $balanceM->updateBalance($to_user_id, $key_type, $amount, true);
                     if($to_balance != false){
                         $change_type = 1;
                         $remark = '用户CBC转入';
-                        $record_id = $recordM->addRecord($to_user_id, $amount, $to_balance['before_amount'], $to_balance['amount'], $sub_type, $type, $change_type, $this->user_id, $remark);
+                        $record_id = $recordM->addRecord($to_user_id, $amount, $to_balance['before_amount'], $to_balance['amount'], $key_type, $type, $change_type, $this->user_id, $remark);
                         if($record_id > 0){
                             $balanceM->commit();
                             $awardS = new AwardService();
