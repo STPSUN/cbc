@@ -73,9 +73,9 @@ class Transfer extends ApiBase
         $map['type'] = ['neq',3];
         $r = $tradingM->where($map)->find();
         if($r) return $this->failJSON(lang('TRANSFER_ALREADY'));
-        $m['update_time'] = ['between',[date('Y-m-d'),(date('Y-m-d').' 23:59:59')]];
-        $m['status'] = 0;
-        $r = $tradingM->where($m)->find();
+        $ma['update_time'] = ['between',[date('Y-m-d'),(date('Y-m-d').' 23:59:59')]];
+        $ma['status'] = 0;
+        $r = $tradingM->where($ma)->find();
         if($r) return $this->failJSON(lang('TRANSFER_TODAY'));
         $number = $this->_post('number');
         if($number<=0) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER'));
