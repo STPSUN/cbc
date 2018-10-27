@@ -313,6 +313,33 @@ class MemberService extends \web\common\controller\Service
     }
 
     /**
+     * 获取伞下实名会员
+     */
+    public function getTeamId($id,&$team=array())
+    {
+        $userM = new \addons\member\model\MemberAccountModel();
+        $data = $userM->field('id,phone,real_name')->where(['pid' => $id, 'is_auth' => 1])->select();
+        foreach ($data as $v)
+        {
+            $temp = array(
+                'user_id'   => $v['id'],
+                'phone'     => $v['phone'],
+                'real_name' => $v['real_name'],
+            );
+
+            $team[] = $temp;
+
+            $users = $userM->where('pid',$v['id'])->select();
+            if(!empty($users))
+            {
+                $this->getTeamId($v['id'],$team);
+            }
+        }
+
+        return $team;
+    }
+
+    /**
      * 根据层级获取伞下会员
      */
     public function getTeamByTier($id,&$team=array(),&$tier=3,&$num=1)
