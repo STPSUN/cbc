@@ -181,7 +181,7 @@ class MemberService extends \web\common\controller\Service
         $user_amount = $recordM->where(['user_id' => $user_id, 'type' => 3])->sum('amount');
         //伞下业绩和注册人数
         $team = $this->getTeamAmount($user_id,$user_num);
-        $amount = $team['amount'] + $user_amount;
+        $amount = $team['amount'];
 
         $data = array(
             'amount' => $amount,
