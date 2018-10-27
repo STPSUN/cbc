@@ -73,9 +73,9 @@ class Transfer extends ApiBase
         $map['type'] = ['neq',3];
         $r = $tradingM->where($map)->find();
         if($r) return $this->failJSON(lang('TRANSFER_ALREADY'));
-        $m['update_time'] = ['between',date('Y-m-d'),date('Y-m-d').' 23:59:59'];
-        $m['status'] = 0;
-        $r = $tradingM->where($m)->find();
+        $ma['update_time'] = ['between',[date('Y-m-d'),(date('Y-m-d').' 23:59:59')]];
+        $ma['status'] = 0;
+        $r = $tradingM->where($ma)->find();
         if($r) return $this->failJSON(lang('TRANSFER_TODAY'));
         $number = $this->_post('number');
         if($number<=0) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER'));
@@ -257,7 +257,8 @@ class Transfer extends ApiBase
         if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
         if($user_id!=$trading['user_id']) return $this->failJSON(lang('TRANSFER_NOT_YOUR'));
         if($trading['type']!=2) return $this->failJSON(lang('TRANSFER_WRONG_STATUS'));
-        $rate = $sysM->getValByName('is_deal_tax')?$sysM->getValByName('deal_tax'):0;
+        $sysM = new \web\common\model\sys\SysParameterModel();
+        $rate = $sysM->getValByName('is_buy_tax')?$sysM->getValByName('buy_tax'):0;
         $number = bcmul(($trading['number'] + $trading['number']*$rate/100), 1,2);
         try{
             $balanceM = new \addons\member\model\Balance();
