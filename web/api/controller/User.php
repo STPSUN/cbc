@@ -580,7 +580,7 @@ class User extends ApiBase
             }
         }
 
-        $data = array($node1,$node2,$node3,$node4,$node5,$node6,$node7,$node8);
+        $data = array($node8,$node7,$node6,$node5,$node4,$node3,$node2,$node1);
 
         return $this->successJSON($data);
     }
