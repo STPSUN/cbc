@@ -47,6 +47,7 @@ class User extends ApiBase
                     $this->setGlobalCache($res['id'], $token); //user_id存储到入redis
                     $data['phone'] = $res['phone'];
                     $data['username'] = $res['username'];
+                    $data['head_img'] = $res['head_img'];
 //                    $data['address'] = $res['address'];
                     $data['token'] = $token;
                     return $this->successJSON($data);
