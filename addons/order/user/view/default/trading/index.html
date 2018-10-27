@@ -94,6 +94,8 @@
                 html += '<button type="button" onclick="cancleOrder(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>取消</button>';
             }else if(row['type']==2){
                 html += '<button type="button" onclick="confirmMoney(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>确认收款</button>';
+                html += '<button type="button" onclick="cancleOrder(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>取消</button>';
+                
             }
         }
         html += '</span>';

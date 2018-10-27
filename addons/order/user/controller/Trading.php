@@ -39,7 +39,7 @@ class Trading extends \web\user\controller\AddonUserBase {
         $id = $this->_get('id');
         $r = new \addons\member\model\Trading();
         $info = $r->findTrad($id);
-        if($info['type']==0){
+        if($info['type']==0||$info['type']==2){
             $info['status'] = 1;
             $info['update_time'] = NOW_DATETIME;
             $user_id = $info['user_id'];
