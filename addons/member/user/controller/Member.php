@@ -172,7 +172,6 @@ class Member extends \web\user\controller\AddonUserBase{
                     $balance['amount'] = $before_amount + $amount;
                     $balance['update_time'] = NOW_DATETIME;
                     $m->save($balance);
-
                 }else{
                     $before_amount = 0;
                     $balance['user_id'] = $user_id;
@@ -181,27 +180,61 @@ class Member extends \web\user\controller\AddonUserBase{
                     $balance['update_time'] = NOW_DATETIME;
                     $id = $m->add($balance);
                 }
-                if($id > 0){
-                    $rm = new \addons\member\model\TradingRecord();
-                    $after_amount = $balance['amount'];
-                    $asset_type = $type;
-                    if($amount > 0){
-                        $change_type = 1; //增加
-                    }else{
-                        $change_type= 0;//减少
-                        $amount = abs($amount);
-                    }
-                    $type = 13;//后台拨币
-//                    $remark = '系统后台拨币';
-                    $r_id = $rm->addRecord($user_id, $amount, $before_amount, $after_amount,$asset_type, $type, $change_type,0, $remark);
-                    if($r_id > 0){
-                        $m->commit();
-                        return $this->successData();
-                    }
-                }else{
+                if(!$id){                
                     $m->rollback();
                     return $this->failData('拨币失败');
                 }
+                $rm = new \addons\member\model\TradingRecord();
+                $after_amount = $balance['amount'];
+                $asset_type = $type;
+                if($amount > 0){
+                    $change_type = 1; //增加
+                }else{
+                    $change_type= 0;//减少
+                    $amount = abs($amount);
+                }
+                $type = 13;//后台拨币
+                $r_id = $rm->addRecord($user_id, $amount, $before_amount, $after_amount,$asset_type, $type, $change_type,0, $remark);
+                if(!$r_id){
+                    $m->rollback();
+                    return $this->failData();
+                }
+                if($asset_type==1){
+                    $balance = $m->getBalanceByType($user_id,2);
+                    $amount2 = bcmul($amount, 0.7,2);
+                    if(!empty($balance)){
+                        $id = $balance['id'];
+                        $before_amount = $balance['amount'];
+                        $balance['type'] = 2;
+                        $balance['amount'] = $before_amount + $amount2;
+                        $balance['update_time'] = NOW_DATETIME;
+                        $m->save($balance);
+                    }else{
+                        $before_amount = 0;
+                        $balance['user_id'] = $user_id;
+                        $balance['type'] = 2;
+                        $balance['amount'] = $amount2;
+                        $balance['update_time'] = NOW_DATETIME;
+                        $id = $m->add($balance);
+                    }
+                    $rm = new \addons\member\model\TradingRecord();
+                    $after_amount = $balance['amount'];
+                    $asset_type = 2;
+                    if($amount2 > 0){
+                        $change_type = 1; //增加
+                    }else{
+                        $change_type= 0;//减少
+                        $amount2 = abs($amount2);
+                    }
+                    $type = 13;//后台拨币
+                    $r_id = $rm->addRecord($user_id, $amount2, $before_amount, $after_amount,$asset_type, $type, $change_type,0, $remark);
+                    if(!$r_id){
+                        $m->rollback();
+                        return $this->failData();
+                    }
+                }
+                $m->commit();
+                return $this->successData();
             } catch (\Exception $ex) {
                 $m->rollback();
                 return $this->failData($ex->getMessage());
