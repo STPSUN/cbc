@@ -767,8 +767,7 @@ class Transfer extends ApiBase
         $page = $this->_post('page')?$this->_post('page'):0;
         $size = $this->_post('rows')?$this->_post('rows'):15;
         $res = $TradingComplaint->getList($filter,$page*$size,$size);
-        if($res) $this->successJSON($res);
-        else $this->failJSON(lang('TRANSFER_ASSET'));
+        $this->successJSON($res);
     }
 
     /**
