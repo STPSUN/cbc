@@ -12,6 +12,7 @@ namespace web\api\controller;
 use addons\member\model\Balance;
 use addons\member\model\MemberAccountModel;
 use addons\member\model\PayConfig;
+use addons\member\model\TradingRecord;
 use think\Request;
 use think\Validate;
 use web\api\model\Leave;
@@ -599,7 +600,7 @@ class User extends ApiBase
 
         if($user)
         {
-            $pOne = $userM->where('pid',$user['id'])->column('id');
+            $pOne = $userM->where(['pid' => $user['id'], 'is_auth' => 1])->column('id');
         }
 
         $user2 = array();
@@ -607,7 +608,7 @@ class User extends ApiBase
         {
             foreach ($pOne as $v)
             {
-                $temp = $userM->where('pid',$v)->column('id');
+                $temp = $userM->where(['pid' => $v, 'is_auth' => 1])->column('id');
                 $pTwo[] = $temp;
                 $one_ids .= $v . ',';
             }
@@ -622,7 +623,7 @@ class User extends ApiBase
         {
             foreach ($user2 as $v)
             {
-                $temp = $userM->where('pid',$v)->column('id');
+                $temp = $userM->where(['pid' => $v, 'is_auth' => 1])->column('id');
                 $pThree[] = $temp;
                 $two_ids .= $v . ',';
             }
@@ -640,27 +641,36 @@ class User extends ApiBase
             }
         }
 
-        $one_num = count($pOne);
-        $two_num = count($user2);
-        $three_num = count($user3);
-        $total_num = $one_num + $two_num + $three_num;
-        $total_amount = 0;
+        $memberS = new MemberService();
+        $team_users = $memberS->getTeamId($this->user_id);
+        $team_user_ids = '';
+        foreach ($team_users as $v)
+        {
+            $team_user_ids .= $v['user_id'] . ',';
+        }
+
+        $recordM = new TradingRecord();
+
+        $total_amount = $recordM->where(['user_id' => array('in',$team_user_ids), 'type' => 3])->sum('amount');
+        $one_amount = $recordM->where(['user_id' => array('in',$one_ids), 'type' => 3])->sum('amount');
+        $two_amount = $recordM->where(['user_id' => array('in',$two_ids), 'type' => 3])->sum('amount');
+        $three_amount = $recordM->where(['user_id' => array('in',$three_ids), 'type' => 3])->sum('amount');
         $total = array(
             'total' => array(
-                'total_num' => $total_num,
+                'total_num' => count($team_users),
                 'total_amount'  => $total_amount,
             ),
             'one'   => array(
                 'people_num'    => count($pOne),
-                'amount'        => 0,
+                'amount'        => $one_amount,
             ),
             'two'   => array(
                 'people_num'    => count($user2),
-                'amount'        => 0,
+                'amount'        => $two_amount,
             ),
             'three' => array(
                 'people_num'    => count($user3),
-                'amount'        => 0,
+                'amount'        => $three_amount,
             )
         );
 
