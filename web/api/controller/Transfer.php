@@ -67,6 +67,16 @@ class Transfer extends ApiBase
         $low = $data['low'];
         $sysM = new \web\common\model\sys\SysParameterModel();
         $this->forbiddenTime($sysM);
+        $tradingM = new \addons\member\model\Trading();
+        $map['user_id'] = $user_id;
+        $map['status'] = 0;
+        $map['type'] = ['neq',3];
+        $r = $trading->where($map)->find();
+        if($r) return $this->failJSON(lang('TRANSFER_ALREADY'));
+        $m['update_time'] = ['between',date('Y-m-d'),date('Y-m-d').' 23:59:59'];
+        $m['status'] = 0;
+        $r = $trading->where($m)->find();
+        if($r) return $this->failJSON(lang('TRANSFER_TODAY'));
         $number = $this->_post('number');
         if($number<=0) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER'));
         $price = $this->_post('price');
@@ -150,7 +160,6 @@ class Transfer extends ApiBase
                 'update_time'=>NOW_DATETIME,
                 'create_at'=>date('Y-m-d H:i:s')
             ];
-            $tradingM = new \addons\member\model\Trading();
             $res = $tradingM->add($data);
             if($res){
                 $balanceM->commit();

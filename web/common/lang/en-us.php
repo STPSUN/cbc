@@ -19,6 +19,8 @@ return array(
     'INVESTMENT_ADD_FAIL'=>'Failure to add investment',
 
     'TRANSFER_TIME_BAN'=>'Current time prohibition of trading',
+    'TRANSFER_ALREADY'=>'There are no orders for sale.',
+    'TRANSFER_TODAY'=>'It can only be sold one day a day.',
     'TRANSFER_PAYPWD_WRONG'=>'Payment password error',
     'TRANSFER_NOT_AUTH'=>'No real name authentication, no sale.',
     'TRANSFER_RIGHT_NUMBER'=>'Please input the correct number of sales.',

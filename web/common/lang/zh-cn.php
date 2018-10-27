@@ -20,6 +20,8 @@ return array(
     'INVESTMENT_INT'=>'投资金额必须为100的整数倍',
 
     'TRANSFER_TIME_BAN'=>'当前时间禁止交易',
+    'TRANSFER_ALREADY'=>'存在挂卖的订单无法重复挂卖',
+    'TRANSFER_TODAY'=>'一天只能挂卖一单',
     'TRANSFER_PAYPWD_WRONG'=>'支付密码错误',
     'TRANSFER_NOT_AUTH'=>'没有实名认证无法挂卖',
     'TRANSFER_RIGHT_NUMBER'=>'请输入正确的挂卖数量',
