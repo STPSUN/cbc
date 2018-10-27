@@ -21,7 +21,8 @@
         <thead>
             <tr>
                 <th data-options="field:'order_id',width:160, align:'center'">订单编号</th>
-                <th data-options="field:'content',width:100, align:'center'">投诉内容</th>
+                <th data-options="field:'content',width:200, align:'center'">投诉内容</th>
+                <th data-options="field:'remark',width:200, align:'center'">回复内容</th>
                 <th data-options="field:'type',width:100, align:'center',formatter: formatStatus">类型</th>
                 <th data-options="field:'update_at',width:140,align:'center'">更新时间</th>
                 <th data-options="field:'create_at',width:140,align:'center'">创建时间</th>
@@ -48,25 +49,33 @@
     function formatOper(value, row, index) {
         var html = '<span class="grid-operation">';
         if(row['type']==0){
-            html += '<button type="button" onclick="cancleOrder(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>操作</button>';
+            html += '<button type="button" onclick="edit(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>操作</button>';
         }
         html += '</span>';
         return html;
     }
 
-    //审核
-    function cancleOrder(id){
-        var title = '确定操作?';
-        confirm(title, function () {
-            var url = getURL('cancleOrder');
-            $.getJSON(url, {id: id}, function (json) {
-                if (json.success)
-                    reload();
-                else
-                    alert(json.message);
-            });
-        });
+    function edit(id) {
+        var url = getURL('edit', 'id=' + id);
+        openBarWin('操作', 850, 450, url, function () {
+            reload();
+        }, ['保存', '取消']);
     }
+
+
+    // //审核
+    // function cancleOrder(id){
+    //     var title = '确定操作?';
+    //     confirm(title, function () {
+    //         var url = getURL('cancleOrder');
+    //         $.getJSON(url, {id: id}, function (json) {
+    //             if (json.success)
+    //                 reload();
+    //             else
+    //                 alert(json.message);
+    //         });
+    //     });
+    // }
 
     
     

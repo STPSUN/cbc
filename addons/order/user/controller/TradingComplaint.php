@@ -29,6 +29,35 @@ class TradingComplaint extends \web\user\controller\AddonUserBase {
         return $this->toDataGrid($total, $rows);
     }
 
+    public function loadData(){
+        $id = $this->_get('id');
+        $m = new \addons\member\model\TradingComplaint();
+        $data = $m->getDetail($id);
+        return $data;
+    }
+
+    public function edit() {
+        if (IS_POST) {
+            $data = $_POST;
+            $id = $data['id'];
+            $data['update_at'] = NOW_DATETIME;
+            $data['type'] = 1;
+            $m = new \addons\member\model\TradingComplaint();
+            try {
+                $ret = $m->save($data);
+                return $this->successData();
+            } catch (\Exception $e) {
+                return $this->failData($e->getMessage()); 
+            }
+        } else {
+            $this->assign('id', $this->_get('id'));
+            $m = new \addons\member\model\TradingComplaint();
+            $role = $m->getDataList();
+            $this->assign('role',$role);
+            $this->setLoadDataAction('loadData');
+            return $this->fetch();
+        }
+    }
 
     /**
     * 操作投诉

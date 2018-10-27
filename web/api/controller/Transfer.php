@@ -735,7 +735,6 @@ class Transfer extends ApiBase
      */
     public function UserComplaint(){
         $user_id = $this->user_id;
-        $user_id = 56;
         if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
