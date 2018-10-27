@@ -20,7 +20,7 @@ class Crontab extends \web\common\controller\Controller {
         $tradingM = new \addons\member\model\Trading();
         $map['type'] = 1;
         $map['status'] = 0;
-        $map['update_time'] = ['lt',date('Y-m-d H:i:s',(time()+30*60))];
+        $map['update_time'] = ['lt',date('Y-m-d H:i:s',(time()+1*60))];
         $list = $tradingM->where($map)->select();
         if(!$list) return $this->failJSON('no trading list');
         foreach ($list as $key => $value) {
