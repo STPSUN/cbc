@@ -243,6 +243,17 @@ class Node extends ApiBase
         return  $this->successJSON($data);
     }
 
+    /**
+     * 节点释放
+     */
+    public function release()
+    {
+        $nodeS = new NodeService();
+        $nodeS->nodeRelease();
+
+        echo 1;
+    }
+
 }
 
 
