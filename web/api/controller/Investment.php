@@ -87,7 +87,7 @@ class Investment extends ApiBase
                 $balanceM->rollback();
                 return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
             }
-        }else{
+        }elseif($style==1){
             $type = 4;
             $userAsset = $balanceM->getBalanceByType($user_id,$type);
             if($amount>$userAsset['amount'])  return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
@@ -102,11 +102,15 @@ class Investment extends ApiBase
                 $balanceM->rollback();
                 return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
             }
+        }else{
+            $balanceM->rollback();
+            return $this->failJSON(lang('INVESTMENT_ADD_WRONG'));
         }
         $data = [
                 'user_id'       =>$user_id,
                 'amount'        =>$amount,
                 'month_fee'     =>$info['amount_interest'],
+                'belong'        =>$style,
                 'financing_time'=>$info['time_length'],
                 'interset'      =>bcmul(($amount*$info['amount_interest']/100*$info['time_length']/30), 1,4),
                 'start_at'      =>date('Y-m-d H:i:s'),
