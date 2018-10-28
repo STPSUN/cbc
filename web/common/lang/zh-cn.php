@@ -66,6 +66,7 @@ return array(
     'TRANSFER_ASSET'=>'获取失败',
 
     'NODE_EMPTY'=>'该节点为空',
+    'NODE_ADD'=>'增加日释放失败',
     'NODE_USER_EXISTS'=>'该赠送账号不存在',
     'NODE_BUY_LIMIT'=>'已达到节点认购上限',
     'NODE_LESS_AMOUNT'=>'余额不足',
