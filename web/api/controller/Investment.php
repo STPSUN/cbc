@@ -187,7 +187,7 @@ class Investment extends ApiBase
         // if(time()<strtotime($info['end_at'])) return $this->failJSON(lang('INVESTMENT_TIME_END'));
         $balanceM->startTrans();
         // $coin_id = 2;
-        // $type = 12;
+        $type = 12;
         // $amount = $info['amount'];
         // $userAsset = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
         // if(!$userAsset){
