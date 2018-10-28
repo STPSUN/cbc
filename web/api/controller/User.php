@@ -537,7 +537,7 @@ class User extends ApiBase
         $node_arr = array();
         foreach ($users as $v)
         {
-            echo $v['user_id'];
+            if(!$v['user_id']) return $this->failJSON();
             $user_node = $memberNodeM->where('user_id',$v['user_id'])->column('type');
             if(empty($user_node))
                 continue;
