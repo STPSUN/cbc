@@ -282,27 +282,3 @@ class Wallet extends ApiBase
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
