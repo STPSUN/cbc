@@ -50,7 +50,7 @@ class Node extends ApiBase
         $memberM= new MemberAccountModel();
         $balanceM = new \addons\member\model\Balance();
 
-        $give_user_id = '';
+        $give_user_id = 0;
         if(!empty($give_username))
         {
             $give_user_id = $memberM->getUserByPhone($give_username);
@@ -99,12 +99,11 @@ class Node extends ApiBase
             //     $this->failJSON(lang('NODE_ADD'));
             // }
             $balance = $balanceM->updateBalance($this->user_id, $balance_type, $amount);
-
             if($balance != false){
                 $type = 3; //购买节点
                 $change_type = 0; //减少
                 $remark = '节点认购';
-                $recordM->addRecord($this->user_id, $amount, $balance['before_amount'], $balance['amount'], $balance_type, $type, $change_type, 0, $remark);
+                $recordM->addRecord($this->user_id, $amount, $balance['before_amount'], $balance['amount'], $balance_type, $type, $change_type, $give_user_id, $remark);
             }
             $memberNodeM->save($data);
 
