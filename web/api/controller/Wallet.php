@@ -126,9 +126,15 @@ class Wallet extends ApiBase
                     return $this->failJSON();
                 }
 
-                $balanceM->commit();
                 $awardS = new AwardService();
-                $awardS->tradingReward($tax_amount,$this->user_id);
+                $res = $awardS->tradingReward($tax_amount,$this->user_id);
+                if(!$res)
+                {
+                    $balanceM->rollback();
+                    return $this->failJSON();
+                }
+
+                $balanceM->commit();
                 return $this->successJSON();
             }
 
