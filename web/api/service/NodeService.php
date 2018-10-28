@@ -139,6 +139,7 @@ class NodeService extends \web\common\controller\Service
         if(empty($node))
             return false;
 
+        $data = array();
         $data = array(
             'node_id'   => $node['id'],
             'node_num'  => 1,
@@ -151,7 +152,7 @@ class NodeService extends \web\common\controller\Service
             'pass_time' => time() + ($node['days'] * 24 * 60 * 60),
         );
 
-        $res = $memberNodeM->save($data);
+        $res = $memberNodeM->add($data);
         if($res)
             return true;
         else
