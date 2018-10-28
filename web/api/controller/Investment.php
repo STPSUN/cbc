@@ -70,6 +70,22 @@ class Investment extends ApiBase
             $balanceM->rollback();
             return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
         }
+
+        $type = 1;
+        $userAsset = $balanceM->getBalanceByType($user_id,$type);
+        $total = $amount/0.7;
+        if($total>$userAsset['amount'])  return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+        $balanceM->startTrans();
+        $userAsset = $balanceM->updateBalance($user_id,$type,$total);
+        if(!$userAsset){
+            $balanceM->rollback();
+            return $this->failJSON(lang('INVESTMENT_REDUCE_WRONG'));
+        }
+        $in_record_id = $recordM->addRecord($user_id, $total, $userAsset['before_amount'], $userAsset['amount'], $type, 4,0, $user_id,'用户理财');
+        if(empty($in_record_id)){
+            $balanceM->rollback();
+            return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+        }
         $data = [
                 'user_id'       =>$user_id,
                 'amount'        =>$amount,
