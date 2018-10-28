@@ -197,7 +197,7 @@ class Node extends ApiBase
     {
         $memberNodeM = new MemberNode();
 
-        $data = $memberNodeM->field('type,status,id node_id')->where('user_id',$this->user_id)->select();
+        $data = $memberNodeM->field('type,status,id,node_id')->where('user_id',$this->user_id)->select();
 
         $incomeM = new MemberNodeIncome();
         foreach ($data as &$v)

@@ -312,6 +312,41 @@ class MemberService extends \web\common\controller\Service
         return $team;
     }
 
+
+    /**
+     * 获取伞下会员
+     */
+    public function getTreeTeam($id,&$team=array(),$num)
+    {
+        $userM = new \addons\member\model\MemberAccountModel();
+        $users = $userM->where('pid',$id)->find();
+        if(!$users)
+        {
+            return $team;
+        }
+        if($num==3) return $team;
+        $num++;
+        $data = $userM->field('id,phone,real_name')->where('pid',$id)->select();
+        foreach ($data as $v)
+        {
+            $temp = array(
+                'user_id'   => $v['id'],
+                'phone'     => $v['phone'],
+                'real_name' => $v['real_name'],
+            );
+
+            $team[] = $temp;
+
+            $users = $userM->where('pid',$v['id'])->find();
+            if($users)
+            {
+                $this->getTeam($v['id'],$team,$num);
+            }
+        }
+
+        return $team;
+    }
+
     /**
      * 获取伞下实名会员
      */
