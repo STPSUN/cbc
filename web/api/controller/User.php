@@ -43,7 +43,7 @@ class User extends ApiBase
                     $memberData['user_id'] = $res['id'];
                     session('memberData', $memberData);
 
-                    $token = md5($res['id'] . $this->apikey);
+                    $token = md5($res['id'] . $this->apikey . time());
                     $this->setGlobalCache($res['id'], $token); //user_id存储到入redis
                     $data['phone'] = $res['phone'];
                     $data['username'] = $res['username'];
