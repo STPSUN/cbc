@@ -527,7 +527,7 @@ class User extends ApiBase
      */
     public function nodeCommunity()
     {
-        $memberS = new MemberService();
+        $memberS = new \web\api\service\MemberService();
         // $users = $memberS->getTeam($this->user_id);
         $users = $memberS->getTreeTeam($this->user_id,[],0);
 
