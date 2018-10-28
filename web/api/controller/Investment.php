@@ -131,11 +131,24 @@ class Investment extends ApiBase
         $info = $finaM->getDetail($financial_id);
         if(!$info) return $this->failJSON(lang('INVESTMENT_CANT_FIND'));
         if($info['user_id']!=$user_id) return $this->failJSON(lang('INVESTMENT_NOT_YOUR'));
-        if(time()<strtotime($info['end_at'])) return $this->failJSON(lang('INVESTMENT_TIME_END'));
+        // if(time()<strtotime($info['end_at'])) return $this->failJSON(lang('INVESTMENT_TIME_END'));
         $balanceM->startTrans();
-        $coin_id = 2;
-        $type = 12;
-        $amount = $info['amount'];
+        // $coin_id = 2;
+        // $type = 12;
+        // $amount = $info['amount'];
+        // $userAsset = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
+        // if(!$userAsset){
+        //     $balanceM->rollback();
+        //     return $this->failJSON(lang('COMMON_ADD_AMOUNT_WRONG'));
+        // }
+        // $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $coin_id, $type,1, $user_id,'用户理财');
+        // if(empty($in_record_id)){
+        //     $balanceM->rollback();
+        //     return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+        // }
+
+        $coin_id = 4;
+        $amount = $info['interset']+$info['amount'];
         $userAsset = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
         if(!$userAsset){
             $balanceM->rollback();
@@ -146,9 +159,48 @@ class Investment extends ApiBase
             $balanceM->rollback();
             return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
         }
+        $data = [
+                'status'        =>1,
+                'update_at'     =>date('Y-m-d H:i:s'),
+        ];
+        $res = $finaM->where(['id'=>$financial_id])->update($data);
+        if(!$res){
+            $balanceM->rollback();
+            return $this->failJSON(lang('INVESTMENT_ADD_FAIL'));
+        }
+        $balanceM->commit();
+        return $this->successJSON();
+    }
+
+
+    public function auto_receive(){
+        $finaM = new \addons\member\model\Financial();
+        $list = $finaM->select();
+        $balanceM = new \addons\member\model\Balance();
+        $recordM = new \addons\member\model\TradingRecord();
+        $financial_id = $this->_post('financial_id');
+        $info = $finaM->getDetail($financial_id);
+        $info = $finaM->getDetail(3);
+        // if(!$info) return $this->failJSON(lang('INVESTMENT_CANT_FIND'));
+        // if($info['user_id']!=$user_id) return $this->failJSON(lang('INVESTMENT_NOT_YOUR'));
+        // if(time()<strtotime($info['end_at'])) return $this->failJSON(lang('INVESTMENT_TIME_END'));
+        $balanceM->startTrans();
+        // $coin_id = 2;
+        // $type = 12;
+        // $amount = $info['amount'];
+        // $userAsset = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
+        // if(!$userAsset){
+        //     $balanceM->rollback();
+        //     return $this->failJSON(lang('COMMON_ADD_AMOUNT_WRONG'));
+        // }
+        // $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $coin_id, $type,1, $user_id,'用户理财');
+        // if(empty($in_record_id)){
+        //     $balanceM->rollback();
+        //     return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+        // }
 
         $coin_id = 4;
-        $amount = $info['interset'];
+        $amount = $info['interset']+$info['amount'];
         $userAsset = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
         if(!$userAsset){
             $balanceM->rollback();
