@@ -135,11 +135,10 @@ class NodeService extends \web\common\controller\Service
     {
         $nodeM = new Node();
         $memberNodeM = new MemberNode();
+        $balanceM = new \addons\member\model\Balance();
         $node = $nodeM->where('type',1)->find();
-        if(empty($node))
-            return false;
-
-        $data = array();
+        if(empty($node)) return false;
+        $data = [];
         $data = array(
             'node_id'   => $node['id'],
             'node_num'  => 1,
@@ -151,13 +150,20 @@ class NodeService extends \web\common\controller\Service
             'total_num' => $node['total_num'],
             'pass_time' => time() + ($node['days'] * 24 * 60 * 60),
         );
-
+        $memberNodeM->startTrans();
+        $balance = $balanceM->updateBalance($this->user_id, 5, $node['release_num']);
+        if(!$balance){
+            $memberNodeM->rollback();
+            $this->failJSON(lang('NODE_ADD'));
+        }
         $res = $memberNodeM->add($data);
-        if($res)
+        if($res){
+            $memberNodeM->commit();
             return true;
-        else
+        }else{
+            $memberNodeM->rollback();
             return false;
-
+        }
     }
 }
 
