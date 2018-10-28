@@ -2,6 +2,7 @@
 {block name="body"}
 <style type="text/css">
 .voucher{max-height: 50px;max-width: 50px}
+.right-main table tr{height: 50px;}
 </style>
 <div class="right-main">
     <div class="page_nav" id="js_page_nav"><span class="page_title">{$page_nav}</span></div>
@@ -18,7 +19,7 @@
         </span>
     </div>
     <table id="grid-table">
-        <thead frozen="true">
+        <thead frozen="true" >
         <th data-options="field:'phone',width:150, align:'center'">手机号</th>
         <th data-options="field:'invite_user_phone',width:150, align:'center'">上级用户</th>
         <th data-options="field:'node_level',width:100,align:'center', formatter:formatNode">节点等级</th> 
