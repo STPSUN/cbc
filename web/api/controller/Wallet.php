@@ -107,20 +107,29 @@ class Wallet extends ApiBase
 //                $awardS->tradingReward($tax_amount,$this->user_id);
 //                return $this->successJSON();
 
-                if($record_id > 0){
-                    $to_balance = $balanceM->updateBalance($to_user_id, $key_type, $amount, true);
-                    if($to_balance != false){
-                        $change_type = 1;
-                        $remark = '用户CBC转入';
-                        $record_id = $recordM->addRecord($to_user_id, $amount, $to_balance['before_amount'], $to_balance['amount'], $key_type, $type, $change_type, $this->user_id, $remark);
-                        if($record_id > 0){
-                            $balanceM->commit();
-                            $awardS = new AwardService();
-                            $awardS->tradingReward($tax_amount,$this->user_id);
-                            return $this->successJSON();
-                        }
-                    }
+                if(!$record_id){
+                    $balanceM->rollback();
+                    return  $this->failJSON();
                 }
+
+                $to_balance = $balanceM->updateBalance($to_user_id, $key_type, $amount, true);
+                if($to_balance == false){
+                    $balanceM->rollback();
+                    return $this->failJSON();
+                }
+
+                $change_type = 1;
+                $remark = '用户CBC转入';
+                $record_id = $recordM->addRecord($to_user_id, $amount, $to_balance['before_amount'], $to_balance['amount'], $key_type, $type, $change_type, $this->user_id, $remark);
+                if(!$record_id){
+                    $balanceM->rollback();
+                    return $this->failJSON();
+                }
+
+                $balanceM->commit();
+                $awardS = new AwardService();
+                $awardS->tradingReward($tax_amount,$this->user_id);
+                return $this->successJSON();
             }
 
         } catch (\Exception $ex) {
