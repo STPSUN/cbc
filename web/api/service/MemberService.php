@@ -316,7 +316,7 @@ class MemberService extends \web\common\controller\Service
     /**
      * 获取伞下会员
      */
-    public function getTreeTeam($id,&$team=array(),$num)
+    public function getTreeTeam($id,$team=array(),$num)
     {
         $userM = new \addons\member\model\MemberAccountModel();
         $users = $userM->where('pid',$id)->find();
@@ -334,13 +334,11 @@ class MemberService extends \web\common\controller\Service
                 'phone'     => $v['phone'],
                 'real_name' => $v['real_name'],
             );
-
             $team[] = $temp;
-
             $users = $userM->where('pid',$v['id'])->find();
             if($users)
             {
-                $this->getTeam($v['id'],$team,$num);
+                $this->getTreeTeam($v['id'],$team,$num);
             }
         }
 
