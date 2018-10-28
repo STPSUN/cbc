@@ -75,6 +75,7 @@ class Transfer extends ApiBase
         if($r) return $this->failJSON(lang('TRANSFER_ALREADY'));
         $ma['update_time'] = ['between',[date('Y-m-d'),(date('Y-m-d').' 23:59:59')]];
         $ma['status'] = 0;
+        $ma['user_id'] = $user_id;
         $r = $tradingM->where($ma)->find();
         if($r) return $this->failJSON(lang('TRANSFER_TODAY'));
         $number = $this->_post('number');
