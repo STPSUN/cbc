@@ -117,7 +117,9 @@ class Member extends \web\user\controller\AddonUserBase{
                 $m->startTrans();
                 try
                 {
+                    $data['node_level'] = 1;
                     $res = $m->save($data);
+
                     if(!$res) $m->rollback();
                     //赠送微信节点
                     $nodeS = new NodeService();
