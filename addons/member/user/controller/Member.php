@@ -118,6 +118,7 @@ class Member extends \web\user\controller\AddonUserBase{
                 try
                 {
                     $data['node_level'] = 1;
+                    $data['user_level'] = 1;
                     $res = $m->save($data);
 
                     if(!$res) $m->rollback();
