@@ -81,7 +81,17 @@ class Wallet extends ApiBase
             //扣除当前用户余额, 添加转出用户余额
             //转出方
             $balance = $balanceM->updateBalance($this->user_id, $sub_type, $total_amount);
+            if(!$balance)
+            {
+                $balanceM->rollback();
+                return $this->failJSON();
+            }
             $use_balance = $balanceM->updateBalance($this->user_id,$use_type,$amount);
+            if(!$use_balance)
+            {
+                $balanceM->rollback();
+                return $this->failJSON();
+            }
 
             //收入方
 //            $to_type = 4;
