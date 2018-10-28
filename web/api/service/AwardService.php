@@ -159,6 +159,7 @@ class AwardService extends \web\common\controller\Service
                 }
             }
 
+            $num++;
         }
 //        for($i = 0; $i < count($pusers); $i++)
 //        {
