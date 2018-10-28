@@ -528,16 +528,15 @@ class User extends ApiBase
     public function nodeCommunity()
     {
         $memberS = new MemberService();
-        $users = $memberS->getTeam($this->user_id);
-        // $users = $memberS->getTreeTeam($this->user_id);
+        // $users = $memberS->getTeam($this->user_id);
+        $users = $memberS->getTreeTeam($this->user_id);
 
-        // return $this->successJSON($users);
+        return $this->successJSON($users);
         // print_r($users);exit();
         $memberNodeM = new MemberNode();
         $node_arr = array();
         foreach ($users as $v)
         {
-            if(!$v['user_id']) return $this->failJSON();
             $user_node = $memberNodeM->where('user_id',$v['user_id'])->column('type');
             if(empty($user_node))
                 continue;
