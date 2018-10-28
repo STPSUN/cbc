@@ -44,6 +44,15 @@ class Crontab extends \web\common\controller\Controller {
     }
 
     /**
+     * 更新余额中节点日释放值
+     */
+    public function updateBalanceReleaseNum()
+    {
+        $nodeS = new NodeService();
+        $nodeS->updateBalanceReleaseNum();
+    }
+
+    /**
      * 输出错误JSON信息。
      * @param type $message     
      */

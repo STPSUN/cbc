@@ -10,6 +10,7 @@ namespace web\api\service;
 
 
 use addons\member\model\Balance;
+use addons\member\model\MemberAccountModel;
 use addons\member\model\TradingRecord;
 use think\Log;
 use web\api\model\MemberNode;
@@ -118,28 +119,44 @@ class NodeService extends \web\common\controller\Service
         return $nodes;
     }
 
+    public function updateBalanceReleaseNum()
+    {
+        $userM = new MemberAccountModel();
+        $users = $userM->column('id');
+        foreach ($users as $v)
+        {
+            $this->updateReleaseNum($v);
+        }
+    }
+
     /**
-     * 获取用户节点日释放量
+     * 更新用户余额节点日释放值
      */
-    public function getReleaseNum($user_id)
+    private function updateReleaseNum($user_id)
     {
         $memberNodeM = new MemberNode();
         $where['user_id'] = $user_id;
         $where['pass_time'] = array('>=',time());
-        $where['type'] = array('<>',8);
-        $normal_num = $memberNodeM->where($where)->sum('release_num');
+        $where['status'] = 1;
+        $release_num = $memberNodeM->where($where)->sum('release_num');
 
-        $super_where['user_id'] = $user_id;
-        $super_where['pass_time'] = array('>=',time());
-        $super_where['type'] = 8;
-        $super_num  = $memberNodeM->where($super_where)->sum('release_num');
-
-        $data = array(
-            'normal_num'    => $normal_num,
-            'super_num'     => $super_num,
-        );
-
-        return $data;
+        $balanceM = new Balance();
+        Log::record("准备更新节点日释放");
+        $res = $balanceM->save([
+            'amount' => empty($release_num) ? 0 : $release_num,
+        ],[
+            'type'  => 5,
+            'user_id'   => $user_id,
+        ]);
+        if($res)
+        {
+            Log::record("节点日释放更新成功");
+            return true;
+        }else
+        {
+            Log::record("节点日释放更新失败");
+            return false;
+        }
     }
 
     /**
