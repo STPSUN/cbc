@@ -334,13 +334,11 @@ class MemberService extends \web\common\controller\Service
                 'phone'     => $v['phone'],
                 'real_name' => $v['real_name'],
             );
-
             $team[] = $temp;
-
             $users = $userM->where('pid',$v['id'])->find();
             if($users)
             {
-                $this->getTeam($v['id'],$team,$num);
+                $this->getTreeTeam($v['id'],$team,$num);
             }
         }
 
