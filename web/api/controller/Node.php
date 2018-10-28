@@ -258,7 +258,7 @@ class Node extends ApiBase
     public function release()
     {
         $nodeS = new NodeService();
-        $nodeS->nodeRelease();
+        $nodeS->updateBalanceReleaseNum();
 
         echo 1;
     }
