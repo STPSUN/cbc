@@ -55,9 +55,9 @@ class Investment extends ApiBase
         if(!$info) return $this->failJSON(lang('INVESTMENT_FIND'));
         $amount = $this->_post('amount');
         if($amount<$info['amount_limit']) return $this->failJSON(lang('INVESTMENT_LESS').$info['amount_limit']);
-        $type = 4;
+        $type = 2;
         $userAsset = $balanceM->getBalanceByType($user_id,$type);
-        if($amount>$userAsset['amount'])  return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$amount);
+        if($amount>$userAsset['amount'])  return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
         if($amount%100!=0) return $this->failJSON(lang('INVESTMENT_INT'));
         $balanceM->startTrans();
         $userAsset = $balanceM->updateBalance($user_id,$type,$amount);
