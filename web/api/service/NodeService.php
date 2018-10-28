@@ -37,7 +37,7 @@ class NodeService extends \web\common\controller\Service
     {
         $nodeServiceM = new NodeService();
         $release = $nodeServiceM->getReleaseNum($user_id);
- 
+
         $recordM = new TradingRecord();
         $balanceM = new Balance();
         $incomeM = new MemberNodeIncome();

@@ -66,6 +66,7 @@ return array(
     'TRANSFER_ASSET'=>'Gain failure',
 
     'NODE_EMPTY'=>'The node is empty.',
+    'NODE_ADD'=>'Increased daily release failure',
     'NODE_USER_EXISTS'=>'The donation account does not exist.',
     'NODE_BUY_LIMIT'=>'The upper limit of node subscription has been reached.',
     'NODE_LESS_AMOUNT'=>'Sorry, your credit is running low',
