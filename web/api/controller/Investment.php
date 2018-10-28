@@ -180,8 +180,8 @@ class Investment extends ApiBase
         $recordM = new \addons\member\model\TradingRecord();
         $financial_id = $this->_post('financial_id');
         $info = $finaM->getDetail($financial_id);
-        $info = $finaM->getDetail(3);
-        $financial_id = 3;
+        $info = $finaM->getDetail(9);
+        $financial_id = 9;
         $user_id = 78;
         // if(!$info) return $this->failJSON(lang('INVESTMENT_CANT_FIND'));
         // if($info['user_id']!=$user_id) return $this->failJSON(lang('INVESTMENT_NOT_YOUR'));
