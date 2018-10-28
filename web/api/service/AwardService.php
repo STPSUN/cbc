@@ -130,8 +130,11 @@ class AwardService extends \web\common\controller\Service
         $num = 0;
         foreach ($pusers as $k => $v)
         {
+
             if($num > 2)
+            {
                 break;
+            }
 
             $level = $v['user_level'];
             switch ($num)
@@ -274,6 +277,12 @@ class AwardService extends \web\common\controller\Service
                 {
                     if($level >= 4)
                     {
+                        $trad_temp = array(
+                            'user_id'   => $v['user_id'],
+                            'level'     => 4,
+                            'amount'    => 0
+                        );
+                        $this->trad_data[$k] = $trad_temp;
 //                        $level = 4;
                         break;
                     }
@@ -295,6 +304,12 @@ class AwardService extends \web\common\controller\Service
                 {
                     if($level >= 5)
                     {
+                        $trad_temp = array(
+                            'user_id'   => $v['user_id'],
+                            'level'     => 5,
+                            'amount'    => 0
+                        );
+                        $this->trad_data[$k] = $trad_temp;
 //                        $level = 5;
                         break;
                     }
@@ -316,6 +331,12 @@ class AwardService extends \web\common\controller\Service
                 {
                     if($level >= 6)
                     {
+                        $trad_temp = array(
+                            'user_id'   => $v['user_id'],
+                            'level'     => 6,
+                            'amount'    => 0
+                        );
+                        $this->trad_data[$k] = $trad_temp;
 //                        $level = 6;
                         break;
                     }
@@ -334,9 +355,10 @@ class AwardService extends \web\common\controller\Service
                 }
             }
 
-            if($level == 6)
-                break;
+//            if($level == 6)
+//                break;
         }
+
     }
 
     /**
