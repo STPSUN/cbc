@@ -182,11 +182,11 @@ class NodeService extends \web\common\controller\Service
             'pass_time' => time() + ($node['days'] * 24 * 60 * 60),
         );
         $memberNodeM->startTrans();
-        $balance = $balanceM->updateBalance($user_id, 5, $node['release_num'],1);
-        if(!$balance){
-            $memberNodeM->rollback();
-            $this->failJSON(lang('NODE_ADD'));
-        }
+        // $balance = $balanceM->updateBalance($user_id, 5, $node['release_num'],1);
+        // if(!$balance){
+        //     $memberNodeM->rollback();
+        //     $this->failJSON(lang('NODE_ADD'));
+        // }
         $res = $memberNodeM->add($data);
         if($res){
             $memberNodeM->commit();
