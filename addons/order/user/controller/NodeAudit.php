@@ -77,11 +77,11 @@ class NodeAudit extends \web\user\controller\AddonUserBase {
                     'type'=>$cbc['type'],
                     'status'=>1,
                 ];
-                $balance = $balanceM->updateBalance($user_id, 5, $cbc['release_num'],1);
-                if(!$balance){
-                    $balanceM->rollback();
-                    return $this->failData('不通过失败');
-                }
+                // $balance = $balanceM->updateBalance($user_id, 5, $cbc['release_num'],1);
+                // if(!$balance){
+                //     $balanceM->rollback();
+                //     return $this->failData('不通过失败');
+                // }
                 $res = $MemberNodeM->add($data);
                 if(!$res){
                     $balanceM->rollback();
