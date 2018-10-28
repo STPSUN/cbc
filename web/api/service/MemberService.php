@@ -318,6 +318,7 @@ class MemberService extends \web\common\controller\Service
      */
     public function getTreeTeam($id,&$team=array(),$num=0)
     {
+        $userM = new \addons\member\model\MemberAccountModel();
         $users = $userM->where('pid',$v['id'])->find();
         if(!$users)
         {
@@ -325,7 +326,6 @@ class MemberService extends \web\common\controller\Service
         }
         if($num==3) return $team;
         $num++;
-        $userM = new \addons\member\model\MemberAccountModel();
         $data = $userM->field('id,phone,real_name')->where('pid',$id)->select();
         foreach ($data as $v)
         {
