@@ -18,6 +18,10 @@ class AwardService extends \web\common\controller\Service
 {
     protected $peer_amount;
     protected $peer_user_id;
+    protected $peer_num;    //平级奖酋长
+    protected $trad_data;   //交易奖数据
+    protected $share_data;  //分享奖数据
+    protected $peer_data;   //评级奖数据
 
     /**
      * 交易奖
@@ -25,6 +29,9 @@ class AwardService extends \web\common\controller\Service
     public function tradingReward($amount,$user_id)
     {
         $this->peer_amount = 0;
+        $this->trad_data = array();
+        $this->share_data = array();
+        $this->peer_data  = array();
 
         $userM = new MemberAccountModel();
         $user = $userM->getDetail($user_id);
@@ -38,8 +45,10 @@ class AwardService extends \web\common\controller\Service
             $this->userReward($amount,$pusers,$user_id);
             //分享奖励
             $this->shareReward($amount,$pusers,$user_id);
+            //获取平级奖的用户数据
+//            $this->getPeerAmount($pusers);
             //平级奖励
-            $this->peerReward($pusers,$this->peer_amount);
+            $this->peerReward();
             Log::record("奖励发放成功");
 
             $userM->commit();
@@ -55,23 +64,54 @@ class AwardService extends \web\common\controller\Service
     }
 
     /**
+     * 获取用户交易奖和分享奖的和
+     */
+    private function getPeerAmount($pusers)
+    {
+        foreach ($pusers as $k => $v)
+        {
+            if($v['user_level'] < 4)
+                continue;
+
+
+        }
+    }
+
+    private function peerReward()
+    {
+        $arr = $this->trad_data;
+        ksort($arr);
+        foreach ($arr as $k => $v)
+        {
+            if(!isset($arr[$k + 1]))
+                break;
+
+            $temp = $arr[$k + 1];
+            if($v['level'] >= $temp['level'])
+            {
+                $amount = bcmul($v['amount'],0.1,2);
+                $this->sendTradeReward($amount,$v['user_id'],$temp['user_id'],11,'平级奖');
+            }
+        }
+    }
+
+    /**
      * 平级奖
      */
-    private function peerReward($pusers,$amount)
+    private function peerReward2($pusers,$amount)
     {
         $userM = new MemberAccountModel();
-//        $level = $userM->where('id',$this->peer_user_id)->value('user_level');
-//        if($level < 4)
-//            return;
 
         $amount = bcmul($amount,0.1,2);
         for($i = 0; $i < count($pusers); $i++)
         {
-            if($i == 0)
+            $level = $userM->where('id',$pusers[$i]['user_id'])->value('user_level');
+            if($level >= 4)
+                $this->peer_num++;
+            else
                 continue;
 
-            $level = $userM->where('id',$pusers[$i]['user_id'])->value('user_level');
-            if($level < 4)
+            if($this->peer_num < 2)
                 continue;
 
             if($pusers[$i]['user_level'] == $level)
@@ -87,32 +127,67 @@ class AwardService extends \web\common\controller\Service
      */
     private function shareReward($amount,$pusers,$user_id)
     {
-        for($i = 0; $i < count($pusers); $i++)
+        $num = 0;
+        foreach ($pusers as $k => $v)
         {
-            switch ($i)
+            if($num > 2)
+                break;
+
+            $level = $v['user_level'];
+            switch ($num)
             {
                 case 0:
                 {
-                    $this->sendShareReward($amount,0.15,$user_id,$pusers[$i]['user_id'],10);
+                    $this->sendShareReward($amount,0.15,$user_id,$v['user_id'],10,$level,$k);
+
                     break;
                 }
                 case 1:
                 {
-                    if($pusers[$i]['user_level'] < 2)
+                    if($v['user_level'] < 2)
                         break;
 
-                    $this->sendShareReward($amount,0.12,$user_id,$pusers[$i]['user_id'],10);
+                    $this->sendShareReward($amount,0.12,$user_id,$v['user_id'],10,$level,$k);
                     break;
                 }
                 case 2:
                 {
-                    if($pusers[$i]['user_level'] < 4)
+                    if($v['user_level'] < 4)
                         break;
-                    $this->sendShareReward($amount,0.09,$user_id,$pusers[$i]['user_id'],10);
+                    $this->sendShareReward($amount,0.09,$user_id,$v['user_id'],10,$level,$k);
                     break;
                 }
             }
+
         }
+//        for($i = 0; $i < count($pusers); $i++)
+//        {
+//            $level = $pusers[$i]['user_level'];
+//            switch ($i)
+//            {
+//                case 0:
+//                {
+//                    $this->sendShareReward($amount,0.15,$user_id,$pusers[$i]['user_id'],10,$level);
+//
+//                    break;
+//                }
+//                case 1:
+//                {
+//                    if($pusers[$i]['user_level'] < 2)
+//                        break;
+//
+//                    $this->sendShareReward($amount,0.12,$user_id,$pusers[$i]['user_id'],10,$level);
+//                    break;
+//                }
+//                case 2:
+//                {
+//                    if($pusers[$i]['user_level'] < 4)
+//                        break;
+//                    $this->sendShareReward($amount,0.09,$user_id,$pusers[$i]['user_id'],10,$level);
+//                    break;
+//                }
+//            }
+//        }
     }
 
     /**
@@ -123,11 +198,33 @@ class AwardService extends \web\common\controller\Service
      * @param $to_user_id
      * @param $type
      */
-    private function sendShareReward($amount,$rate,$user_id,$to_user_id,$type)
+    private function sendShareReward($amount,$rate,$user_id,$to_user_id,$type,$level,$k)
     {
         $remark = '分享奖励';
         $user_amount = bcmul($amount,$rate,2);
         $this->sendTradeReward($user_amount,$user_id,$to_user_id,$type,$remark);
+
+        if($level >= 4)
+        {
+            if(isset($this->trad_data[$k]))
+            {
+                if($this->trad_data[$k]['user_id'] == $to_user_id)
+                {
+                    $this->trad_data[$k]['amount'] += $user_amount;
+                }
+            }else
+            {
+                $share_temp = array(
+                    'user_id'   => $to_user_id,
+                    'level'     => $level,
+                    'amount'    => $user_amount
+                );
+
+                $this->trad_data[$k] = $share_temp;
+            }
+
+        }
+
     }
 
     /**
@@ -139,7 +236,7 @@ class AwardService extends \web\common\controller\Service
         $level = 0;     //当前会员等级
         $type = 9;
         $remark = '交易奖励';
-        foreach ($puers as $v)
+        foreach ($puers as $k => $v)
         {
             switch ($v['user_level'])
             {
@@ -184,6 +281,13 @@ class AwardService extends \web\common\controller\Service
                     $use_rate = 0.3;
                     $user_amount = $amount * $rate;
                     $this->sendTradeReward($user_amount,$user_id,$v['user_id'],$type,$remark);
+
+                    $trad_temp = array(
+                        'user_id'   => $v['user_id'],
+                        'level'     => 4,
+                        'amount'    => $user_amount
+                    );
+                    $this->trad_data[$k] = $trad_temp;
                     break;
                 }
                 case 5:
@@ -198,6 +302,13 @@ class AwardService extends \web\common\controller\Service
                     $use_rate = 0.4;
                     $user_amount = $amount * $rate;
                     $this->sendTradeReward($user_amount,$user_id,$v['user_id'],$type,$remark);
+
+                    $trad_temp = array(
+                        'user_id'   => $v['user_id'],
+                        'level'     => 5,
+                        'amount'    => $user_amount
+                    );
+                    $this->trad_data[$k] = $trad_temp;
                     break;
                 }
                 case 6:
@@ -211,6 +322,13 @@ class AwardService extends \web\common\controller\Service
                     $rate = 0.45 - $use_rate;
                     $user_amount = $amount * $rate;
                     $this->sendTradeReward($user_amount,$user_id,$v['user_id'],$type,$remark);
+
+                    $trad_temp = array(
+                        'user_id'   => $v['user_id'],
+                        'level'     => 6,
+                        'amount'    => $user_amount
+                    );
+                    $this->trad_data[$k] = $trad_temp;
                     break;
                 }
             }
@@ -244,10 +362,10 @@ class AwardService extends \web\common\controller\Service
         $balanceM->updateBalance($to_user_id,2,$use_amount,true);
 
         //平级奖金额
-        if($to_user_id == $this->peer_user_id)
-        {
-            $this->peer_amount += $amount;
-        }
+//        if($to_user_id == $this->peer_user_id)
+//        {
+//            $this->peer_amount += $amount;
+//        }
 
     }
 
