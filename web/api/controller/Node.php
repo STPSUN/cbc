@@ -207,7 +207,7 @@ class Node extends ApiBase
             else
                 $v['status'] = lang('NODE_DOWN');
 
-            $amount = $incomeM->where('member_node_id',$v['node_id'])->sum('amount');
+            $amount = $incomeM->where(['type' => $v['type'], 'user_id' => $this->user_id])->sum('amount');
             $v['release_num'] = empty($amount) ? 0 : $amount;
         }
 
