@@ -529,7 +529,7 @@ class User extends ApiBase
     {
         $memberS = new MemberService();
         // $users = $memberS->getTeam($this->user_id);
-        $users = $memberS->getTreeTeam($this->user_id);
+        $users = $memberS->getTreeTeam($this->user_id,[],0);
 
         return $this->successJSON($users);
         // print_r($users);exit();
