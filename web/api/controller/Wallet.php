@@ -271,7 +271,8 @@ class Wallet extends ApiBase
         $node_amount = $recordM->where(['user_id' => $this->user_id, 'type' => 14])->sum('amount');
 
         $data = array(
-            'team_amount'       => 0,
+            // 'team_amount'       => 0,
+            'team_amount'       => $trading_amount+$share_amount+$peer_amount,
             'node_amount'       => $node_amount,
             'trading_amount'    => $trading_amount,
             'share_amount'      => $share_amount,
