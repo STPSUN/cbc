@@ -93,11 +93,11 @@ class Node extends ApiBase
         $memberNodeM->startTrans();
         try
         {
-            $balance = $balanceM->updateBalance($this->user_id, 5, $node['release_num'],1);
-            if(!$balance){
-                $memberNodeM->rollback();
-                $this->failJSON(lang('NODE_ADD'));
-            }
+            // $balance = $balanceM->updateBalance($this->user_id, 5, $node['release_num'],1);
+            // if(!$balance){
+            //     $memberNodeM->rollback();
+            //     $this->failJSON(lang('NODE_ADD'));
+            // }
             $balance = $balanceM->updateBalance($this->user_id, $balance_type, $amount);
 
             if($balance != false){
