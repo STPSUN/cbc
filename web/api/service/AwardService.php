@@ -60,14 +60,18 @@ class AwardService extends \web\common\controller\Service
     private function peerReward($pusers,$amount)
     {
         $userM = new MemberAccountModel();
-        $level = $userM->where('id',$this->peer_user_id)->value('user_level');
-        if($level < 4)
-            return;
+//        $level = $userM->where('id',$this->peer_user_id)->value('user_level');
+//        if($level < 4)
+//            return;
 
         $amount = bcmul($amount,0.1,2);
         for($i = 0; $i < count($pusers); $i++)
         {
             if($i == 0)
+                continue;
+
+            $level = $userM->where('id',$pusers[$i]['user_id'])->value('user_level');
+            if($level < 4)
                 continue;
 
             if($pusers[$i]['user_level'] == $level)

@@ -13,6 +13,7 @@ use addons\member\model\Balance;
 use addons\member\model\TradingRecord;
 use think\Log;
 use web\api\model\MemberNode;
+use web\api\model\MemberNodeIncome;
 use web\api\model\Node;
 
 class NodeService extends \web\common\controller\Service
@@ -39,6 +40,7 @@ class NodeService extends \web\common\controller\Service
 
         $recordM = new TradingRecord();
         $balanceM = new Balance();
+        $incomeM = new MemberNodeIncome();
 
         $recordM->startTrans();
         try
@@ -58,7 +60,8 @@ class NodeService extends \web\common\controller\Service
                 $use_amount = bcmul($release['normal_num'],0.7,2);
                 $use_balance_after = $use_balance + $use_amount;
                 $recordM->addRecord(0,$use_amount,$use_balance,$use_balance_after,2,13,1,$user_id,$remark);
-                $balanceM->updateBalance($user_id,2,$release['normal_num'],true);
+                $balanceM->updateBalance($user_id,2,$use_amount,true);
+
                 Log::record("普通节点释放成功，user_id:" . $user_id);
             }
 
