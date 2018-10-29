@@ -43,12 +43,17 @@ class ApiBase extends \web\common\controller\Controller {
         $this->_setLang();
         $this->is_frozen($this->user_id);
         $token = $this->_post('token', null);
+        $userM = new \addons\member\model\MemberAccountModel();
         if (!empty($token)) {
             $this->user_id = intval($this->getGlobalCache($token)); //redis中获取user_id
             if(!$this->user_id){
                 return $this->failJSON(lang('API_LOGIN'));
             }
-            $userM = new \addons\member\model\MemberAccountModel();
+
+            $user = $userM->getDetail($this->user_id);
+            if($token != $user['token'])
+                return $this->failJSON(lang('API_LOGIN'));
+
             $status = $userM->getSingleField($this->user_id,'credit_level');
             if(!$status){
                 return $this->failJSON(lang('API_BAN'));
