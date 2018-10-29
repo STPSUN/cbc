@@ -119,8 +119,10 @@ class Member extends \web\user\controller\AddonUserBase{
                 {
                     $data['node_level'] = 1;
                     $data['user_level'] = 1;
+                    $memberSer = new \web\api\service\MemberService();
+                    $res = $memberSer->memberLevel($user_id);
+                    if(!$res) $m->rollback();
                     $res = $m->save($data);
-
                     if(!$res) $m->rollback();
                     //赠送微信节点
                     $nodeS = new NodeService();
