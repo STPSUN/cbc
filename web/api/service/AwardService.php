@@ -46,9 +46,9 @@ class AwardService extends \web\common\controller\Service
             //分享奖励
             $this->shareReward($amount,$pusers,$user_id);
             // print_r($pusers);
-            // print_r($this->trad_data);
+//             print_r($this->trad_data);
             $arr = $this->getPeerAmount();
-            // print_r($arr);exit();
+//             print_r($arr);exit();
             //获取平级奖的用户数据
 //            $this->getPeerAmount($pusers);
             //平级奖励
@@ -106,12 +106,13 @@ class AwardService extends \web\common\controller\Service
         foreach ($arr as $k => $v)
         {
             if($k==0){
-                $found_key = array_search($v['user_id'], array_column($pusers, 'user_id'));
-                $son = $pusers[$found_key-1];
+//                $found_key = array_search($v['user_id'], array_column($pusers, 'user_id'));
+//                $son = $pusers[$found_key-1];
             }else{
                 $son = $arr[$k-1];
+                $this->sendTradeReward($v['amount'],$son['user_id'],$v['user_id'],11,'平级奖');
             }
-            $this->sendTradeReward($amount,$son['user_id'],$v['user_id'],11,'平级奖');
+
         }
     }
 
