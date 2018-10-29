@@ -100,4 +100,7 @@ return array(
     'WALLET_LOGIN_WRONG'=>'登录信息出错，请重新登录',
     'WALLET_TRUNOUT'=>'转出钱包地址不存在',
     'WALLET_PAYPASS'=>'支付密码错误，请重新输入',
+
+    'UPLOAD_FACE_SUCCESS'=>'身份证正面上传成功',
+    'UPLOAD_BACK_SUCCESS'=>'身份证反面上传成功',
 );
