@@ -196,7 +196,7 @@ class Node extends ApiBase
     {
         $memberNodeM = new MemberNode();
 
-        $data = $memberNodeM->field('type,status,id,node_id')->where('user_id',$this->user_id)->select();
+        $data = $memberNodeM->field('type,status,id,node_id,id')->where('user_id',$this->user_id)->select();
 
         $incomeM = new MemberNodeIncome();
         foreach ($data as &$v)
@@ -206,7 +206,7 @@ class Node extends ApiBase
             else
                 $v['status'] = lang('NODE_DOWN');
 
-            $amount = $incomeM->where(['type' => $v['type'], 'user_id' => $this->user_id])->sum('amount');
+            $amount = $incomeM->where(['member_node_id' => $v['id'], 'user_id' => $this->user_id])->sum('amount');
             $v['release_num'] = empty($amount) ? 0 : $amount;
         }
 

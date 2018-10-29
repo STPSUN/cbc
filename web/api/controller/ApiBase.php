@@ -52,7 +52,7 @@ class ApiBase extends \web\common\controller\Controller {
 
             $user = $userM->getDetail($this->user_id);
             if($token != $user['token'])
-                return $this->failJSON(lang('API_LOGIN'));
+                return $this->failJSON(lang('API_LOGIN'),404);
 
             if(!$user['credit_level']){
                 return $this->failJSON(lang('API_BAN'));
@@ -246,9 +246,9 @@ class ApiBase extends \web\common\controller\Controller {
      * 输出错误JSON信息。
      * @param type $message     
      */
-    protected function failJSON($message) {
+    protected function failJSON($message,$data = null) {
         $message = lang($message);
-        $jsonData = array('success' => false, 'message' => $message);
+        $jsonData = array('success' => false, 'data' => $data,'message' => $message);
         $json = json_encode($jsonData, true);
         echo $json;
         exit;

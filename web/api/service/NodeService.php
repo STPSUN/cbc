@@ -46,7 +46,7 @@ class NodeService extends \web\common\controller\Service
 
         $user_id = $member_node['user_id'];
         $amount = $member_node['release_num'];
-        $member_node_id = $member_node['node_id'];
+        $member_node_id = $member_node['id'];
         $node_type = $member_node['type'];
 
         $recordM->startTrans();
@@ -114,7 +114,7 @@ class NodeService extends \web\common\controller\Service
     {
         $memberNodeM = new MemberNode();
         $map['pass_time'] = array('>=',time());
-        $nodes = $memberNodeM->field('node_id,release_num,type,user_id')->where($map)->select();
+        $nodes = $memberNodeM->field('id,node_id,release_num,type,user_id')->where($map)->select();
 
         return $nodes;
     }
