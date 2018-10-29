@@ -86,8 +86,9 @@ class AwardService extends \web\common\controller\Service
                 $temp['amount'] = 0;
                 $arr[] = $temp;
             }
+            $num++;
         }
-        
+        print_r($arr);
         $num=1;
         $do = 0;
         while ($num) {
@@ -105,6 +106,7 @@ class AwardService extends \web\common\controller\Service
             }
                 
         }
+        print_r($arr);
 
         return $arr;
     }
@@ -118,6 +120,9 @@ class AwardService extends \web\common\controller\Service
 //                $son = $pusers[$found_key-1];
             }else{
                 $son = $arr[$k-1];
+                if($v['amount'] <= 0)
+                    continue;
+
                 $this->sendTradeReward($v['amount'],$son['user_id'],$v['user_id'],11,'平级奖');
             }
 
