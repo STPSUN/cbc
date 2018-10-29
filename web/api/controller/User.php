@@ -522,10 +522,9 @@ class User extends ApiBase
         $user_id = $this->user_id;
         if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
         $memberS = new \web\api\service\MemberService();
-        echo $user_id;
+
         $users = $memberS->getTreeTeam($user_id,[],0);
-        $allusers = $memberS->getTeam($user_id);
-        return $this->failJSON($allusers);
+        $userid = $memberS->getTreeId($user_id,[]);
         $memberNodeM = new MemberNode();
         $node_arr = array();
         foreach ($users as $v)
@@ -533,23 +532,19 @@ class User extends ApiBase
             $user_node = $memberNodeM->where('user_id',$v['user_id'])->column('type');
             if(empty($user_node))
                 continue;
-
             $temp = array(
                 'node' => $user_node,
                 'user' => $v
             );
-
             $node_arr[] = $temp;
         }
-
-        $node1 = array();
-        $node2 = array();
-        $node3 = array();
-        $node4 = array();
-        $node5 = array();
-        $node6 = array();
-        $node7 = array();
-        $node8 = array();
+        $user_node_arr = $memberNodeM->group('type')->column('type');
+        for ($i=1; $i <9 ; $i++) { 
+            $node = 'node'.$i;
+            $$node = [];
+            $arr = 'arr'.$i;
+            $$arr = [];
+        }
         foreach ($node_arr as $v)
         {
             foreach ($v['node'] as $n)
@@ -557,25 +552,37 @@ class User extends ApiBase
                 switch ($n)
                 {
                     case 1:
-                        $node1[] = $v['user'];  break;
+                        $arr1[] = $v['user'];  break;
                     case 2:
-                        $node2[] = $v['user'];  break;
+                        $arr2[] = $v['user'];  break;
                     case 3:
-                        $node3[] = $v['user'];  break;
+                        $arr3[] = $v['user'];  break;
                     case 4:
-                        $node4[] = $v['user'];  break;
+                        $arr4[] = $v['user'];  break;
                     case 5:
-                        $node5[] = $v['user'];  break;
+                        $arr5[] = $v['user'];  break;
                     case 6:
-                        $node6[] = $v['user'];  break;
+                        $arr6[] = $v['user'];  break;
                     case 7:
-                        $node7[] = $v['user'];  break;
+                        $arr7[] = $v['user'];  break;
                     case 8:
-                        $node8[] = $v['user'];  break;
+                        $arr8[] = $v['user'];  break;
                 }
             }
         }
+        foreach ($user_node_arr as $key => $value) {
+            $map['user_id'] = ['in',$userid];
+            $map['type'] = $value;
+            $node = 'node'.$value;
+            $count = $memberNodeM->where($map)->count();
+            $$node['count'] = $count;
+        }
 
+        for ($i=1; $i <9 ; $i++) { 
+            $node = 'node'.$i;
+            $arr = 'arr'.$i;
+            $$node['list'] = $$arr;
+        }
         $data = array($node8,$node7,$node6,$node5,$node4,$node3,$node2,$node1);
 
         return $this->successJSON($data);
