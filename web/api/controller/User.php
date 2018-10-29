@@ -522,8 +522,10 @@ class User extends ApiBase
         $user_id = $this->user_id;
         if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
         $memberS = new \web\api\service\MemberService();
+        echo $user_id;
         $users = $memberS->getTreeTeam($user_id,[],0);
-        return $this->failJSON($users);
+        $allusers = $memberS->getTeam($user_id);
+        return $this->failJSON($allusers);
         $memberNodeM = new MemberNode();
         $node_arr = array();
         foreach ($users as $v)
