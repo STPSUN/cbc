@@ -45,11 +45,14 @@ class AwardService extends \web\common\controller\Service
             $this->userReward($amount,$pusers,$user_id);
             //分享奖励
             $this->shareReward($amount,$pusers,$user_id);
-            $this->getPeerAmount();
+            // print_r($pusers);
+            // print_r($this->trad_data);
+            $arr = $this->getPeerAmount();
+            // print_r($arr);exit();
             //获取平级奖的用户数据
 //            $this->getPeerAmount($pusers);
             //平级奖励
-            $this->peerReward();
+            $this->peerReward($arr,$pusers);
             Log::record("奖励发放成功");
 
             $userM->commit();
@@ -69,59 +72,46 @@ class AwardService extends \web\common\controller\Service
      */
     private function getPeerAmount()
     {
+        ksort($this->trad_data);
+        $arr = [];
         foreach ($this->trad_data as $k => $v)
         {
-            if(!isset($this->trad_data[$k + 1]))
-                break;
-
-            $temp = $this->trad_data[$k + 1];
-            if($v['level'] >= $temp['level'])
-            {
-                $amount = bcmul($v['amount'],0.1,2);
-                $this->trad_data[$k+1]['amount'] += $amount;
-            }
+            $arr[] = $v;
+            
         }
+        
+        $num=1;
+        $do = 0;
+        while ($num) {
+            if(!isset($arr[$do])){
+                $num = 0;
+                break;
+            } 
+            $son = $arr[$do];
+            $do++;
+            if(isset($arr[$do])){
+                $father = $arr[$do];
+                if($son['level']>=$father['level']){
+                    $arr[$do]['amount'] = bcmul(($father['amount']+$son['amount']/10), 1,2);
+                }
+            }
+                
+        }
+
+        return $arr;
     }
 
-    private function peerReward()
+    private function peerReward($arr,$pusers)
     {
-        $arr = $this->trad_data;
-        ksort($arr);
-        $key = array();
         foreach ($arr as $k => $v)
         {
-            $key[]= $v;
-        }
-
-        foreach ($key as $k => $v)
-        {
-            $peer_amount = 0;
-            if(isset($key[$k + 1]))
-            {
-                $temp = $key[$k + 1];
-            }else
-            {
-                $temp = array(
-                    'user_id' => $v['user_id'],
-                    'level' => 0,
-                );
+            if($k==0){
+                $found_key = array_search($v['user_id'], array_column($pusers, 'user_id'));
+                $son = $pusers[$found_key-1];
+            }else{
+                $son = $arr[$k-1];
             }
-
-            if($v['level'] >= $temp['level'])
-            {
-                $amount = bcmul($v['amount'],0.1,2);
-                if($k > 1)
-                {
-                    $peer_amount = bcmul($key[$k-1]['amount'],0.01,2);
-                }
-
-//                echo $amount . '/' . $peer_amount . '*';
-                $amount += $peer_amount;
-                if($amount < 1)
-                    continue;
-
-                $this->sendTradeReward($amount,$v['user_id'],$temp['user_id'],11,'平级奖');
-            }
+            $this->sendTradeReward($amount,$son['user_id'],$v['user_id'],11,'平级奖');
         }
     }
 
