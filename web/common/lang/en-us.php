@@ -20,6 +20,7 @@ return array(
 
     'TRANSFER_TIME_BAN'=>'Current time prohibition of trading',
     'TRANSFER_ALREADY'=>'There are no orders for sale.',
+    'TRANSFER_NOT_NODE'=>'Not enough to buy nodes, unable to sell.',
     'TRANSFER_TODAY'=>'It can only be sold one day a day.',
     'TRANSFER_PAYPWD_WRONG'=>'Payment password error',
     'TRANSFER_NOT_AUTH'=>'No real name authentication, no sale.',
@@ -98,6 +99,7 @@ return array(
     'USER_UPDATE_SUC'=>'Amend the success',
 
     'WALLET_LOGIN_WRONG'=>'Login information is wrong. Please login again.',
+    'WALLET_NODE'=>'Not enough to buy nodes, unable to transfer.',
     'WALLET_TRUNOUT'=>'Out of wallet address does not exist.',
     'WALLET_PAYPASS'=>'The payment password is wrong. Please re input.',
 
