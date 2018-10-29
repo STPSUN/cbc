@@ -83,7 +83,7 @@ class Investment extends ApiBase
                 return $this->failJSON(lang('INVESTMENT_REDUCE_WRONG'));
             }
             $AwardService = new \web\api\service\AwardService();
-            $fee_num = $amount['amount']/7*3;
+            $fee_num = $amount/7*3;
             $res = $AwardService->tradingReward($fee_num,$user_id);
             //计算奖金
             if(!$res){
