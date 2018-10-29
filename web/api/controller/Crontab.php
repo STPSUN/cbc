@@ -63,16 +63,7 @@ class Crontab extends \web\common\controller\Controller {
                 return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
             }
 
-            if($info['belong']==0){
-                $AwardService = new \web\api\service\AwardService();
-                $fee_num = $info['amount']/7*3;
-                $res = $AwardService->tradingReward($fee_num,$user_id);
-                //计算奖金
-                if(!$res){
-                    $balanceM->rollback();
-                    return $this->failJSON(lang('TRANSFER_REWARD_FAIL'));
-                }
-            }
+            
             $data = [
                     'status'        =>1,
                     'update_at'     =>date('Y-m-d H:i:s'),

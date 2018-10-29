@@ -324,7 +324,9 @@ class MemberService extends \web\common\controller\Service
         {
             return $team;
         }
-        if($num==3) return $team;
+        if($num==3){
+            return $team;
+        }
         $num++;
         $data = $userM->field('id,phone,real_name')->where('pid',$id)->select();
         foreach ($data as $v)
@@ -338,13 +340,61 @@ class MemberService extends \web\common\controller\Service
             $users = $userM->where('pid',$v['id'])->find();
             if($users)
             {
-                $this->getTreeTeam($v['id'],$team,$num);
+                $team = $this->array_unique_duble(array_merge($team,$this->getTreeTeam($v['id'],$team,$num)),'user_id');
             }
         }
 
         return $team;
     }
 
+
+    /**
+     * 获取伞下会员
+     */
+    public function getTreeId($id,$team=array())
+    {
+        $userM = new \addons\member\model\MemberAccountModel();
+        $users = $userM->where('pid',$id)->find();
+        if(!$users)
+        {
+            return $team;
+        }
+        
+        $data = $userM->field('id,phone,real_name')->where('pid',$id)->select();
+        foreach ($data as $v)
+        {
+            $temp = $v['id'];
+            $team[] = $temp;
+            $users = $userM->where('pid',$v['id'])->find();
+            if($users)
+            {
+                $team = array_unique(array_merge($team,$this->getTreeId($v['id'],$team)));
+            }
+        }
+
+        return $team;
+    }
+
+    /**
+     * 二维数组去重
+     */
+    public function array_unique_duble($arr,$key){
+        $result = [];
+        foreach ($arr as $ke => $value) {
+            $has = false;
+            foreach ($result as $k => $v) {
+                if($v[$key]==$value[$key]){
+                    $has = true;
+                    break;
+                }
+            }
+            if(!$has){
+                $result[] = $value;
+            }
+        }
+        return $result;
+    }
+    
     /**
      * 获取伞下实名会员
      */
