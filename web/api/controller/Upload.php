@@ -60,7 +60,7 @@ class Upload extends ApiBase
             }
 
             $m = new \addons\member\model\MemberAccountModel();
-            $res = $m->where(['id'=>$user_id])->update(['id_face'=>$ret['path']]);
+            $res = $m->where(['id'=>$user_id])->update(['id_face'=>$ret['path'],'is_auth'=>2]);
             if($res){
                 return $this->successJSON(lang('UPLOAD_FACE_SUCCESS'));
             }else{
@@ -84,7 +84,7 @@ class Upload extends ApiBase
             }
 
             $m = new \addons\member\model\MemberAccountModel();
-            $res = $m->where(['id'=>$user_id])->update(['id_back'=>$ret['path']]);
+            $res = $m->where(['id'=>$user_id])->update(['id_back'=>$ret['path'],'is_auth'=>2]);
             if($res){
                 return $this->successJSON(lang('UPLOAD_BACK_SUCCESS'));
             }else{

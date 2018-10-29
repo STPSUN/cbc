@@ -379,13 +379,13 @@ class User extends ApiBase
         $payM  = new PayConfig();
 
         $user_data = array();
-        if($id_face)
-            $user_data['id_face'] = $id_face;
-        if($id_back)
-        {
-            $user_data['id_back'] = $id_back;
-            $user_data['is_auth'] = 2;
-        }
+        // if($id_face)
+        //     $user_data['id_face'] = $id_face;
+        // if($id_back)
+        // {
+        //     $user_data['id_back'] = $id_back;
+        //     $user_data['is_auth'] = 2;
+        // }
         if($real_name)
             $user_data['real_name'] = $real_name;
 
