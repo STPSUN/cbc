@@ -74,10 +74,18 @@ class AwardService extends \web\common\controller\Service
     {
         ksort($this->trad_data);
         $arr = [];
+        $num = 0;
         foreach ($this->trad_data as $k => $v)
         {
-            $arr[] = $v;
-            
+            if($num == 0)
+            {
+                $arr[] = $v;
+            }else
+            {
+                $temp = $v;
+                $temp['amount'] = 0;
+                $arr[] = $temp;
+            }
         }
         
         $num=1;
