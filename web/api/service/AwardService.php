@@ -90,7 +90,6 @@ class AwardService extends \web\common\controller\Service
             $arr[] = $tmp;
             $num++;
         }
-        print_r($arr);
         $num=1;
         $do = 0;
         while ($num) {
@@ -112,7 +111,6 @@ class AwardService extends \web\common\controller\Service
             }
                 
         }
-        print_r($arr);
 
         return $arr;
     }
