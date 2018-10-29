@@ -54,8 +54,7 @@ class ApiBase extends \web\common\controller\Controller {
             if($token != $user['token'])
                 return $this->failJSON(lang('API_LOGIN'));
 
-            $status = $userM->getSingleField($this->user_id,'credit_level');
-            if(!$status){
+            if(!$user['credit_level']){
                 return $this->failJSON(lang('API_BAN'));
             }
         }
