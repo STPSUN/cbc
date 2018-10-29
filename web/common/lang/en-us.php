@@ -100,6 +100,7 @@ return array(
 
     'WALLET_LOGIN_WRONG'=>'Login information is wrong. Please login again.',
     'WALLET_NODE'=>'Not enough to buy nodes, unable to transfer.',
+    'WALLET_NOT_OWN'=>"You can't turn yourself in.",
     'WALLET_TRUNOUT'=>'Out of wallet address does not exist.',
     'WALLET_PAYPASS'=>'The payment password is wrong. Please re input.',
 

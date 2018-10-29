@@ -56,6 +56,9 @@ class Wallet extends ApiBase
         if(empty($to_user_id))
             return $this->failJSON(lang('WALLET_TRUNOUT'));
 
+        if($to_user_id==$member['id']){
+            return $this->failJSON(lang('WALLET_NOT_OWN'));
+        }
 //        if($member['pay_password'] != md5($pay_password))
 //            return $this->failJSON(lang('WALLET_PAYPASS'));
 
@@ -192,6 +195,9 @@ class Wallet extends ApiBase
         if(empty($to_user_id))
             return $this->failJSON(lang('WALLET_TRUNOUT'));
 
+        if($to_user_id==$member['id']){
+            return $this->failJSON(lang('WALLET_NOT_OWN'));
+        }
         if($member['pay_password'] != md5($pay_password))
             return $this->failJSON(lang('WALLET_PAYPASS'));
 

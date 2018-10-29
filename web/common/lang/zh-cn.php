@@ -101,6 +101,7 @@ return array(
     'WALLET_LOGIN_WRONG'=>'登录信息出错，请重新登录',
     'WALLET_NODE'=>'没有购买节点，无法转账',
     'WALLET_TRUNOUT'=>'转出钱包地址不存在',
+    'WALLET_NOT_OWN'=>'不能转入自己',
     'WALLET_PAYPASS'=>'支付密码错误，请重新输入',
 
     'UPLOAD_FACE_SUCCESS'=>'身份证正面上传成功',
