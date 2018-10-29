@@ -12,6 +12,7 @@ use think\Log;
  */
 class MemberService extends \web\common\controller\Service
 {
+    private $is_next;
 
     /**
      * 会员升级
@@ -55,21 +56,49 @@ class MemberService extends \web\common\controller\Service
         if(empty($user))
             return;
 
-        switch ($user['user_level'])
+        $this->is_next = true;  //true 可持续往下升级, false 中级终止
+        $user_level = $user['user_level'];
+
+        for($i = 0; $i <= 5; $i++)
         {
-            case 0:
-                $this->levelOne($user['id']);   break;
-            case 1:
-                $this->level2($user['id']);     break;
-            case 2:
-                $this->levelEgt($user['id'],2,300000,24,3);  break;
-            case 3:
-                $this->levelEgt($user['id'],3,2000000,270,4);  break;
-            case 4:
-                $this->levelEgt($user['id'],4,6000000,810,5);  break;
-            case 5:
-                $this->levelEgt($user['id'],5,18000000,2430,6);  break;
+            if($this->is_next == false)
+                break;
+
+            switch ($user_level)
+            {
+                case 0:
+                    $this->is_next = $this->levelOne($user['id']);   break;
+                case 1:
+                    $this->is_next = $this->level2($user['id']);     break;
+                case 2:
+                    $this->is_next = $this->levelEgt($user['id'],2,300000,24,3);  break;
+                case 3:
+                    $this->is_next = $this->levelEgt($user['id'],3,2000000,270,4);  break;
+                case 4:
+                    $this->is_next = $this->levelEgt($user['id'],4,6000000,810,5);  break;
+                case 5:
+                    $this->is_next = $this->levelEgt($user['id'],5,18000000,2430,6);  break;
+            }
+
+            $user_level++;  //下一个等级
         }
+    }
+
+    private function levelEgt2($user_id,$level_condition,$amount,$user_num,$level)
+    {
+        //直推符合等级的部门数量
+        $num = $this->getTeamLevelAmount($user_id,$level_condition);
+        if($num < 3)
+            return;
+
+        $team = $this->getTotalAmount($user_id);
+        $amount = $team['amount'];
+        $user_num = $team['user_num'];
+        if($amount )
+        if($team['amount'] < $amount || $team['user_num'] < $user_num)
+            return;
+
+        $this->levelUpdate($user_id,$level);
     }
 
     /**
@@ -85,43 +114,48 @@ class MemberService extends \web\common\controller\Service
         //直推符合等级的部门数量
         $num = $this->getTeamLevelAmount($user_id,$level_condition);
         if($num < 3)
-            return;
-
+            return false;
         $team = $this->getTotalAmount($user_id);
         if($team['amount'] < $amount || $team['user_num'] < $user_num)
-            return;
+            return false;
 
         $this->levelUpdate($user_id,$level);
+
+        return true;
     }
 
     private function level2($user_id)
     {
         $direct_num = $this->directBuyNode($user_id);
         if($direct_num < 3)
-            return;
+            return false;
 
         $team = $this->getTotalAmount($user_id);
         if($team['amount'] < 60000 || $team['user_num'] < 8)
-            return;
+            return false;
 
         $this->levelUpdate($user_id,2);
+
+        return true;
     }
 
     private function levelOne($user_id)
     {
         $direct_num = $this->directNum($user_id);
         if($direct_num < 1)
-            return;
+            return false;
 
         $real_user_num = $this->directRealUserNum($user_id);
         if($real_user_num < 1)
-            return;
+            return false;
 
         $team = $this->getTotalAmount($user_id);
         if($team['amount'] < 100)
-            return;
+            return false;
 
         $this->levelUpdate($user_id,1);
+
+        return true;
     }
 
     /**
