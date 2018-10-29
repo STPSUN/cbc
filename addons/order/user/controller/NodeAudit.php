@@ -86,12 +86,20 @@ class NodeAudit extends \web\user\controller\AddonUserBase {
                     $balanceM->rollback();
                     return $this->failData('通过失败');
                 }
+
                 // $balance = $balanceM->updateBalance($user_id, 5, $cbc['release_num'],1);
                 // if(!$balance){
                 //     $balanceM->rollback();
                 //     return $this->failData('不通过失败');
                 // }
                 $res = $MemberNodeM->add($data);
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failData('通过失败');
+                }
+
+                $memberuserM = new \web\api\service\MemberService();
+                $res = $memberuserM->memberLevel($user_id);
                 if(!$res){
                     $balanceM->rollback();
                     return $this->failData('通过失败');
