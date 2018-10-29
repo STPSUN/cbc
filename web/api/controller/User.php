@@ -377,18 +377,10 @@ class User extends ApiBase
     {
         $userM = new MemberAccountModel();
         $payM  = new PayConfig();
-
         $user_data = array();
-        // if($id_face)
-        //     $user_data['id_face'] = $id_face;
-        // if($id_back)
-        // {
-        //     $user_data['id_back'] = $id_back;
-        //     $user_data['is_auth'] = 2;
-        // }
+
         if($real_name)
             $user_data['real_name'] = $real_name;
-
         try
         {
             if($wechat)
@@ -527,8 +519,10 @@ class User extends ApiBase
      */
     public function nodeCommunity()
     {
+        $user_id = $this->user_id;
+        if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
         $memberS = new \web\api\service\MemberService();
-        $users = $memberS->getTreeTeam($this->user_id,[],0);
+        $users = $memberS->getTreeTeam($user_id,[],0);
         $memberNodeM = new MemberNode();
         $node_arr = array();
         foreach ($users as $v)

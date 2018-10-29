@@ -54,10 +54,12 @@ class Upload extends ApiBase
         $base64 = $this->_post('image');
         $type = $this->_post('type');
         if($base64){
+            $m = new \addons\member\model\MemberAccountModel();
             if($type=='id_face'){
                 $savePath = 'user/id_face/';
                 $str = lang('UPLOAD_FACE_SUCCESS');
             }else{
+                $type = 'id_back';
                 $savePath = 'user/id_back/';
                 $str = lang('UPLOAD_BACK_SUCCESS');
             }
@@ -66,38 +68,12 @@ class Upload extends ApiBase
                 return $this->failJSON($ret['message']);
             }
 
-            $m = new \addons\member\model\MemberAccountModel();
             $res = $m->where(['id'=>$user_id])->update([$type=>$ret['path'],'is_auth'=>2]);
             if($res){
-
                 return $this->successJSON($str);
             }else{
                 return $this->failJSON($ret['message']);
             }
         }
     }
-
-    // /**
-    //  * 上传身份证反面
-    //  */
-    // public function id_back(){
-    //     $user_id = $this->user_id;
-    //     if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
-    //     $base64 = $this->_post('image');
-    //     if($base64){
-    //         $savePath = 'user/id_back/';
-    //         $ret = $this->base_img_upload($base64, $this->user_id, $savePath);
-    //         if(!$ret['success']){
-    //             return $this->failJSON($ret['message']);
-    //         }
-
-    //         $m = new \addons\member\model\MemberAccountModel();
-    //         $res = $m->where(['id'=>$user_id])->update(['id_back'=>$ret['path'],'is_auth'=>2]);
-    //         if($res){
-    //             return $this->successJSON(lang('UPLOAD_BACK_SUCCESS'));
-    //         }else{
-    //             return $this->failJSON($ret['message']);
-    //         }
-    //     }
-    // }
 }

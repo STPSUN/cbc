@@ -100,4 +100,8 @@ return array(
     'WALLET_LOGIN_WRONG'=>'Login information is wrong. Please login again.',
     'WALLET_TRUNOUT'=>'Out of wallet address does not exist.',
     'WALLET_PAYPASS'=>'The payment password is wrong. Please re input.',
+
+
+    'UPLOAD_FACE_SUCCESS'=>'Successful upload of identity face ',
+    'UPLOAD_BACK_SUCCESS'=>'Successful upload of identity back ',
 );
