@@ -44,7 +44,7 @@ class NodeAudit extends \web\user\controller\AddonUserBase {
                 $MemberNodeM = new \web\api\model\MemberNode();
                 $user_id = $userM->getUserByPhone($orderData['username']);
                 $node = new \web\api\model\Node();
-                $cbc = $node->where(['type'=>7])->find();
+                $cbc = $node->where(['type'=>8])->find();
                 //获取用户奖金信息
                 $type = 4;
                 $balanceData = $balanceM->getBalanceByType($user_id, $type);
@@ -76,6 +76,9 @@ class NodeAudit extends \web\user\controller\AddonUserBase {
                     'create_time'=>NOW_DATETIME,
                     'type'=>$cbc['type'],
                     'status'=>1,
+                    'release_num'=>$cbc['release_num'],
+                    'total_num'=>$cbc['total_num'],
+                    'pass_time'=>strtotime('+'.$cbc['days'].' days'),
                 ];
                 // $balance = $balanceM->updateBalance($user_id, 5, $cbc['release_num'],1);
                 // if(!$balance){
