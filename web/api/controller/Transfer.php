@@ -335,6 +335,7 @@ class Transfer extends ApiBase
         $page = $this->_post('page')?$this->_post('page')*$row:0;
         if($this->_post('status')){
             $map['status'] = 1;
+            $map['user_id|to_user_id'] = $user_id;
         }else{
             $type = $this->_post('type');
             if($type==2){
