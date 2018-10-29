@@ -77,15 +77,17 @@ class AwardService extends \web\common\controller\Service
         $num = 0;
         foreach ($this->trad_data as $k => $v)
         {
+            $tmp = $v;
             if($num == 0)
             {
-                $arr[] = $v;
-            }else
-            {
-                $temp = $v;
-                $temp['amount'] = 0;
-                $arr[] = $temp;
+                $tmp['shoqu'] = $v['amount'];
+            }else{
+                $tmp['amount'] =0;
+                $tmp['shoqu'] = $v['amount'];
             }
+
+            
+            $arr[] = $tmp;
             $num++;
         }
         print_r($arr);
@@ -101,7 +103,11 @@ class AwardService extends \web\common\controller\Service
             if(isset($arr[$do])){
                 $father = $arr[$do];
                 if($son['level']>=$father['level']){
+                    $arr[$do]['shouqu'] = bcmul(($father['shoqu']+$son['shoqu']/10), 1,2);
                     $arr[$do]['amount'] = bcmul(($father['amount']+$son['amount']/10), 1,2);
+                    if($son['amount']==0&&$arr[$do]['shouqu']!=0){
+                        $arr[$do]['amount'] = $arr[$do]['shouqu'];
+                    }
                 }
             }
                 
