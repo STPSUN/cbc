@@ -660,7 +660,7 @@ class User extends ApiBase
 
         $recordM = new TradingRecord();
 
-        $total_amount = $recordM->where(['user_id' => array('in',$team_user_ids), 'type' => 3])->sum('amount');
+        $total_amount = $recordM->where(['user_id' => array('in',$team_user_ids), 'type' => array('in','3,5')])->sum('amount');
         $one_amount = $recordM->where(['user_id' => array('in',$one_ids), 'type' => 3])->sum('amount');
         $two_amount = $recordM->where(['user_id' => array('in',$two_ids), 'type' => 3])->sum('amount');
         $three_amount = $recordM->where(['user_id' => array('in',$three_ids), 'type' => 3])->sum('amount');

@@ -62,7 +62,7 @@ class MemberService extends \web\common\controller\Service
             case 1:
                 $this->level2($user['id']);     break;
             case 2:
-                $this->levelEgt($user['id'],2,300000,90,3);  break;
+                $this->levelEgt($user['id'],2,300000,24,3);  break;
             case 3:
                 $this->levelEgt($user['id'],3,2000000,270,4);  break;
             case 4:
@@ -101,7 +101,7 @@ class MemberService extends \web\common\controller\Service
             return;
 
         $team = $this->getTotalAmount($user_id);
-        if($team['amount'] < 60000 || $team['user_num'] < 30)
+        if($team['amount'] < 60000 || $team['user_num'] < 8)
             return;
 
         $this->levelUpdate($user_id,2);
