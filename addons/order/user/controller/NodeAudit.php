@@ -80,6 +80,12 @@ class NodeAudit extends \web\user\controller\AddonUserBase {
                     'total_num'=>$cbc['total_num'],
                     'pass_time'=>strtotime('+'.$cbc['days'].' days'),
                 ];
+
+                $res = $userM->where(['id'=>$user_id])->update(['node_level'=>8]);
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failData('通过失败');
+                }
                 // $balance = $balanceM->updateBalance($user_id, 5, $cbc['release_num'],1);
                 // if(!$balance){
                 //     $balanceM->rollback();
@@ -88,7 +94,7 @@ class NodeAudit extends \web\user\controller\AddonUserBase {
                 $res = $MemberNodeM->add($data);
                 if(!$res){
                     $balanceM->rollback();
-                    return $this->failData('不通过失败');
+                    return $this->failData('通过失败');
                 }
 
                 $balanceM->commit();
