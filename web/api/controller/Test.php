@@ -10,16 +10,46 @@ namespace web\api\controller;
 
 
 use web\api\service\AwardService;
+use web\api\service\MemberService;
+use web\api\service\NodeService;
 
 class Test extends ApiBase
 {
     public function award()
     {
         $awardS = new AwardService();
-        $res = $awardS->tradingReward(10000,85);
-//        if($res)
-//            echo 1;
-//        else
-//            echo 2;
+        $res = $awardS->tradingReward(300,93);
+        if($res)
+            echo 1;
+        else
+            echo 2;
     }
+
+    public function release()
+    {
+        $nodeS = new NodeService();
+        $nodeS->nodeRelease();
+        $nodeS->updateBalanceReleaseNum();
+    }
+
+    public function level()
+    {
+        $memberS = new MemberService();
+        $res = $memberS->memberLevel(87);
+        if($res)
+            echo 1;
+        else
+            echo 2;
+    }
+
 }
+
+
+
+
+
+
+
+
+
+
