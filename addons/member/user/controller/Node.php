@@ -12,7 +12,7 @@ class Node extends \web\user\controller\AddonUserBase{
     
     public function loadList(){
         $keyword = $this->_get('keyword');
-        $filter = '';
+        $filter = ' 1=1 ';
         if ($keyword != null) {
             $filter .= ' and phone like \'%' . $keyword . '%\'';
         }
