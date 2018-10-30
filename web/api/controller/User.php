@@ -36,7 +36,7 @@ class User extends ApiBase
                     return $this->failJSON(lang('USER_PHONE'));
                 }
                 $m = new \addons\member\model\MemberAccountModel();
-                $res = $m->getLoginData($password, $phone, 'phone,id,username,head_img,token', 'id,phone,username');
+                $res = $m->getLoginData($password, $phone, 'phone,id,username,head_img,token,address', 'id,phone,username');
                 if ($res) {
                     $memberData['username'] = $res['phone'];
 //                    $memberData['address'] = $res['address'];
@@ -44,9 +44,10 @@ class User extends ApiBase
                     session('memberData', $memberData);
 
                     $token = md5($res['id'] . $this->apikey . time());
-                    $m->save([
-                        'token' => $token,
-                    ],[
+                    $map['token'] = $token;
+                    if(empty($res['address']))
+                        $map['address'] = md5(md5(time() . 'ABC') . '!@$');
+                    $m->save($map,[
                         'id'    => $res['id'],
                     ]);
                     $this->setGlobalCache($res['id'], $token); //user_id存储到入redis
