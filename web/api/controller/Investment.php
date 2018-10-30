@@ -28,8 +28,9 @@ class Investment extends ApiBase
         $int = 0;
         foreach ($act as $key => $value) {
             $day = ceil((time()-strtotime($value['start_at']))/86400);
-            $int += bcmul($value['interset']/$value['financing_time']*$day, 1,4);
-            $start += bcmul($value['interset']/$value['financing_time'], 1,4);
+            $number = bcmul($value['interset']/$value['financing_time'], 1,4);
+            $int    += bcmul($number,$day,4);
+            $start  += $number;
         }
         $data['interset'] = $data['interset'] + $int;
         $data['today'] = $start;
@@ -60,7 +61,10 @@ class Investment extends ApiBase
         if($style==0){
             $type = 2;
             $userAsset = $balanceM->getBalanceByType($user_id,$type);
-            if($amount>$userAsset['amount'])  return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+            if($userAsset['amount']>=$amount){
+            }else{
+                return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+            }
             if($amount%100!=0) return $this->failJSON(lang('INVESTMENT_INT'));
             $userAsset = $balanceM->updateBalance($user_id,$type,$amount);
             if(!$userAsset){
@@ -75,8 +79,11 @@ class Investment extends ApiBase
 
             $type = 1;
             $userAsset = $balanceM->getBalanceByType($user_id,$type);
-            $total = $amount;
-            if($total>$userAsset['amount'])  return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+            $total = bcmul($amount/0.7, 1,2);
+            if($userAsset['amount']>=$total){
+            }else{
+                return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+            }
             $userAsset = $balanceM->updateBalance($user_id,$type,$total);
             if(!$userAsset){
                 $balanceM->rollback();
@@ -91,7 +98,7 @@ class Investment extends ApiBase
                 return $this->failJSON(lang('TRANSFER_REWARD_FAIL'));
             }
             
-            $in_record_id = $recordM->addRecord($user_id, $total, $userAsset['before_amount'], $userAsset['amount'], $type, 4,0, $user_id,'用户理财');
+            $in_record_id = $recordM->addRecord($user_id, $amount, $userAsset['before_amount'], $userAsset['amount'], $type, 4,0, $user_id,'用户理财');
             if(!$in_record_id){
                 $balanceM->rollback();
                 return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
@@ -99,7 +106,10 @@ class Investment extends ApiBase
         }elseif($style==1){
             $type = 4;
             $userAsset = $balanceM->getBalanceByType($user_id,$type);
-            if($amount>$userAsset['amount'])  return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+            if($userAsset['amount']>=$amount){
+            }else{
+                return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+            }
             if($amount%100!=0) return $this->failJSON(lang('INVESTMENT_INT'));
             $userAsset = $balanceM->updateBalance($user_id,$type,$amount);
             if(!$userAsset){
