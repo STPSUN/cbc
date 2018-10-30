@@ -61,9 +61,10 @@ class Investment extends ApiBase
         if($style==0){
             $type = 2;
             $userAsset = $balanceM->getBalanceByType($user_id,$type);
-            if($amount>$userAsset['amount']){
-                if($amount!=$userAsset['amount']) return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
-            }  
+            if($userAsset['amount']>=$amount){
+            }else{
+                return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+            }
             if($amount%100!=0) return $this->failJSON(lang('INVESTMENT_INT'));
             $userAsset = $balanceM->updateBalance($user_id,$type,$amount);
             if(!$userAsset){
@@ -79,8 +80,9 @@ class Investment extends ApiBase
             $type = 1;
             $userAsset = $balanceM->getBalanceByType($user_id,$type);
             $total =bcmul($amount/0.7, 1,2);
-            if($total<$userAsset['amount']){
-                if($total!=$userAsset['amount']) return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+            if($userAsset['amount']>=$total){
+            }else{
+                return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
             }
             $userAsset = $balanceM->updateBalance($user_id,$type,$total);
             if(!$userAsset){
@@ -104,9 +106,10 @@ class Investment extends ApiBase
         }elseif($style==1){
             $type = 4;
             $userAsset = $balanceM->getBalanceByType($user_id,$type);
-            if($amount>$userAsset['amount']){
-                if($amount!=$userAsset['amount']) return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
-            }  
+            if($userAsset['amount']>=$amount){
+            }else{
+                return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+            }
             if($amount%100!=0) return $this->failJSON(lang('INVESTMENT_INT'));
             $userAsset = $balanceM->updateBalance($user_id,$type,$amount);
             if(!$userAsset){
