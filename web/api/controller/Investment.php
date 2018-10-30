@@ -28,8 +28,9 @@ class Investment extends ApiBase
         $int = 0;
         foreach ($act as $key => $value) {
             $day = ceil((time()-strtotime($value['start_at']))/86400);
-            $int += bcmul($value['interset']/$value['financing_time']*$day, 1,4);
-            $start += bcmul($value['interset']/$value['financing_time'], 1,4);
+            $number = bcmul($value['interset']/$value['financing_time'], 1,4);
+            $int    += bcmul($number,$day,4);
+            $start  += $number;
         }
         $data['interset'] = $data['interset'] + $int;
         $data['today'] = $start;
