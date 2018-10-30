@@ -104,7 +104,9 @@ class Investment extends ApiBase
         }elseif($style==1){
             $type = 4;
             $userAsset = $balanceM->getBalanceByType($user_id,$type);
-            if($amount>$userAsset['amount'])  return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+            if($amount>$userAsset['amount']){
+                if($amount!=$userAsset['amount']) return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
+            }  
             if($amount%100!=0) return $this->failJSON(lang('INVESTMENT_INT'));
             $userAsset = $balanceM->updateBalance($user_id,$type,$amount);
             if(!$userAsset){
