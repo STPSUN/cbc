@@ -1,0 +1,152 @@
+{extend name="$BASE_LIST" /}
+{block name="body"}
+<style type="text/css">
+.voucher{max-height: 50px;max-width: 50px}
+.right-main table tr{height: 56px!important;}
+</style>
+<div class="right-main">
+    <div class="page_nav" id="js_page_nav"><span class="page_title">{$page_nav}</span></div>
+
+    <div id="js_main_header" class="ui-form main_header">
+        <span class="frm_input_box search append">
+            <a href="javascript:void(0);" id="js_search" class="frm_input_append">
+                <i class="icon wb-search" title="搜索"></i>
+            </a>
+            <input type="text" id="js_keyword" placeholder="请输入手机号" value="" class="frm_input" />
+        </span>
+    </div>
+    <table id="grid-table">
+        <thead frozen="true" >
+        <th data-options="field:'phone',width:150, align:'center'">手机号</th>
+        <th data-options="field:'g_phone',width:150, align:'center'">给予手机号</th>
+        <th data-options="field:'type',width:100,align:'center', formatter:formatNode">节点等级</th> 
+        </thead>
+        <thead>
+            <tr>
+                <th data-options="field:'node_num',width:100, align:'center'">购买节点数量</th>
+                <th data-options="field:'status',width:140,align:'center', formatter:formatAuth">开启状态</th>
+                <th data-options="field:'release_num',width:200, align:'center'">日释放量</th>
+                <th data-options="field:'total_num',width:200, align:'center'">总释放量</th>
+                <th data-options="field:'create_time',width:200, align:'center'">开始时间</th>
+                <th data-options="field:'pass_time',width:200, align:'center'">结束时间</th>
+                <th data-options="field:'_oper',width:420,halign:'center',formatter: formatOper">操作</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    
+    function formatOper(value, row, index) {
+        var html = '<span class="grid-operation">';
+        html += '<button type="button" onclick="edit(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>编辑</button>';
+        html += '<button type="button" onclick="del(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon wb-close"></i>删除</button>';
+        html += '</span>';
+        return html;
+    }
+    
+
+    function formatNode(value,row,index){
+        var name = '无';
+        if(value==1){
+            name = '微型';
+        }else if(value==2){
+            name = '小型（SS）';
+        }else if(value==3){
+            name = '小型（S）';
+        }else if(value==4){
+            name = '中小型';
+        }else if(value==5){
+            name = '中大型';
+        }else if(value==6){
+            name = '大型';
+        }else if(value==7){
+            name = '超大型';
+        }else if(value==8){
+            name = '超级';
+        }
+        
+        var text = '<span style="">'+name+'</span>';
+        return text;
+    }
+
+
+    // function formatStatus(value,row,index){
+    //     var text = '<span style="color:red">否</span>';
+    //     if(value == '1')
+    //         text = '<span style="color:green">是</span>';
+    //     return text;
+    // }
+    
+    $(function () {
+        $('#grid-table').datagrid({
+            url: getURL('loadList'),
+            method: "GET",
+            height: getGridHeight(),
+            rownumbers: true,
+            singleSelect: true,
+            remoteSort: false,
+            multiSort: true,
+            emptyMsg: '<span>无相关数据</span>',
+            pagination: true,
+            pageSize: 20
+        });
+        //设置分页控件 
+        $('#grid-table').datagrid('getPager').pagination({
+            pageSize: 20, //每页显示的记录条数，默认为10 
+            pageList: [20, 30, 50]
+        });
+    });
+    
+    function formatAuth(value,row,index){
+        var text = '';
+        if(value == '1'){
+            text = '<span style="color:green">启动中</span>';
+        }else if(value == '2'){
+            text = '<span style="color:#ff9b00">已关闭</span>';
+        }else if(value =='-1'){
+            text = '';
+        }
+        return text;
+    }
+    
+    function add_coin_stock(id) {
+        var url = getURL('add_coin_stock', 'id=' + id);
+        openBarWin('拨币', 400, 400, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+
+    function edit(id) {
+        var url = getURL('edit', 'id=' + id);
+        openBarWin('编辑', 1000, 500, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+    
+    function del(id) {
+        confirm("删除后数据无法找回。确认要删除此节点吗？", function () {
+            var url = getURL('del');
+            $.getJSON(url, {id: id}, function (json) {
+                if (json.success)
+                    reload();
+                else
+                    alert(json.message);
+            });
+        });
+    }
+
+    $("#js_search").click(function () {
+        reload();
+    });
+    function reload() {
+        var keyword = $("#js_keyword").val();
+        $('#grid-table').datagrid('reload', {keyword: keyword});
+    }
+    $("#type").change(function () {
+        var keyword = $("#js_keyword").val();
+        $('#grid-table').datagrid('reload', {keyword: keyword});
+    });
+</script>
+{/block}
