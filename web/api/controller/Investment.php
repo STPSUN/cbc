@@ -76,7 +76,7 @@ class Investment extends ApiBase
 
             $type = 1;
             $userAsset = $balanceM->getBalanceByType($user_id,$type);
-            $total = $amount;
+            $total = $amount/0.7;
             if($total>$userAsset['amount'])  return $this->failJSON(lang('INVESTMENT_LESS_AMOUNT').$userAsset['amount']);
             $userAsset = $balanceM->updateBalance($user_id,$type,$total);
             if(!$userAsset){
