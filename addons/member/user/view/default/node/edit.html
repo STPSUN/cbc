@@ -1,0 +1,91 @@
+{extend name="$BASE_POPUP_FORM" /}
+{block name="body"}
+<link rel="stylesheet" href="__STATIC__/laydate/theme/default/laydate.css" media="all">
+<script type="text/javascript"></script>
+    <div class="box-content"> 
+        <input type="hidden" name="id" id="id" value="{$id}"/>
+        <div class="control-row col-2">
+<!--             <div class="control-group">
+                <label class="control-label">手机号</label>
+                <div class="controls">
+                    <input type="text" id="phone" disabled="true" name="phone" class="form-control required"  />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">给予手机号</label>
+                <div class="controls">
+                    <input type="text" id="g_phone" disabled="true" name="g_phone" class="form-control"  />
+                </div>
+            </div> -->
+            <div class="control-group">
+                <label class="control-label">日释放量</label>
+                <div class="controls">
+                    <input id="release_num" name="release_num"  class="form-control"/>   
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">总释放量</label>
+                <div class="controls">
+                    <input id="total_num" name="total_num"  class="form-control"/>   
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">节点等级</label>
+                <div class="controls">
+                    <select name="type" id="type" class="form-control required">
+                        <option value="1">微型</option>
+                        <option value="2">小型（SS）</option>
+                        <option value="3">小型（S）</option>
+                        <option value="4">中小型</option>
+                        <option value="5">中大型</option>
+                        <option value="6">大型</option>
+                        <option value="7">超大型</option>
+                        <option value="8">超级</option>
+                    </select>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">开始时间</label>
+                <div class="controls">
+                    <input type="text"  name="create_time" id="create_time" class="form-control" placeholder="不修改密码请勿填写"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">结束时间</label>
+                <div class="controls">
+                    <input type="text"  name="pass_time" id="pass_time" class="form-control" placeholder="不修改密码请勿填写"/>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+{/block}
+
+{block name="script"}
+<script src="__STATIC__/laydate/laydate.js"></script>
+<script type="text/javascript">
+laydate.render({
+  elem: '#create_time' //指定元素
+  ,type: 'datetime'
+});
+laydate.render({
+  elem: '#pass_time' //指定元素
+  ,type: 'datetime'
+});
+    function openSearchWin(){
+        var url = getURL('member/select_user','','member');
+        openBarWinParent('选择用户', 500, 600, url, function (data) {
+            $("#pid").setValue(data);
+        }, ['选定', '取消']);
+    }
+    function centerOpenSearchWin(){
+        var url = getURL('member/select_user','','member');
+        openBarWinParent('选择用户', 500, 600, url, function (data) {
+            $("#center_id").setValue(data);
+        }, ['选定', '取消']);
+    }
+
+</script>
+{/block}
+
+

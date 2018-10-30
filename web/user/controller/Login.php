@@ -11,9 +11,9 @@ class Login extends \web\common\controller\BaseController {
         if (IS_POST) {
             /* 检测验证码 */
             $code = $this->_post('code');
-//            if (!captcha_check($code)) {
-//                return $this->failData('验证码输入错误！');
-//            }
+            if (!captcha_check($code)) {
+               return $this->failData('验证码输入错误！');
+            }
             $username = $this->_post('username');
             $password = $this->_post('password');
             if (empty($username)) {
