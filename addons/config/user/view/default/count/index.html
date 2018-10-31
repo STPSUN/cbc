@@ -1,0 +1,141 @@
+{extend name="$BASE_LIST" /}
+{block name="body"}
+<style>
+    .model{
+        margin-left: 30px;
+        width:300px;
+        height: 300px;
+        float: left;
+    }
+    .span{
+        float: left;
+    }
+</style>
+<div class="right-main">
+    <div class="page_nav" id="js_page_nav"><span class="page_title">{$page_nav}</span></div>
+    <div id="js_main_header" class="ui-form main_header">
+    </div>
+</div>
+
+<div>
+    <div class="model">
+        <h4>会员数量</h4>
+        <hr>
+        <span>{$member_num}</span>
+    </div>
+
+    <div class="model">
+        <h4>今日会员注册数量</h4>
+        <hr>
+        <span>{$today_member_num}</span>
+    </div>
+
+    <div class="model">
+        <h4>已认证会员数量</h4>
+        <hr>
+        <span>{$auth_member_num}</span>
+    </div>
+
+    <div class="model">
+        <h4>未认证会员数量数量</h4>
+        <hr>
+        <span>{$not_auth_member_num}</span>
+    </div>
+
+    <div class="model">
+        <h4>总交易明细</h4>
+        <hr>
+        <span >挂单：{$order.num} 单</span><br>
+        <span >合计：{$order.amount} CBC</span><br>
+        <span >成交订单：{$order.deal_num} 单</span><br>
+        <span>合计：{$order.deal_amount} CBC</span><br>
+        <span>取消订单：{$order.cancel_num} 单</span><br>
+        <span>合计：{$order.cancel_amount} CBC</span><br>
+    </div>
+
+    <div class="model">
+        <h4>昨日交易量</h4>
+        <hr>
+        <span>卖出：{$yes_deal.num} 单，{$yes_deal.num} CBC</span><br>
+        <span>卖出成功：{$yes_deal.success_num} 单，{$yes_deal.success_num} CBC</span><br>
+    </div>
+
+    <div class="model">
+        <h4>今日交易量</h4>
+        <hr>
+        <span>卖出：{$day_deal.num} 单，{$day_deal.num} CBC</span><br>
+        <span>卖出成功：{$day_deal.success_num} 单，{$day_deal.success_num} CBC</span><br>
+    </div>
+
+    <div class="model">
+        <h4>累计交易数量（已完成）</h4>
+        <hr>
+        <span>{$total_deal} CBC</span>
+    </div>
+
+    <div class="model">
+        <h4>平台总CBC</h4>
+        <hr>
+        <span>{$total.cbc}</span>
+    </div>
+
+    <div class="model">
+        <h4>平台总激活码</h4>
+        <hr>
+        <span>{$total.key}</span>
+    </div>
+
+    <div class="model">
+        <h4>节点明细</h4>
+        <hr>
+        <span>V节点：{$node.v}</span><br>
+        <span>SS节点：{$node.ss}</span><br>
+        <span>S节点：{$node.s}</span><br>
+        <span>MS节点：{$node.ms}</span><br>
+        <span>MB节点：{$node.mb}</span><br>
+        <span>B节点：{$node.b}</span><br>
+        <span>BS节点：{$node.bs}</span><br>
+        <span>X节点：{$node.x}</span><br>
+    </div>
+
+    <div class="model">
+        <h4>今日释放</h4>
+        <hr>
+        <span>今日释放CBC：{$today_node.cbc}</span><br>
+        <span>今日释放激活码：{$today_node.key}</span><br>
+        <span>节点总产：</span><br>
+    </div>
+
+    <div class="model">
+        <h4>今日激活节点</h4>
+        <hr>
+        <span>V节点：{$today_activity.v}</span><br>
+        <span>SS节点：{$today_activity.ss}</span><br>
+        <span>S节点：{$today_activity.s}</span><br>
+        <span>MS节点：{$today_activity.ms}</span><br>
+        <span>MB节点：{$today_activity.mb}</span><br>
+        <span>B节点：{$today_activity.b}</span><br>
+        <span>BS节点：{$today_activity.bs}</span><br>
+        <span>X节点：{$today_activity.x}</span><br>
+    </div>
+
+    <div class="model">
+        <h4>昨日激活节点</h4>
+        <hr>
+        <span>V节点：{$yes_activity.v}</span><br>
+        <span>SS节点：{$yes_activity.ss}</span><br>
+        <span>S节点：{$yes_activity.s}</span><br>
+        <span>MS节点：{$yes_activity.ms}</span><br>
+        <span>MB节点：{$yes_activity.mb}</span><br>
+        <span>B节点：{$yes_activity.b}</span><br>
+        <span>BS节点：{$yes_activity.bs}</span><br>
+        <span>X节点：{$yes_activity.x}</span><br>
+    </div>
+
+</div>
+
+{/block}
+{block name="script"}
+<script type="text/javascript">
+</script>
+{/block}

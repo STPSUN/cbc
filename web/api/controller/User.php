@@ -97,6 +97,7 @@ class User extends ApiBase
             if (strlen($pay_password) != 6) {
                 return $this->failJSON(lang('USER_PAY_PASSWORD_LESS'));
             }
+            $data['id'] = $this->_post('phone');
             $data['password'] = md5($password);
             $data['pay_password'] = md5($pay_password);
             $data['address'] = md5(md5(time() . 'ABC') . '!@$');

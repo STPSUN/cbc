@@ -9,6 +9,7 @@
 namespace web\api\controller;
 
 
+use web\api\model\MemberNodeIncome;
 use web\api\service\AwardService;
 use web\api\service\MemberService;
 use web\api\service\NodeService;
@@ -27,6 +28,11 @@ class Test extends ApiBase
 
     public function release()
     {
+        $incomeM = new MemberNodeIncome();
+        $is_release = $incomeM->whereTime('create_time','today')->find();
+        if(!empty($is_release))
+            return;
+
         $nodeS = new NodeService();
         $nodeS->nodeRelease();
         $nodeS->updateBalanceReleaseNum();

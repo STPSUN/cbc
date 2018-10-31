@@ -3,6 +3,7 @@
 namespace web\api\controller;
 
 use think\Lang;
+use web\api\model\MemberNodeIncome;
 use web\api\service\NodeService;
 
 class Crontab extends \web\common\controller\Controller {
@@ -84,16 +85,15 @@ class Crontab extends \web\common\controller\Controller {
      */
     public function nodeRelease()
     {
-        $nodeS = new NodeService();
-        $nodeS->nodeRelease();
-    }
+        $incomeM = new MemberNodeIncome();
+        $is_release = $incomeM->whereTime('create_time','today')->find();
+        if(!empty($is_release))
+            return;
 
-    /**
-     * 更新余额中节点日释放值
-     */
-    public function updateBalanceReleaseNum()
-    {
         $nodeS = new NodeService();
+
+        $nodeS->nodeRelease();
+
         $nodeS->updateBalanceReleaseNum();
     }
 

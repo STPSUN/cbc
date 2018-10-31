@@ -25,7 +25,7 @@ class NodeService extends \web\common\controller\Service
     public function nodeRelease()
     {
         $nodes = $this->getNodeUsers();
-//        print_r($nodes);exit();
+
         foreach ($nodes as $v)
         {
             $this->release($v);
