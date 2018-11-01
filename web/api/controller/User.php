@@ -37,6 +37,7 @@ class User extends ApiBase
                 }
                 $m = new \addons\member\model\MemberAccountModel();
                 $res = $m->getLoginData($password, $phone, 'phone,id,username,head_img,token,address', 'id,phone,username');
+//                print_r($res);exit();
                 if ($res) {
                     $memberData['username'] = $res['phone'];
 //                    $memberData['address'] = $res['address'];
@@ -50,7 +51,8 @@ class User extends ApiBase
                     $m->save($map,[
                         'id'    => $res['id'],
                     ]);
-                    $this->setGlobalCache($res['id'], $token); //user_id存储到入redis
+                    $e = $this->setGlobalCache($res['id'], $token); //user_id存储到入redis
+//                    var_dump($e);exit();
                     $data['phone'] = $res['phone'];
                     $data['username'] = $res['username'];
                     $data['head_img'] = $res['head_img'];

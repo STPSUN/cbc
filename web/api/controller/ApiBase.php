@@ -45,12 +45,12 @@ class ApiBase extends \web\common\controller\Controller {
         $token = $this->_post('token', null);
         $userM = new \addons\member\model\MemberAccountModel();
         if (!empty($token)) {
-            $this->user_id = intval($this->getGlobalCache($token)); //redis中获取user_id
+            $this->user_id = $this->getGlobalCache($token); //redis中获取user_id
             if(!$this->user_id){
                 return $this->failJSON(lang('API_LOGIN'));
             }
 
-            $user = $userM->getDetail($this->user_id);
+            $user = $userM->where('id',$this->user_id)->find();
             if($token != $user['token'])
                 return $this->failJSON(lang('API_LOGIN'),404);
 
