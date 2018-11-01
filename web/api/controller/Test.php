@@ -9,6 +9,7 @@
 namespace web\api\controller;
 
 
+use think\Db;
 use web\api\model\MemberNodeIncome;
 use web\api\service\AwardService;
 use web\api\service\MemberService;
@@ -46,6 +47,60 @@ class Test extends ApiBase
             echo 1;
         else
             echo 2;
+    }
+
+
+    public function addtime(){
+
+        $list=Db::table('tp_member_node')->select();
+        foreach( $list as $v){
+            $id=$v['id'];
+            $addtime= $v['addtime'];
+            $type=$v['type'];
+            $pieces = explode(".", $addtime);
+            $create_time=$pieces[0];
+
+            $sjc=strtotime($create_time);
+            if($type==1){
+                $pass_time=$sjc+30*24*60*60;
+            }
+            if($type==3){
+                $pass_time=$sjc+80*24*60*60;
+            }
+            if($type==4){
+                $pass_time=$sjc+100*24*60*60;
+            }
+            if($type==7){
+                $pass_time=$sjc+160*24*60*60;
+            }
+            if($type==8){
+                $pass_time=$sjc+365*24*60*60;
+            }
+
+            Db::table('tp_member_node')->where("id='$id'")->update(['create_time' =>$create_time,'pass_time'=>$pass_time]);
+
+        }
+    }
+    public function regtime()
+    {
+
+        $list = Db::table('tp_member_account')->select();
+        foreach ($list as $v) {
+            $id = $v['id'];
+            echo $addtime = $v['id_stand'];
+
+            $pieces = explode(".", $addtime);
+            $register_time = $pieces[0];
+
+            Db::table('tp_member_account')->where("id='$id'")->update(['register_time' => $register_time]);
+
+        }
+    }
+
+    public function test()
+    {
+        $time = date('Y-m-d H:i:s',1539569142);
+        echo $time;
     }
 
 }

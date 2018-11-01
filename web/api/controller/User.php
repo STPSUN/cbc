@@ -83,6 +83,7 @@ class User extends ApiBase
             if(!$validate->check($param))
                 return $this->failJSON($validate->getError());
 
+            $data['region_code'] = $this->_post('region_code');
             $data['phone'] = $this->_post('phone');
             $data['verify_code'] = $this->_post('verify_code');
             $password = $this->_post('password');
@@ -168,6 +169,7 @@ class User extends ApiBase
         $phone = $this->_post('phone');
 //        $time = $this->_post('time');
         $type = $this->_post('type');
+        $region_code = $this->_post('region_code');
         $time = 120;
         if(empty($type))
             $type = 1;//注册验证码
@@ -176,8 +178,14 @@ class User extends ApiBase
         if(!empty($unpass_code)){
             return $this->failJSON(lang('USER_VERI_NOT'));
         }
+        $memberM = new MemberAccountModel();
+        $member = $memberM->getDetail($this->user_id);
+        if(empty($region_code))
+            $region_code = $member['region_code'];
         try{
             //发送验证码
+            if($region_code)
+                $phone = $region_code . $phone;
             $res = \addons\member\utils\Sms::send($phone);
             if($res['success']){
                 $code = $res['code'];

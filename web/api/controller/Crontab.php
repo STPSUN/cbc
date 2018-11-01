@@ -85,6 +85,7 @@ class Crontab extends \web\common\controller\Controller {
      */
     public function nodeRelease()
     {
+        set_time_limit(0);
         $incomeM = new MemberNodeIncome();
         $is_release = $incomeM->whereTime('create_time','today')->find();
         if(!empty($is_release))
