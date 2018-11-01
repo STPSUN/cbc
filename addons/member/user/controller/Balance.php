@@ -33,7 +33,7 @@ class Balance extends \web\user\controller\AddonUserBase{
             $filter .= ' and type='.$asset_type;
         }
         if ($keyword != null) {
-            $filter .= ' and username like \'%' . $keyword . '%\'';
+            $filter .= ' and phone like \'%' . $keyword . '%\'';
         }
         if ($startDate != null && $endDate != null)
             $filter .= ' and (update_time >= \'' . $startDate . ' 00:00:00\' and update_time <= \'' . $endDate . ' 23:59:59\')';
@@ -42,7 +42,7 @@ class Balance extends \web\user\controller\AddonUserBase{
         elseif ($endDate != null)
             $filter .= ' and (update_time <= \'' . $endDate . ' 23:59:59\')';
         $m = new \addons\member\model\Balance();
-        $total = $m->getTotal($filter);
+        $total = $m->getBalanceTotal($filter);
         $rows = $m->getList($this->getPageIndex(), $this->getPageSize(), $filter,'*',$orderby);
         $count_total = $m->getCountTotal($filter);
         return $this->toTotalDataGrid($total, $rows,$count_total);

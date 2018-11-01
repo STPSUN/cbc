@@ -734,8 +734,13 @@ class Transfer extends ApiBase
         if($trading['type']!=2) return $this->failJSON(lang('TRANSFER_WRONG_STATUS'));
         if($user_id!=$trading['to_user_id']) return $this->failJSON(lang('TRANSFER_NOT_YOUR'));
         $user = $userM->getDetail($trading['user_id']);
-        $msg = '【CBC】尊敬的'.$user['real_name'].'先生/女士，您的订单在CBC系统出售成功，买家已经打款，请您在收到款之后去平台确认发货。';
-        $res = \addons\member\utils\Sms::sendOrder($user['phone'],$msg);
+        if($user['region_code']=='86'){
+            $msg = '【CBC】尊敬的'.$user['real_name'].'先生/女士，您的订单在CBC系统出售成功，买家已经打款，请您在收到款之后去平台确认发货。';
+        }else{
+            $msg = '【CBC】 Dear Mr / Madam '.$user['real_name'].', your order has been successfully sold in CBC system. The buyer has already made a payment. Please go to the platform to confirm the delivery after receiving the payment.';
+        }
+        $phone = $user['region_code'].$user['phone'];
+        $res = \addons\member\utils\Sms::sendOrder($phone,$msg);
         if($res['success']){
             return $this->successJSON();
         }else{
