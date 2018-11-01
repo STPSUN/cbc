@@ -52,12 +52,32 @@ class Balance extends \web\common\model\BaseModel {
     }
 
     public function getCountTotal($filter = '') {
-        $sql = 'select sum(amount) as count_total from '.$this->getTableName().' where '.$filter;
-        
+        $m = new \addons\member\model\MemberAccountModel();
+        $sql = 'select sum(amount) as count_total from '.$this->getTableName().' b left join '.$m->getTableName().' m on m.id=b.user_id where '.$filter;
         $count = $this->query($sql);
         return $count[0]['count_total'];
     }
 
+    public function getBalanceTotal($filter){
+        $m = new \addons\member\model\MemberAccountModel();
+        $sql = 'select count(*) c from ' . $this->getTableName() .' b left join '.$m->getTableName().' m on m.id=b.user_id';
+        if (!empty($filter))
+            $sql .= ' where ' . $filter;
+        $result = $this->query($sql);
+        if (count($result) > 0)
+            return intval($result[0]['c']);
+        else
+            return 0;
+    }
+
+
+    public function getBalanceList($pageIndex, $pageSize, $filter='*',$orderby='b.id desc'){
+        $m = new \addons\member\model\MemberAccountModel();
+        $sql = 'select *  from ' . $this->getTableName() .' b left join '.$m->getTableName().' m on m.id=b.user_id';
+        if (!empty($filter))
+            $sql .=  ' and '.$filter;
+        return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
+    }
     /**
      * 更新用户资产
      * @param type $user_id

@@ -17,11 +17,15 @@ class Sms{
     private static $API_BALANCE_QUERY_URL='https://smssh1.253.com/msg/balance/json';//创蓝短信余额查询接口URL
     private static $API_ACCOUNT= 'N2372657'; // 创蓝API账号
     private static $API_PASSWORD= 'WbzH8vuDQg2066';// 创蓝API密码
+
+    private static $GJAccount = 'I6730142';
+    private static $GJPASSWORD = 'tukzwKBPjlae60';
+    private static $GJurl = 'http://intapi.253.com/send/json';
+    
     /**
      * 新短信：短信：https://zz.253.com/om/index.html
-总账号
-总账号
-总账号 15957944057 密码 abc15957944057
+
+        总账号 15957944057 密码 abc15957944057
      */
     // private static function _init() {
     //     $m = new \addons\config\model\Sms();
@@ -40,16 +44,31 @@ class Sms{
      */
     public static function send($phone){
         $code = self::random(6,1);//验证码
-        $msg = '【CBC】尊敬的用户，您本次操作的验证码为'.$code.'，请妥善保存，切勿泄露。';
-        //创蓝接口参数
-        $postArr = array (
-            'account'  =>  self::$API_ACCOUNT,
-            'password' => self::$API_PASSWORD,
-            'msg' => urlencode($msg),
-            'phone' => $phone,
-            'report' => 'true'
-        );
-        $res = json_decode(self::curlPost(self::$API_SEND_URL, $postArr),1);
+        $head = substr($phone, 0,2);
+        if($head!='86'){
+            $msg = '【CBC】Dear user, the verification code of your operation is '.$code.'. Please keep it properly and do not divulge it.';
+            $postArr = array (
+                'account'  =>  self::$GJAccount,
+                'password' => self::$GJPASSWORD,
+                'msg' => $msg,
+                'mobile' => $phone,
+            );
+            $res = json_decode(self::curlPost(self::$GJurl, $postArr),1);
+            if($res['code']!=0){
+                $res['errorMsg'] = $res['error'];
+            }
+        }else{
+            $msg = '【CBC】尊敬的用户，您本次操作的验证码为'.$code.'，请妥善保存，切勿泄露。';
+            $phone = substr($phone, 2);
+            $postArr = array (
+                'account'  =>  self::$API_ACCOUNT,
+                'password' => self::$API_PASSWORD,
+                'msg' => urlencode($msg),
+                'phone' => $phone,
+                'report' => 'true'
+            );
+            $res = json_decode(self::curlPost(self::$API_SEND_URL, $postArr),1);
+        }
         if($res['code']==0){
             self::$data['code'] = $code;
             self::$data['message'] = "验证码发送成功，请注意查收";
@@ -67,15 +86,30 @@ class Sms{
      * @param type $phone
      */
     public static function sendOrder($phone,$msg){
-        //创蓝接口参数
-        $postArr = array (
-            'account'  =>  self::$API_ACCOUNT,
-            'password' => self::$API_PASSWORD,
-            'msg' => urlencode($msg),
-            'phone' => $phone,
-            'report' => 'true'
-        );
-        $res = json_decode(self::curlPost(self::$API_SEND_URL, $postArr),1);
+        $head = substr($phone, 0,2);
+        if($head!='86'){
+            $postArr = array (
+                'account'  =>  self::$GJAccount,
+                'password' => self::$GJPASSWORD,
+                'msg' => $msg,
+                'mobile' => $phone,
+            );
+            $res = json_decode(self::curlPost(self::$GJurl, $postArr),1);
+            if($res['code']!=0){
+                $res['errorMsg'] = $res['error'];
+            }
+        }else{
+            $phone = substr($phone, 2);
+            //创蓝接口参数
+            $postArr = array (
+                'account'  =>  self::$API_ACCOUNT,
+                'password' => self::$API_PASSWORD,
+                'msg' => urlencode($msg),
+                'phone' => $phone,
+                'report' => 'true'
+            );
+            $res = json_decode(self::curlPost(self::$API_SEND_URL, $postArr),1);
+        }
         if($res['code']==0){
             self::$data['message'] = "验证码发送成功，请注意查收";
             self::$data['success'] = true;   
@@ -96,14 +130,10 @@ class Sms{
      */
     private static function curlPost($url,$postFields){
         $postFields = json_encode($postFields);
-        
         $ch = curl_init ();
         curl_setopt( $ch, CURLOPT_URL, $url ); 
-        curl_setopt( $ch, CURLOPT_HTTPHEADER, array(
-            'Content-Type: application/json; charset=utf-8'   //json版本需要填写  Content-Type: application/json;
-            )
-        );
-        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); 
+        curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json; charset=utf-8'));
+        curl_setopt( $ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4); 
         curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
         curl_setopt( $ch, CURLOPT_POST, 1 );
         curl_setopt( $ch, CURLOPT_POSTFIELDS, $postFields);
