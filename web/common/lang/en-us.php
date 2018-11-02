@@ -32,10 +32,12 @@ return array(
     'TRANSFER_NOT_SET_PAY'=>'No payment is set. Please set up the payment method.',
     'INVESTMENT_INT'=>'The amount of investment must be 100 times the total.',
 
+    'TRANSFER_CODE_LESS'=>'Your CBC CODE is less than',
     'TRANSFER_CBC_LESS'=>'Your CBC balance is less than',
     'TRANSFER_CBC1_LESS'=>'Total CBC reduction failed',
     'TRANSFER_CBC2_LESS'=>'Failure to reduce CBC balance',
     'TRANSFER_CBC3_LESS'=>'Reduce CBC lock failure',
+    'TRANSFER_CBC4_LESS'=>'Reduce CBC code failure',
     'TRANSFER_CBC1_ADD'=>'Total CBC increase failed',
     'TRANSFER_CBC2_ADD'=>'Failure to increase CBC balance',
     'TRANSFER_CBC3_ADD'=>'Increased CBC lock failure',

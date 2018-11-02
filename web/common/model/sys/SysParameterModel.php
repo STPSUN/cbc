@@ -93,4 +93,16 @@ class SysParameterModel extends \web\common\model\Model {
         }
     }
 
+
+    public function setValByName($name,$amount){
+        $data = $this->where(['field_name'=>$name])->find();
+        $data['parameter_val'] = $amount;
+        $res = $this->save($data);
+        if($res){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 }

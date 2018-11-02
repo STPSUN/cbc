@@ -45,6 +45,38 @@ class Member extends \web\user\controller\AddonUserBase{
         }
         return $this->toDataGrid($total, $rows);
     }
+
+    /**
+     * 增加挂卖权限
+     */
+    public function power(){
+        $user_id = $this->_post('id');
+        if(!$user_id) return $this->failData('错误的参数');
+        $TransferM = new \addons\member\model\Transfer();
+        $info = $TransferM->findData($user_id);
+        if($info){
+            $info['power'] = 1;
+            $info['update_at'] = NOW_DATETIME;
+        }else{
+            $info = [
+                'user_id'       => $user_id,
+                'today_quota'   => 0,
+                'quota'         => 0,
+                'quota_at'      => NOW_DATETIME,
+                'today_at'      => NOW_DATETIME,
+                'power'         => 1,
+                'update_at'     => NOW_DATETIME,
+                'create_at'     => NOW_DATETIME,
+            ];
+        }
+        // print_r($info);
+        $res = $TransferM->save($info);
+        if($res){
+            return $this->successData('修改权限成功');
+        }else{
+            return $this->failData('修改权限失败');
+        }
+    }
     
     public function edit(){
         $m = new \addons\member\model\MemberAccountModel();

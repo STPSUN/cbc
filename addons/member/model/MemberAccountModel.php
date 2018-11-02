@@ -68,10 +68,10 @@ class MemberAccountModel extends \web\common\model\BaseModel {
         $_id = $this->where($where)->value('id');
         if(!empty($_id)){
             $jdid = $_id;
-            if($position == 1){
-                //如果选择的是右区,且右区不为空,则查询右区的左区
-                $position = 0;
-            }
+            // if($position == 1){
+            //     //如果选择的是右区,且右区不为空,则查询右区的左区
+            //     $position = 0;
+            // }
             return $this->getChildIdByPosition($jdid, $position);
         }else{
             $data['position'] = $position;
@@ -140,7 +140,8 @@ class MemberAccountModel extends \web\common\model\BaseModel {
     }
 
     public function getList($pageIndex = -1, $pageSize = -1, $filter = '', $order = 'id asc') {
-        $sql = 'select tab.*,c.phone as invite_user_phone,d.username as aid_name from ' . $this->getTableName() . ' as tab left join ' . $this->getTableName() . ' c on tab.pid=c.id left join ' . $this->getTableName() . ' d on tab.aid=d.id';
+        $TransferM = new \addons\member\model\Transfer();
+        $sql = 'select tab.*,c.phone as invite_user_phone,p.quota,p.today_quota,p.power from ' . $this->getTableName() . ' as tab left join ' . $this->getTableName() . ' c on tab.pid=c.id  left join ' . $TransferM->getTableName() . ' p on tab.id=p.user_id';
         if (!empty($filter))
             $sql = 'select * from (' . $sql . ') t where ' . $filter;
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);

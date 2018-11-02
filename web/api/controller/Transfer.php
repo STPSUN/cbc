@@ -74,106 +74,191 @@ class Transfer extends ApiBase
         $map['type'] = ['neq',3];
         $r = $tradingM->where($map)->find();
         if($r) return $this->failJSON(lang('TRANSFER_ALREADY'));
-        $ma['update_time'] = ['between',[date('Y-m-d'),(date('Y-m-d').' 23:59:59')]];
-        $ma['status'] = 0;
-        $ma['user_id'] = $user_id;
-        $r = $tradingM->where($ma)->find();
-        if($r) return $this->failJSON(lang('TRANSFER_TODAY'));
+        //交易成功限制单数
+        // $ma['update_time'] = ['between',[date('Y-m-d'),(date('Y-m-d').' 23:59:59')]];
+        // $ma['status'] = 0;
+        // $ma['user_id'] = $user_id;
+        // $r = $tradingM->where($ma)->find();
+        // if($r) return $this->failJSON(lang('TRANSFER_TODAY'));
         $number = $this->_post('number');
         if($number<=0) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER'));
         $price = $this->_post('price');
         $code = $this->_post('code');
+
         $verifyM = new \addons\member\model\VericodeModel();
         $_verify = $verifyM->VerifyCode($code, $user['phone'],6);
         if(empty($_verify)) return $this->failJSON(lang('TRANSFER_VERIGYCODE_WRONG'));
+
         if($price>$top)  return $this->failJSON(lang('TRANSFER_PLUS_TODAY'));
         if($price<$low)  return $this->failJSON(lang('TRANSFER_LESS_TODAY'));
         $amount = bcmul($number, $price,4);
         if($amount<=0) return $this->failJSON(lang('TRANSFER_RIGHT_AMOUNT'));
+        $less_total = $sysM->getValByName('less_total');
+        if($number>$less_total) return $this->failJSON(lang('TRANSFER_LESS_TOTAL'));
         $payM = new \addons\member\model\PayConfig();
         $paylist = $payM->getUserPay($user_id);
         if(!$paylist)  return $this->failJSON(lang('TRANSFER_NOT_SET_PAY'));
         $fee_num = bcmul(($number/7*3),1,2);
         $total = $number+$fee_num;
-        $balanceM = new \addons\member\model\Balance();
-        $coin_id = 2;//CBC
-        $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
-        if($number>$userAmount['amount']) return $this->failJSON(lang('TRANSFER_CBC_LESS').$number);
-        try{
-            $balanceM->startTrans();
-            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$number);
-            if(!$userAmount){
-                $balanceM->rollback();
-                return $this->failJSON(lang('TRANSFER_CBC2_LESS'));
-            }
-
-            $type = 6;
-            $change_type = 0; //减少
-            $remark = '用户挂卖，减少可用';
-            $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($user_id, $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
-            if(!$r_id){
-                $balanceM->rollback();
-                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
-            }
-
-            $coin_id = 1;//CBC总额
-            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
-            if(!$userAmount){
-                $balanceM->rollback();
-                return $this->failJSON(lang('TRANSFER_CBC1_LESS'));
-            }
-            $type = 6;
-            $change_type = 0; //减少
-            $remark = '用户挂卖，减少总额';
-            $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
-            if(!$r_id){
-                $balanceM->rollback();
-                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
-            }
-
-            $coin_id = 3;//CBC
-            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total,1);
-            if(!$userAmount){
-                $balanceM->rollback();
-                return $this->failJSON(lang('TRANSFER_CBC3_ADD'));
-            }
-            $type = 6;
-            $change_type = 1; //增加
-            $remark = '用户挂卖，增加锁仓';
-            $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
-            if(!$r_id){
-                $balanceM->rollback();
-                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
-            }
-
-            $data = [
-                'user_id' =>$user_id,
-                'order_id'=>$this->createOrderNumber(),
-                'to_user_id'=>0,
-                'type'=>0,
-                'number'=>$number,
-                'price'=>$price,
-                'amount'=>$amount,
-                'fee_num'=>$fee_num,
-                'status'=>0,
-                'update_time'=>NOW_DATETIME,
-                'create_at'=>date('Y-m-d H:i:s')
-            ];
-            $res = $tradingM->add($data);
-            if($res){
-                $balanceM->commit();
-                return $this->successJSON(lang('TRANSFER_SELL_SUC'));
-            }else{
-                $balanceM->rollback();
-                return $this->failJSON(lang('TRANSFER_SELL_FAIL'));
-            }
-        }catch(\Exception $e){
-            return $this->successJSON($e->getMessage());
+        $TransferM = new \addons\member\model\Transfer();
+        $info = $TransferM->findData($user_id);
+        if(!$info) return $this->failJSON(lang('TRANSFER_NOT_BUY'));
+        if($info['power']!=1){
+            if($number>$info['quota']) return $this->failJSON(lang('TRANSFER_NOT_QUOTA'));
         }
-            
+
+        $balanceM = new \addons\member\model\Balance();
+        $sell_mode = $this->_post('sell_mode')?1:0;
+        if($sell_mode==0){
+            $coin_id = 2;//CBC
+            $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
+            if($number>$userAmount['amount']) return $this->failJSON(lang('TRANSFER_CBC_LESS').$number);
+            try{
+                $balanceM->startTrans();
+                $userAmount = $balanceM->updateBalance($user_id,$coin_id,$number);
+                if(!$userAmount){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_CBC2_LESS'));
+                }
+
+                $type = 6;
+                $change_type = 0; //减少
+                $remark = '用户挂卖，减少可用';
+                $recordM = new \addons\member\model\TradingRecord();
+                $r_id = $recordM->addRecord($user_id, $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+                if(!$r_id){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                }
+
+                $coin_id = 1;//CBC总额
+                $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
+                if(!$userAmount){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_CBC1_LESS'));
+                }
+                $type = 6;
+                $change_type = 0; //减少
+                $remark = '用户挂卖，减少总额';
+                $recordM = new \addons\member\model\TradingRecord();
+                $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+                if(!$r_id){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                }
+
+                $coin_id = 3;//CBC
+                $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total,1);
+                if(!$userAmount){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_CBC3_ADD'));
+                }
+                $type = 6;
+                $change_type = 1; //增加
+                $remark = '用户挂卖，增加锁仓';
+                $recordM = new \addons\member\model\TradingRecord();
+                $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+                if(!$r_id){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                }
+                $less_total = $less_total-$number;
+                $res = $sysM->setValByName('less_total',$less_total);
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_TOTAL_FAIL'));
+                }
+
+                $res = $TransferM->updateQuota($user_id,$number);
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_QUOTA_FAIL'));
+                }
+                $data = [
+                    'user_id' =>$user_id,
+                    'order_id'=>$this->createOrderNumber(),
+                    'to_user_id'=>0,
+                    'type'=>0,
+                    'number'=>$number,
+                    'price'=>$price,
+                    'amount'=>$amount,
+                    'fee_num'=>$fee_num,
+                    'trans_mode'=>0,
+                    'status'=>0,
+                    'update_time'=>NOW_DATETIME,
+                    'create_at'=>date('Y-m-d H:i:s')
+                ];
+                $res = $tradingM->add($data);
+
+                if($res){
+                    $balanceM->commit();
+                    return $this->successJSON(lang('TRANSFER_SELL_SUC'));
+                }else{
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_SELL_FAIL'));
+                }
+            }catch(\Exception $e){
+                return $this->successJSON($e->getMessage());
+            }
+        }else{
+            $coin_id = 4;//激活码
+            $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
+            if($number>$userAmount['amount']) return $this->failJSON(lang('TRANSFER_CODE_LESS').$number);
+            try{
+                $balanceM->startTrans();
+                $userAmount = $balanceM->updateBalance($user_id,$coin_id,$number);
+                if(!$userAmount){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_CBC4_LESS'));
+                }
+
+                $type = 6;
+                $change_type = 0; //减少
+                $remark = '用户挂卖，减少激活码';
+                $recordM = new \addons\member\model\TradingRecord();
+                $r_id = $recordM->addRecord($user_id, $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+                if(!$r_id){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                }
+
+                $less_total = $less_total-$number;
+                $res = $sysM->setValByName('less_total',$less_total);
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_TOTAL_FAIL'));
+                }
+                $res = $TransferM->updateQuota($user_id,$number);
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_QUOTA_FAIL'));
+                }
+                $data = [
+                    'user_id' =>$user_id,
+                    'order_id'=>$this->createOrderNumber(),
+                    'to_user_id'=>0,
+                    'type'=>0,
+                    'trans_mode'=>1,
+                    'number'=>$number,
+                    'price'=>$price,
+                    'amount'=>$amount,
+                    'fee_num'=>$fee_num,
+                    'status'=>0,
+                    'update_time'=>NOW_DATETIME,
+                    'create_at'=>date('Y-m-d H:i:s')
+                ];
+                $res = $tradingM->add($data);
+                if($res){
+                    $balanceM->commit();
+                    return $this->successJSON(lang('TRANSFER_SELL_SUC'));
+                }else{
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_SELL_FAIL'));
+                }
+            }catch(\Exception $e){
+                return $this->failJSON($e->getMessage());
+            }
+        }
     }
 
     /**
@@ -236,7 +321,7 @@ class Transfer extends ApiBase
             if(!$res) return $this->failJSON(lang('TRANSFER_SAVE_FAIL'));
             return $this->successJSON(lang('TRANSFER_SAVE_SUC'));
         }catch(\Exception $e){
-            return $this->successJSON($e->getMessage());
+            return $this->failJSON($e->getMessage());
         }  
     }
 
@@ -261,68 +346,124 @@ class Transfer extends ApiBase
         if($trading['type']!=2) return $this->failJSON(lang('TRANSFER_WRONG_STATUS'));
         $sysM = new \web\common\model\sys\SysParameterModel();
         $rate = $sysM->getValByName('is_buy_tax')?$sysM->getValByName('buy_tax'):0;
+        $balanceM = new \addons\member\model\Balance();
+        $balanceM->startTrans();
         $number = bcmul(($trading['number'] + $trading['number']*$rate/100), 1,2);
-        try{
-            $balanceM = new \addons\member\model\Balance();
-            $balanceM->startTrans();
-            $trading['type'] = 3;
-            $trading['update_time'] = NOW_DATETIME;
-            $res = $tradingM->save($trading);
-            if(!$res){
-                $balanceM->rollback();
-                return $this->failJSON(lang('TRANSFER_SAVE_FAIL'));
-            }
-            $coin_id = 4;//CBC余额
-            $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$number,1);
-            if(!$userAmount){
-                $balanceM->rollback();
-                return $this->failJSON(lang('TRANSFER_CBC3_ADD'));
-            }
+        if($trading['trans_mode']==1){
+            try{
+                $trading['type'] = 3;
+                $trading['update_time'] = NOW_DATETIME;
+                $res = $tradingM->save($trading);
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_SAVE_FAIL'));
+                }
+                $coin_id = 4;//CBC余额
+                $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$number,1);
+                if(!$userAmount){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_CBC3_ADD'));
+                }
 
-            $type = 7;
-            $change_type = 1; //增加
-            $remark = '确认收款-用户增加激活码';
-            $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($trading['to_user_id'], $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
-            if(!$r_id){
-                $balanceM->rollback();
-                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
-            }
+                $type = 7;
+                $change_type = 1; //增加
+                $remark = '确认收款-用户增加激活码';
+                $recordM = new \addons\member\model\TradingRecord();
+                $r_id = $recordM->addRecord($trading['to_user_id'], $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
+                if(!$r_id){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                }
 
-            //删除锁仓金额
-            $coin_id = 3;//CBC
-            $amount = bcmul(($trading['fee_num']+$trading['number']), 1,2);
-            $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
-            if($amount>$userAmount['amount']){
-                $amount = $userAmount['amount'];
+            }catch(\Exception $e){
+                return $this->failJSON($e->getMessage());
             }
+        }else{
+            try{
+                $trading['type'] = 3;
+                $trading['update_time'] = NOW_DATETIME;
+                $res = $tradingM->save($trading);
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_SAVE_FAIL'));
+                }
+                $coin_id = 4;//CBC余额
+                $userAmount = $balanceM->updateBalance($trading['to_user_id'],$coin_id,$number,1);
+                if(!$userAmount){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_CBC3_ADD'));
+                }
 
-            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount);
-            if(!$userAmount){
-                $balanceM->rollback();
-                return $this->failJSON(lang('TRANSFER_CBC3_LESS'));
+                $type = 7;
+                $change_type = 1; //增加
+                $remark = '确认收款-用户增加激活码';
+                $recordM = new \addons\member\model\TradingRecord();
+                $r_id = $recordM->addRecord($trading['to_user_id'], $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
+                if(!$r_id){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                }
+
+                //删除锁仓金额
+                $coin_id = 3;//CBC
+                $amount = bcmul(($trading['fee_num']+$trading['number']), 1,2);
+                $userAmount = $balanceM->getBalanceByType($user_id,$coin_id);
+                if($amount>$userAmount['amount']){
+                    $amount = $userAmount['amount'];
+                }
+
+                $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount);
+                if(!$userAmount){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_CBC3_LESS'));
+                }
+                $type = 7;
+                $change_type = 0; //减少
+                $remark = '确认收款-用户减少CBC锁仓';
+                $recordM = new \addons\member\model\TradingRecord();
+                $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, $user_id,$remark);
+                if(!$r_id){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                }
+                $AwardService = new \web\api\service\AwardService();
+                $res = $AwardService->tradingReward($trading['fee_num'],$trading['user_id']);
+                //计算奖金
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_REWARD_FAIL'));
+                }
+            }catch(\Exception $e){
+                return $this->failJSON($e->getMessage());
             }
-            $type = 7;
-            $change_type = 0; //减少
-            $remark = '确认收款-用户减少CBC锁仓';
-            $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, $user_id,$remark);
-            if(!$r_id){
-                $balanceM->rollback();
-                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
-            }
-            $AwardService = new \web\api\service\AwardService();
-            $res = $AwardService->tradingReward($trading['fee_num'],$trading['user_id']);
-            //计算奖金
-            if(!$res){
-                $balanceM->rollback();
-                return $this->failJSON(lang('TRANSFER_REWARD_FAIL'));
-            }
-            $balanceM->commit();
-            return $this->successJSON(lang('TRANSFER_CONFIRM_SUC'));
-        }catch(\Exception $e){
-            return $this->successJSON($e->getMessage());
         }
+        $TransferM = new \addons\member\model\Transfer();
+        $info = $TransferM->findData($trading['to_user_id']);
+        if($info){
+            $info['today_quota'] = $info['today_quota']+$trading['number']*2;
+            $info['today_at'] = NOW_DATETIME;
+            $res = $TransferM->save($info);
+            if(!$res){
+                $balanceM->rollback();
+                return $this->failJSON(lang('TRANSFER_QUOTA_UPDATE_FAIL'));
+            }
+        }else{
+            $arr = [
+                'user_id'       => $trading['to_user_id'],
+                'today_quota'   => $trading['number']*2,
+                'today_at'      => NOW_DATETIME,
+                'power'         => 0,
+                'create_at'     => NOW_DATETIME,
+            ];
+            $res = $TransferM->add($arr);
+            if(!$res){
+                $balanceM->rollback();
+                return $this->failJSON(lang('TRANSFER_QUOTA_UPDATE_FAIL'));
+            }
+        }
+        $balanceM->commit();
+        return $this->successJSON(lang('TRANSFER_CONFIRM_SUC'));
+    
     }
 
     /**
@@ -549,73 +690,125 @@ class Transfer extends ApiBase
         $trading = $tradingM->findTrad($trad_id);
         if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
         if($user_id==$trading['user_id']&&0==$trading['type']&&0==$trading['status']){
-            try{
-                $balanceM = new \addons\member\model\Balance();
-                $balanceM->startTrans();
-                $coin_id = 2;
-                $amount = $trading['number'];
-                $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
-                if(!$userAmount){
-                    $balanceM->rollback();
-                    return $this->failJSON(lang('TRANSFER_CBC2_ADD'));
-                }
+            if($trading['trans_mode']){
+                try{
+                    $balanceM = new \addons\member\model\Balance();
+                    $balanceM->startTrans();
+                    $coin_id = 4;
+                    $amount = $trading['number'];
+                    $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
+                    if(!$userAmount){
+                        $balanceM->rollback();
+                        return $this->failJSON(lang('TRANSFER_CBC2_ADD'));
+                    }
 
-                $type = 8;
-                $change_type = 1; //增加
-                $remark = '用户取消订单，增加可用';
-                $recordM = new \addons\member\model\TradingRecord();
-                $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
-                if(!$r_id){
-                    $balanceM->rollback();
-                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
-                }
+                    $type = 8;
+                    $change_type = 1; //增加
+                    $remark = '用户取消订单，增加激活码';
+                    $recordM = new \addons\member\model\TradingRecord();
+                    $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+                    if(!$r_id){
+                        $balanceM->rollback();
+                        return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                    }
+                    $TransferM = new \addons\member\model\Transfer();
+                    $res = $TransferM->updateQuota($user_id,$amount,1);
+                    if(!$res){
+                        $balanceM->rollback();
+                        $this->failJSON(lang('TRANSFER_QUOTA_FAIL'));
+                    }
 
-                $coin_id = 1;//CBC
-                $total = bcmul(($trading['number']+$trading['fee_num']), 1,2);
-                $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total,1);
-                if(!$userAmount){
-                    $balanceM->rollback();
-                    return $this->failJSON(lang('TRANSFER_CBC1_ADD'));
+                    $trading['status'] = 1;
+                    $trading['update_time'] = NOW_DATETIME;
+                    $res = $tradingM->save($trading);
+                    if($res){
+                        $balanceM->commit();
+                        $this->successJSON(lang('TRANSFER_CANCLE_SUC'));
+                    }else{
+                        $balanceM->rollback();
+                        $this->failJSON(lang('TRANSFER_CANCLE_FAIL'));
+                    } 
+                }catch(\Exception $e){
+                    $this->failJSON($e->getMessage());
                 }
-                $type = 8;
-                $change_type = 1; //减少
-                $remark = '用户取消订单，增加总额';
-                $recordM = new \addons\member\model\TradingRecord();
-                $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
-                if(!$r_id){
-                    $balanceM->rollback();
-                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
-                }
+            }else{
+                try{
+                    $balanceM = new \addons\member\model\Balance();
+                    $balanceM->startTrans();
+                    $coin_id = 2;
+                    $amount = $trading['number'];
+                    $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
+                    if(!$userAmount){
+                        $balanceM->rollback();
+                        return $this->failJSON(lang('TRANSFER_CBC2_ADD'));
+                    }
 
-                $coin_id = 3;//CBC
-                $total = bcmul(($trading['number']+$trading['fee_num']), 1,2);
-                $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
-                if(!$userAmount){
-                    $balanceM->rollback();
-                    return $this->failJSON(lang('TRANSFER_CBC3_LESS'));
+                    $type = 8;
+                    $change_type = 1; //增加
+                    $remark = '用户取消订单，增加可用';
+                    $recordM = new \addons\member\model\TradingRecord();
+                    $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+                    if(!$r_id){
+                        $balanceM->rollback();
+                        return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                    }
+
+                    $coin_id = 1;//CBC
+                    $total = bcmul(($trading['number']+$trading['fee_num']), 1,2);
+                    $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total,1);
+                    if(!$userAmount){
+                        $balanceM->rollback();
+                        return $this->failJSON(lang('TRANSFER_CBC1_ADD'));
+                    }
+                    $type = 8;
+                    $change_type = 1; //减少
+                    $remark = '用户取消订单，增加总额';
+                    $recordM = new \addons\member\model\TradingRecord();
+                    $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+                    if(!$r_id){
+                        $balanceM->rollback();
+                        return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                    }
+
+                    $coin_id = 3;//CBC
+                    $total = bcmul(($trading['number']+$trading['fee_num']), 1,2);
+                    $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
+                    if(!$userAmount){
+                        $balanceM->rollback();
+                        return $this->failJSON(lang('TRANSFER_CBC3_LESS'));
+                    }
+                    $type = 8;
+                    $change_type = 0; //减少
+                    $remark = '用户取消订单，减少锁仓';
+                    $recordM = new \addons\member\model\TradingRecord();
+                    $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+                    if(!$r_id){
+                        $balanceM->rollback();
+                        return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                    }
+
+                    $TransferM = new \addons\member\model\Transfer();
+                    $res = $TransferM->updateQuota($user_id,$amount,1);
+                    if(!$res){
+                        $balanceM->rollback();
+                        $this->failJSON(lang('TRANSFER_QUOTA_FAIL'));
+                    }
+
+                    $trading['status'] = 1;
+                    $trading['update_time'] = NOW_DATETIME;
+                    $res = $tradingM->save($trading);
+                    if($res){
+                        $balanceM->commit();
+                        $this->successJSON(lang('TRANSFER_CANCLE_SUC'));
+                    }else{
+                        $balanceM->rollback();
+                        $this->failJSON(lang('TRANSFER_CANCLE_FAIL'));
+                    } 
+                }catch(\Exception $e){
+                    $this->failJSON($e->getMessage());
                 }
-                $type = 8;
-                $change_type = 0; //减少
-                $remark = '用户取消订单，减少锁仓';
-                $recordM = new \addons\member\model\TradingRecord();
-                $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
-                if(!$r_id){
-                    $balanceM->rollback();
-                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
-                }
-                $trading['status'] = 1;
-                $trading['update_time'] = NOW_DATETIME;
-                $res = $tradingM->save($trading);
-                if($res){
-                    $balanceM->commit();
-                    $this->successJSON(lang('TRANSFER_CANCLE_SUC'));
-                }else{
-                    $balanceM->rollback();
-                    $this->failJSON(lang('TRANSFER_CANCLE_FAIL'));
-                } 
-            }catch(\Exception $e){
-                $this->failJSON($e->getMessage());
             }
+                
         }else{
             // if(!($user_id==$trading['user_id']||$user_id==$trading['to_user_id'])) return $this->failJSON(lang('TRANSFER_NOT_YOUR'));
             // if($trading['type']==3||$trading['type']==2) return $this->failJSON(lang('TRANSFER_WRONG_STATUS'));

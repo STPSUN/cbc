@@ -38,6 +38,9 @@
                 <th data-options="field:'lock_cbc',width:200, align:'center'">锁仓</th>
                 <th data-options="field:'code_cbc',width:200, align:'center'">激活码</th>
                 <th data-options="field:'release_cbc',width:200, align:'center'">节点日释放</th>
+                <th data-options="field:'quota',width:200, align:'center'">可用额度</th>
+                <th data-options="field:'today_quota',width:200, align:'center'">今日额度</th>
+                <th data-options="field:'power',width:200, align:'center', formatter:formatPower">挂卖权限</th>
                 <th data-options="field:'register_time',width:150, align:'center'">注册时间</th>
                 <th data-options="field:'_oper',width:420,halign:'center',formatter: formatOper">操作</th>
             </tr>
@@ -52,6 +55,11 @@
         var html = '<span class="grid-operation">';
         html += '<button type="button" onclick="add_coin_stock(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>拨币</button>';
         html += '<button type="button" onclick="edit(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>修改</button>';
+        if(row['power']){
+            html += '<button type="button" onclick="power(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>取消权限</button>';
+        }else{
+            html += '<button type="button" onclick="power(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>增加权限</button>';
+        }
         if(row['is_auth']==2)
         html += '<button type="button" onclick="auth(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>认证</button>';
             // html += '<button type="button" onclick="del(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon wb-close"></i>删除</button>';
@@ -59,6 +67,15 @@
         return html;
     }
     
+    
+    function formatPower(value,row,index){
+        if(value){
+            text = '<span style="color:green">有权限</span>';
+        }else{
+            text = '<span  style="color:red">无权限</span>';
+        }
+        return text;
+    }
     function formatImg(value,row,index){
         if(!value){
             text = '';
@@ -227,6 +244,18 @@
         }, ['确定','取消']);
     }
     
+    function power(id) {
+        confirm("确认要修改此会员吗？", function () {
+            var url = getURL('power');
+            $.getJSON(url, {id: id}, function (json) {
+                if (json.success)
+                    reload();
+                else
+                    alert(json.message);
+            });
+        });
+    }
+
     function del(id) {
         confirm("删除后会员数据无法找回。确认要删除此会员吗？", function () {
             var url = getURL('del');
