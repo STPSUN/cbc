@@ -30,13 +30,13 @@ class Test extends ApiBase
     public function release()
     {
         $incomeM = new MemberNodeIncome();
-        $is_release = $incomeM->whereTime('create_time','today')->find();
-        if(!empty($is_release))
-            return;
+//        $is_release = $incomeM->whereTime('create_time','today')->find();
+//        if(!empty($is_release))
+//            return;
 
         $nodeS = new NodeService();
         $nodeS->nodeRelease();
-        $nodeS->updateBalanceReleaseNum();
+//        $nodeS->updateBalanceReleaseNum();
     }
 
     public function level()
