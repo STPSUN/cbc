@@ -19,12 +19,8 @@ define('ADDONS_PATH', __DIR__ . '/../addons/');
 define('UPLOADFOLDER', './uploads/');
 $url = $_SERVER['SERVER_NAME'];
 switch ($url){
-    case "test1.ifc003.com" :
-//    case "cbc.com" :
+    case "www.excbc.io" :
         define('BIND_MODULE','api');
-        break;
-    case "www.wnct.io" :
-        define('BIND_MODULE','index');
         break;
 }
 
