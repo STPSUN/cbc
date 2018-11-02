@@ -139,7 +139,7 @@ class Trading extends \web\user\controller\AddonUserBase {
                     return $this->failData('增加记录失败');
                 }
                 $TransferM = new \addons\member\model\Transfer();
-                $res = $TransferM->updateQuota($user_id,$amount,1);
+                $res = $TransferM->updateQuota($user_id,$info['number'],1);
                 if(!$res){
                     $balanceM->rollback();
                     $this->failJSON('增加用户挂卖额度失败');
@@ -175,9 +175,10 @@ class Trading extends \web\user\controller\AddonUserBase {
         $id = $this->_get('id');
         $r = new \addons\member\model\Trading();
         $trading = $r->findTrad($id);
+        if(!$trading) return $this->failData('错误的订单');
+        $balanceM = new \addons\member\model\Balance();
+        $balanceM->startTrans();
         if($trading['type']==2){
-            $balanceM = new \addons\member\model\Balance();
-            $balanceM->startTrans();
             if($trading['trans_mode']){
                 $user_id = $trading['user_id'];
                 $trading['type'] = 3;
@@ -202,13 +203,8 @@ class Trading extends \web\user\controller\AddonUserBase {
                     $balanceM->rollback();
                     return $this->failData('增加记录失败');
                 }
-
-
-                $balanceM->commit();
-                return $this->successData('确认收款成功');
             }else{
                 $user_id = $trading['user_id'];
-                
                 $trading['type'] = 3;
                 $trading['update_time'] = NOW_DATETIME;
                 $res = $r->save($trading);
@@ -260,9 +256,7 @@ class Trading extends \web\user\controller\AddonUserBase {
                     $balanceM->rollback();
                     return $this->failJSON('奖金发放失败');
                 }
-                
             }
-
             $TransferM = new \addons\member\model\Transfer();
             $info = $TransferM->findData($trading['to_user_id']);
             if($info){
@@ -289,7 +283,6 @@ class Trading extends \web\user\controller\AddonUserBase {
                     return $this->failJSON(lang('TRANSFER_QUOTA_UPDATE_FAIL'));
                 }
             }
-
             $balanceM->commit();
             return $this->successData('确认收款成功');
         }else{
