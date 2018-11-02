@@ -24,12 +24,189 @@ class NodeService extends \web\common\controller\Service
      */
     public function nodeRelease()
     {
-        $nodes = $this->getNodeUsers();
+        set_time_limit(0);
+        //CBC总额节点释放数据
+        $total = $this->getNodeUsers(1);
+        //可用节点释放数据
+        $use = $this->getNodeUsers(2);
+        //激活码节点释放数据
+        $super_node = $this->getNodeUsers(4,8);
+
+        //插入CBC总额流水记录
+        $this->insertRecord($total,1);
+        //插入可用流水记录
+        $this->insertRecord($use,2);
+        //更新总额余额
+        $this->updateTotalBalance($total);
+        //更新可用余额
+        $this->updateUseBalance($use);
+
+        //插入激活码流水记录
+        $this->insertSuperNodeRecord($super_node);
+        //更新激活码余额
+        $this->updateKeyBalance($super_node);
+    }
+
+    /**
+     * 超级节点释放，插入流水记录
+     */
+    private function insertSuperNodeRecord($nodes)
+    {
+        $recordM = new TradingRecord();
+        $total_record_sql = '';
+        $toal_record_value = "";
 
         foreach ($nodes as $v)
         {
-            $this->release($v);
+            $amount = bcmul($v['release_num'],0.7,2);
+            $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . 4 . ',' . 13 . ',' . 1 . ',' . $amount . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
         }
+
+        $toal_record_value = rtrim($toal_record_value,';');
+        $toal_record_value = explode(';',$toal_record_value);
+        foreach ($toal_record_value as $v)
+        {
+            $total_record_sql .= '(' .$v . ')' . ',';
+        }
+        $total_record_sql = rtrim($total_record_sql,',');
+        $sql = "insert into tp_trading_record (user_id,to_user_id,asset_type,type,change_type,amount,remark,update_time) values" . $total_record_sql;
+
+        $recordM->execute($sql);
+    }
+
+    //CBC总额插入流水记录
+    private function insertRecord($nodes,$asset_type)
+    {
+        $recordM = new TradingRecord();
+        $incomeM = new MemberNodeIncome();
+        $total_record_sql = '';
+        $toal_record_value = "";
+
+        $income_sql = '';
+        $income_value = '';
+        if($asset_type == 1)
+        {
+            foreach ($nodes as $v)
+            {
+                $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . $asset_type . ',' . 13 . ',' . 1 . ',' . $v['release_num'] . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
+
+                $income_value .= $v['member_node_id'] . ',' . $v['release_num'] . ',' . $v['type'] . ',' . $v['user_id'] . ',' . "'" . NOW_DATETIME . "'" . ';';
+            }
+        }else
+        {
+            foreach ($nodes as $v)
+            {
+                $amount = bcmul($v['release_num'],0.7,2);
+                $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . $asset_type . ',' . 13 . ',' . 1 . ',' . $amount . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
+
+                $income_value .= $v['member_node_id'] . ',' . $v['release_num'] . ',' . $v['type'] . ',' . $v['user_id'] . ',' . "'" . NOW_DATETIME . "'" . ';';
+            }
+        }
+
+        $toal_record_value = rtrim($toal_record_value,';');
+        $toal_record_value = explode(';',$toal_record_value);
+
+//        print_r($income_value);exit();
+        $income_value = rtrim($income_value, ';');
+        $income_value = explode(';',$income_value);
+
+        foreach ($toal_record_value as $v)
+        {
+            $total_record_sql .= '(' .$v . ')' . ',';
+        }
+
+        foreach ($income_value as $v)
+        {
+            $income_sql .= '(' .$v . ')' . ',';
+        }
+
+        $total_record_sql = rtrim($total_record_sql,',');
+        $income_sql = rtrim($income_sql,',');
+
+        $record_sql = "insert into tp_trading_record (user_id,to_user_id,asset_type,type,change_type,amount,remark,update_time) values" . $total_record_sql;
+        $income_sql = "insert into tp_member_node_income (member_node_id,amount,type,user_id,create_time) values" . $income_sql;
+
+        $recordM->execute($record_sql);
+        $incomeM->execute($income_sql);
+    }
+
+    /**
+     * 更新CBC总额
+     */
+    private function updateTotalBalance($nodes)
+    {
+        $balance_ids = '';
+        $amount_sql = '';
+        $before_amount_sql = '';
+
+        foreach ($nodes as $v)
+        {
+            $balance_ids .= $v['balance_id'] . ',';
+            $amount = $v['release_num'] + $v['amount'];
+            $amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $amount;
+            $before_amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $v['amount'];
+        }
+
+        $balance_ids = rtrim($balance_ids,',');
+        $sql = 'update tp_member_balance set amount = CASE id ' . $amount_sql . ' end where id in(' . $balance_ids . ')';
+
+        $balanceM = new Balance();
+        $balanceM->execute($sql);
+    }
+
+    /**
+     * 更新激活码
+     */
+    private function updateKeyBalance($nodes)
+    {
+        $awardS = new AwardService();
+
+        $balance_ids = '';
+        $amount_sql = '';
+        $before_amount_sql = '';
+
+        foreach ($nodes as $v)
+        {
+            $balance_ids .= $v['balance_id'] . ',';
+            $release_num = bcmul($v['release_num'],0.7,2);
+            $amount = $release_num + $v['amount'];
+            $amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $amount;
+            $before_amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $v['amount'];
+
+//            $trading_amount = bcmul($v['release_num'],0.3,2);
+//            $awardS->tradingReward($trading_amount,$v['user_id']);
+        }
+
+        $balance_ids = rtrim($balance_ids,',');
+        $sql = 'update tp_member_balance set amount = CASE id ' . $amount_sql . ' end where id in(' . $balance_ids . ')';
+
+        $balanceM = new Balance();
+        $balanceM->execute($sql);
+    }
+
+    /**
+     * 更新可用余额
+     */
+    private function updateUseBalance($nodes)
+    {
+        $balance_ids = '';
+        $amount_sql = '';
+        $before_amount_sql = '';
+
+        foreach ($nodes as $v)
+        {
+            $balance_ids .= $v['balance_id'] . ',';
+            $release_num = bcmul($v['release_num'],0.7,2);
+            $amount = $release_num + $v['amount'];
+            $amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $amount;
+            $before_amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $v['amount'];
+        }
+
+        $balance_ids = rtrim($balance_ids,',');
+        $sql = 'update tp_member_balance set amount = CASE id ' . $amount_sql . ' end where id in(' . $balance_ids . ')';
+
+        $balanceM = new Balance();
+        $balanceM->execute($sql);
     }
 
     /**
@@ -110,11 +287,23 @@ class NodeService extends \web\common\controller\Service
     /**
      * 获取可释放节点的用户
      */
-    private function getNodeUsers()
+    private function getNodeUsers($type=null,$node_type=null)
     {
         $memberNodeM = new MemberNode();
-        $map['pass_time'] = array('>=',time());
-        $nodes = $memberNodeM->field('id,node_id,release_num,type,user_id')->where($map)->select();
+        $map['n.pass_time'] = array('>=',time());
+        if($type)
+            $map['b.type'] = $type;
+        if($node_type)
+            $map['n.type'] = 8;
+        else
+            $map['n.type'] = array('<>',8);
+
+//        $nodes = $memberNodeM->field('id,node_id,release_num,type,user_id')->where($map)->select();
+        $nodes = $memberNodeM->alias('n')
+                    ->field('n.release_num,n.user_id,b.id balance_id,b.amount,n.id member_node_id,n.type')
+                    ->join('member_balance b','b.user_id = n.user_id','left')
+                    ->where($map)
+                    ->select();
 
         return $nodes;
     }
