@@ -36,6 +36,36 @@ class Crontab extends \web\common\controller\Controller {
     }
     
     /**
+     * 定时恢复挂卖金额
+     * 恢复每日总量
+     * 更新用户额度
+     */
+    public function auto_quota(){
+        $TransferM = new \addons\member\model\Transfer();
+        $sysM = new \web\common\model\sys\SysParameterModel();
+        $total = $sysM->getValByName('total_transaction');
+        $res =  $sysM->setValByName('less_total',$total);
+        $page = 0;
+        $list = $TransferM->limit($page,5000)->select();
+        while ($list) {
+            $time = date('Y-m-d H:i:s');
+            $page++;
+            foreach ($list as $k => $v) {
+                if($v['today_quota']!=0){
+                    $list[$k]['quota'] = $v['today_quota']+$v['quota'];
+                    $list[$k]['today_quota'] = 0;
+                    $list[$k]['today_at'] = $time;
+                    $list[$k]['quota_at'] = $time;
+                    $list[$k]['update_at'] = $time;
+                }
+            }
+            $TransferM->saveAll($list);
+            $list = $TransferM->limit($page*5000,5000)->select();
+        }
+        echo 'success';
+    }
+
+    /**
      * 定时释放理财奖金
      */
     public function auto_receive(){
@@ -64,7 +94,6 @@ class Crontab extends \web\common\controller\Controller {
                 return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
             }
 
-            
             $data = [
                     'status'        =>1,
                     'update_at'     =>date('Y-m-d H:i:s'),
