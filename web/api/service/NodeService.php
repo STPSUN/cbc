@@ -147,7 +147,11 @@ class NodeService extends \web\common\controller\Service
         $income_sql = "insert into tp_member_node_income (member_node_id,amount,type,user_id,create_time) values" . $income_sql;
 
         $recordM->execute($record_sql);
-        $incomeM->execute($income_sql);
+
+        if($asset_type == 1)
+        {
+            $incomeM->execute($income_sql);
+        }
     }
 
     /**

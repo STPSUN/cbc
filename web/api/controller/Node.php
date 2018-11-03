@@ -232,7 +232,7 @@ class Node extends ApiBase
             return $this->failJSON($validate->getError());
 
         $incomeM = new MemberNodeIncome();
-        $filter = "user_id = " . $this->user_id . " and type = " . $param['node_id'];
+        $filter = "user_id = '" . $this->user_id . "' and type = " . $param['node_id'];
         $fields = "id,create_time,amount,type";
         $data = $incomeM->getDataList2($conf['page'],$conf['list_rows'],$filter,$fields,'create_time desc');
 
