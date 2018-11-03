@@ -18,7 +18,6 @@ if(PHP_SAPI == 'cli'){
     }elseif($type==2){
 		define('BIND_MODULE','api/Crontab/nodeRelease');
     }elseif($type==3){
-    echo $type;exit();
 		define('BIND_MODULE','api/Crontab/auto_quota');
     }
 }else{
