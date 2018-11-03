@@ -26,6 +26,8 @@ return array(
     'TRANSFER_PAYPWD_WRONG'=>'支付密码错误',
     'TRANSFER_NOT_AUTH'=>'没有实名认证无法挂卖',
     'TRANSFER_RIGHT_NUMBER'=>'请输入正确的挂卖数量',
+    'TRANSFER_RIGHT_NUMBER_50'=>'必须为50的整数倍',
+
     'TRANSFER_VERIGYCODE_WRONG'=>'验证码失效,请重新发送',
     'TRANSFER_PLUS_TODAY'=>'价格大于今日最高价',
     'TRANSFER_LESS_TODAY'=>'价格小于今日最低价',

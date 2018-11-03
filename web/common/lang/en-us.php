@@ -26,6 +26,7 @@ return array(
     'TRANSFER_PAYPWD_WRONG'=>'Payment password error',
     'TRANSFER_NOT_AUTH'=>'No real name authentication, no sale.',
     'TRANSFER_RIGHT_NUMBER'=>'Please input the correct number of sales.',
+    'TRANSFER_RIGHT_NUMBER_50'=>'It must be an integer multiple of 50.',
     'TRANSFER_VERIGYCODE_WRONG'=>'The verification code is invalid. Please resend it.',
     'TRANSFER_PLUS_TODAY'=>"Price is higher than today's highest price.",
     'TRANSFER_LESS_TODAY'=>"Price is less than today's lowest price.",
