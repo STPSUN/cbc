@@ -86,7 +86,7 @@ class Transfer extends ApiBase
         $code = $this->_post('code');
 
         $verifyM = new \addons\member\model\VericodeModel();
-        $_verify = $verifyM->VerifyCode($code, $user['phone'],6);
+        $_verify = $verifyM->VerifyCode($code, $user['region_code'].$user['phone'],6);
         if(empty($_verify)) return $this->failJSON(lang('TRANSFER_VERIGYCODE_WRONG'));
 
         if($price>$top)  return $this->failJSON(lang('TRANSFER_PLUS_TODAY'));

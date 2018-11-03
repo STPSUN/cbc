@@ -116,6 +116,7 @@ class User extends ApiBase
             $m->startTrans();
             try {
                 $verifyM = new \addons\member\model\VericodeModel();
+                $phone = $data['region_code'].$data['phone'];
                 $_verify = $verifyM->VerifyCode($data['verify_code'], $data['phone']);
                 if(empty($_verify))
                 {
