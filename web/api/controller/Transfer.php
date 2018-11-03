@@ -81,7 +81,7 @@ class Transfer extends ApiBase
         // $r = $tradingM->where($ma)->find();
         // if($r) return $this->failJSON(lang('TRANSFER_TODAY'));
         $number = $this->_post('number');
-        if($number<=0) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER'));
+        if($number<50) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER'));
         $price = $this->_post('price');
         $code = $this->_post('code');
 
