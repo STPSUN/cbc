@@ -199,7 +199,7 @@
         $.post("http://www.excbc.io/index.php/user/getVerifyCode",{phone:phone,region_code:region_code,type:"1"},function(ret){
           ret = JSON.parse(ret)
           if(ret.success){
-                 alert(ret.message);
+                alert('发送成功');
           }else{
                 alert(ret.message);
           }
@@ -228,10 +228,10 @@
         region_code :region_code,
         inviter_id : inviter_id
       }
-      $.post("http://www.excbc.io/index.php/user/register",postVal,function(ret){
+      $.post("http://www.excbc.io/index./user/register",postVal,function(ret){
         ret = JSON.parse(ret)
         if(ret.success){
-              alert(ret.message || "注册成功");
+              alert("注册成功");
               // location.href = 'app下载链接'
           }else{
               return alert(ret.message || "注册失败");
