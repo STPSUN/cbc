@@ -237,15 +237,15 @@ class User extends ApiBase
             switch ($v['type'])
             {
                 case 1:
-                    $balance['total_amount'] = $v['amount'];    break;
+                    $balance['total_amount'] = bcmul($v['amount'], 1,2);    break;
                 case 2:
-                    $balance['use_amount'] = $v['amount']; break;
+                    $balance['use_amount'] = bcmul($v['amount'], 1,2); break;
                 case 3:
-                    $balance['lock_amount'] = $v['amount'];    break;
+                    $balance['lock_amount'] = bcmul($v['amount'], 1,2);    break;
                 case 4:
-                    $balance['key_amount'] = $v['amount'];     break;
+                    $balance['key_amount'] = bcmul($v['amount'], 1,2);     break;
                 case 5:
-                    $balance['today_amount'] = $v['amount'];   break;
+                    $balance['today_amount'] = bcmul($v['amount'], 1,2);   break;
             }
         }
 
