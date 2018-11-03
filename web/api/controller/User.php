@@ -271,6 +271,9 @@ class User extends ApiBase
             $password = $this->_post('password');
             $password1 = $this->_post('password1');
             $phone  = $this->_post('phone');
+            $region_code = $this->_post('region_code');
+            $phone = $region_code.$phone;
+
             if($password != $password1){
                 return $this->failJSON(lang('USER_TWO_PASS'));
             }
@@ -278,7 +281,6 @@ class User extends ApiBase
             if (strlen($password) < 8) {
                 return $this->failJSON(lang('USER_PASSWORD_LESS'));
             }
-
             $verifyM = new \addons\member\model\VericodeModel();
             $_verify = $verifyM->VerifyCode($auth_code, $phone,2);
             if(empty($_verify))
@@ -304,6 +306,8 @@ class User extends ApiBase
             $password = $this->_post('pay_password');
             $password1 = $this->_post('pay_password1');
             $phone  = $this->_post('phone');
+            $region_code = $this->_post('region_code');
+            $phone = $region_code.$phone;
             if($password != $password1){
                 return $this->failJSON(lang('USER_TWO_PASS'));
             }

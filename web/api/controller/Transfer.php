@@ -630,6 +630,7 @@ class Transfer extends ApiBase
         $user = $userM->getDetail($uid);
         $list = $this->getUserPayList($uid);
         $trading['phone'] = $user['phone'];
+        $trading['real_name'] = $user['real_name'];
         $tmp = [];
         foreach ($list as $key => $value) {
             if($value['type']==1){
