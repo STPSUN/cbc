@@ -388,7 +388,7 @@ class MemberService extends \web\common\controller\Service
     public function getTreeId($id,$team=array())
     {
         $userM = new \addons\member\model\MemberAccountModel();
-        $users = $userM->where('pid',$id)->find();
+        $users = $userM->field('id,phone,real_name')->where('pid',$id)->find();
         if(!$users)
         {
             return $team;
