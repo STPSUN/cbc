@@ -182,11 +182,29 @@ class NodeService extends \web\common\controller\Service
         $amount_sql = '';
         $before_amount_sql = '';
 
-        foreach ($nodes as $v)
+
+        $result = [];
+        foreach ($nodes as $key => $value) {
+            $has = false;
+            foreach ($result as $k => $v) {
+                if($v['balance_id']==$value['balance_id']){
+                    $result[$k]['amount'] = $value['release_num'] + $value['amount'];
+                    $has = true;
+                    break;
+                }
+            }
+            if(!$has){
+                $tmp = $value;
+                $tmp['amount'] = $tmp['release_num'] + $tmp['amount'];
+                $result[] = $tmp;
+            }
+        }
+
+
+        foreach ($result as $v)
         {
             $balance_ids .= $v['balance_id'] . ',';
-            $amount = $v['release_num'] + $v['amount'];
-            $amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $amount;
+            $amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $v['amount'];
             $before_amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $v['amount'];
         }
 
