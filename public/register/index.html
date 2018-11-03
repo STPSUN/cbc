@@ -196,7 +196,7 @@
         if ( isWaiting ) return;
         isWaiting = true;
         remainTime(el);
-        $.post("http://test1.ifc003.com/user/getVerifyCode",{phone:phone,region_code:region_code,type:"1"},function(ret){
+        $.post("http://www.excbc.io/index.php/user/getVerifyCode",{phone:phone,region_code:region_code,type:"1"},function(ret){
           ret = JSON.parse(ret)
           if(ret.success){
                  alert(ret.message);
