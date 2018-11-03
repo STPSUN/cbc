@@ -2,6 +2,7 @@
 
 namespace addons\member\user\controller;
 
+use web\api\model\MemberNodeIncome;
 use web\api\service\NodeService;
 
 class Node extends \web\user\controller\AddonUserBase{
@@ -17,10 +18,14 @@ class Node extends \web\user\controller\AddonUserBase{
             $filter .= ' and phone like \'%' . $keyword . '%\'';
         }
         $m = new \web\api\model\MemberNode();
+        $incomeM = new MemberNodeIncome();
         $total = $m->getTotal($filter);
         $rows = $m->getList($this->getPageIndex(), $this->getPageSize(), $filter);
-        foreach ($rows as $key => $value) {
-            $rows[$key]['pass_time'] = date('Y-m-d H:i:s',$value['pass_time']);
+        foreach ($rows as &$value) {
+            $value['pass_time'] = date('Y-m-d H:i:s',$value['pass_time']);
+
+            $amount = $incomeM->where(['member_node_id' => $value['id']])->sum('amount');
+            $value['release_yet'] = empty($amount) ? 0 : $amount;
         }
         return $this->toDataGrid($total, $rows);
     }
