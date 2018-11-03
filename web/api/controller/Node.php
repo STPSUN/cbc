@@ -231,8 +231,9 @@ class Node extends ApiBase
         if(!$validate->check($param))
             return $this->failJSON($validate->getError());
 
+//        print_r($param['node_id']);exit();
         $incomeM = new MemberNodeIncome();
-        $filter = "user_id = '" . $this->user_id . "' and type = " . $param['node_id'];
+        $filter = "user_id = '" . $this->user_id . "' and member_node_id = " . $param['node_id'];
         $fields = "id,create_time,amount,type";
         $data = $incomeM->getDataList2($conf['page'],$conf['list_rows'],$filter,$fields,'create_time desc');
 
