@@ -10,6 +10,7 @@ namespace web\api\controller;
 
 
 use think\Db;
+use web\api\model\AwardIssue;
 use web\api\model\MemberNodeIncome;
 use web\api\service\AwardService;
 use web\api\service\MemberService;
@@ -101,6 +102,38 @@ class Test extends ApiBase
     {
         $time = date('Y-m-d H:i:s',1539569142);
         echo $time;
+    }
+
+    public function superAward()
+    {
+        set_time_limit(0);
+        $awardIssue = new AwardIssue();
+        $awardS = new AwardService();
+
+        $data = $awardIssue->where('status',1)->limit(1)->select();
+
+        $awardIssue->startTrans();
+        try
+        {
+            foreach ($data as $v)
+            {
+                $awardS->tradingReward($v['amount'],$v['user_id']);
+                $awardIssue->save([
+                    'status' => 2,
+                    'update_time' => NOW_DATETIME
+                ],[
+                    'id' => $v['id'],
+                ]);
+            }
+
+            $awardIssue->commit();
+            echo 1;
+        }catch (\Exception $e)
+        {
+            $awardIssue->rollback();
+            echo 2;
+        }
+
     }
 
 }

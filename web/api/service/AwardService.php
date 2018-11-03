@@ -38,8 +38,8 @@ class AwardService extends \web\common\controller\Service
         $pusers = $this->getParentUser($user['pid']);
         $this->peer_user_id = $pusers[0]['user_id'];
         $userM->startTrans();
-//        try
-//        {
+        try
+        {
             Log::record("奖励开始发放");
             //交易奖励
             $this->userReward($amount,$pusers,$user_id);
@@ -57,13 +57,13 @@ class AwardService extends \web\common\controller\Service
 
             $userM->commit();
             return true;
-//        }catch (\Exception $e)
-//        {
-//            Log::record("奖励发放失败");
-//            Log::record($e->getMessage());
-//            $userM->rollback();
-//            return false;
-//        }
+        }catch (\Exception $e)
+        {
+            Log::record("奖励发放失败");
+            Log::record($e->getMessage());
+            $userM->rollback();
+            return false;
+        }
 
     }
 

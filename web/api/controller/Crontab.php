@@ -3,7 +3,10 @@
 namespace web\api\controller;
 
 use think\Lang;
+use think\Log;
+use web\api\model\AwardIssue;
 use web\api\model\MemberNodeIncome;
+use web\api\service\AwardService;
 use web\api\service\NodeService;
 
 class Crontab extends \web\common\controller\Controller {
@@ -125,6 +128,41 @@ class Crontab extends \web\common\controller\Controller {
         $nodeS->nodeRelease();
 
         $nodeS->updateBalanceReleaseNum();
+    }
+
+    /**
+     * 超级节点释放，奖励发放
+     */
+    public function superNodeAward()
+    {
+        set_time_limit(0);
+        $awardIssue = new AwardIssue();
+        $awardS = new AwardService();
+
+        $data = $awardIssue->where('status',1)->limit(1)->select();
+
+        $awardIssue->startTrans();
+        try
+        {
+            foreach ($data as $v)
+            {
+                $awardS->tradingReward($v['amount'],$v['user_id']);
+                $awardIssue->save([
+                    'status' => 2,
+                    'update_time' => NOW_DATETIME
+                ],[
+                    'id' => $v['id'],
+                ]);
+
+                Log::record('超级节点奖励释放成功：' . $v['user_id']);
+            }
+
+            $awardIssue->commit();
+        }catch (\Exception $e)
+        {
+            $awardIssue->rollback();
+            Log::record('超级节点奖励释放失败');
+        }
     }
 
     /**

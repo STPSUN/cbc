@@ -13,6 +13,7 @@ use addons\member\model\Balance;
 use addons\member\model\MemberAccountModel;
 use addons\member\model\TradingRecord;
 use think\Log;
+use web\api\model\AwardIssue;
 use web\api\model\MemberNode;
 use web\api\model\MemberNodeIncome;
 use web\api\model\Node;
@@ -53,25 +54,44 @@ class NodeService extends \web\common\controller\Service
     private function insertSuperNodeRecord($nodes)
     {
         $recordM = new TradingRecord();
+        $awardIssueM = new AwardIssue();
         $total_record_sql = '';
         $toal_record_value = "";
+
+        $award_sql = '';
+        $award_value = '';
 
         foreach ($nodes as $v)
         {
             $amount = bcmul($v['release_num'],0.7,2);
             $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . 4 . ',' . 13 . ',' . 1 . ',' . $amount . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
+
+            $award_amount = bcmul($v['release_num'],0.3,2);
+            $award_value .= $award_amount . ',' . $v['user_id'] . ',' . 1 . ',' . "'" . NOW_DATETIME . "'" . ';';
         }
 
         $toal_record_value = rtrim($toal_record_value,';');
         $toal_record_value = explode(';',$toal_record_value);
+
+        $award_value = rtrim($award_value,';');
+        $award_value = explode(';',$award_value);
         foreach ($toal_record_value as $v)
         {
             $total_record_sql .= '(' .$v . ')' . ',';
         }
-        $total_record_sql = rtrim($total_record_sql,',');
-        $sql = "insert into tp_trading_record (user_id,to_user_id,asset_type,type,change_type,amount,remark,update_time) values" . $total_record_sql;
 
-        $recordM->execute($sql);
+        foreach ($award_value as $v)
+        {
+            $award_sql .= '(' . $v . ')' . ',';
+        }
+        $total_record_sql = rtrim($total_record_sql,',');
+        $record_sql = "insert into tp_trading_record (user_id,to_user_id,asset_type,type,change_type,amount,remark,update_time) values" . $total_record_sql;
+
+        $award_sql = rtrim($award_sql,',');
+        $sql = "insert into tp_award_issue (amount,user_id,status,create_time) values" . $award_sql;
+
+        $recordM->execute($record_sql);
+        $awardIssueM->execute($sql);
     }
 
     //CBC总额插入流水记录
