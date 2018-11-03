@@ -63,7 +63,7 @@ class Wallet extends ApiBase
 //            return $this->failJSON(lang('WALLET_PAYPASS'));
 
         $verifyM = new \addons\member\model\VericodeModel();
-        $_verify = $verifyM->VerifyCode($auth_code, $member['verify_code'].$member['phone'],3);
+        $_verify = $verifyM->VerifyCode($auth_code, $member['region_code'].$member['phone'],3);
         if(empty($_verify))
         {
             return $this->failJSON(lang('USER_VERI_WRONG'));
@@ -202,7 +202,7 @@ class Wallet extends ApiBase
             return $this->failJSON(lang('WALLET_PAYPASS'));
 
         $verifyM = new \addons\member\model\VericodeModel();
-        $_verify = $verifyM->VerifyCode($auth_code, $member['verify_code'].$member['phone'],3);
+        $_verify = $verifyM->VerifyCode($auth_code, $member['region_code'].$member['phone'],3);
         if(empty($_verify))
         {
             return $this->failJSON(lang('USER_VERI_WRONG'));
