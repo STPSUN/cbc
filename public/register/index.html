@@ -219,6 +219,7 @@
       if(!/[A-Za-z0-9]{6}$/.test(log_pay_password)) return alert('请输入6位交易密码,含数字或字母');
       if(!inviter_id) return alert('请输入推荐人');
       if(!isxy) return alert('请勾选协议');
+      if(!region_code) region_code = 86;
       var postVal = {
         phone : phone ,
         verify_code : verify_code,
