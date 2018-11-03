@@ -122,6 +122,7 @@
           <img src="./image/down.png" class="icon-down">
         </label> -->
         <input type="text" placeholder="请输入您的手机号"  style="padding-left:50px" id="phone">
+        <input type="hidden" id="region_code">
       </div>
     <div class="list-wrap list-input flex-wrap aui-padded-0">
       <input type="text" placeholder="请输入验证码" class="aui-padded-l-10 aui-padded-r-10" id="verify_code">
@@ -173,6 +174,7 @@
     $("#phone").on("countrychange", function(e, countryData) {
       console.log(countryData)
       console.log(countryData.dialCode)
+      $('#region_code').val(countryData.dialCode);
     });
 
     function remainTime(el){
@@ -188,11 +190,12 @@
     }
     function getSms(el){
         var phone =   $('#phone').val();
+        var region_code =   $('#region_code').val();
         if(!phone) return alert('请输入手机号');
         if ( isWaiting ) return;
         isWaiting = true;
         remainTime(el);
-        $.post("http://test1.ifc003.com/user/getVerifyCode",{phone:phone,type:"1"},function(ret){
+        $.post("http://test1.ifc003.com/user/getVerifyCode",{phone:phone,region_code:region_code,type:"1"},function(ret){
           ret = JSON.parse(ret)
           if(ret.success){
                  alert(ret.message);
