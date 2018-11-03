@@ -541,6 +541,7 @@ class User extends ApiBase
      */
     public function nodeCommunity()
     {
+        set_time_limit(0);
         $user_id = $this->user_id;
         if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
         $memberS = new \web\api\service\MemberService();
