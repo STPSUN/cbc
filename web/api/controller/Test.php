@@ -138,6 +138,14 @@ class Test extends ApiBase
 
     }
 
+    public function getDayNode()
+    {
+        $nodeS = new NodeService();
+        $amount = $nodeS->getDayNodeCount(15857909002);
+
+        return empty($amount) ? 0 : $amount;
+    }
+
 }
 
 

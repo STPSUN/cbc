@@ -222,6 +222,7 @@ class User extends ApiBase
     {
         $userM = new MemberAccountModel();
         $balanceM = new Balance();
+        $nodeS = new NodeService();
 
         $user = $userM->getDetail($this->user_id);
 
@@ -245,7 +246,11 @@ class User extends ApiBase
                 case 4:
                     $balance['key_amount'] = sprintf("%.2f",$v['amount']);     break;
                 case 5:
-                    $balance['today_amount'] = sprintf("%.2f",$v['amount']);   break;
+                {
+                    $amount = $nodeS->getDayNodeCount($this->user_id);
+                    $balance['today_amount'] = sprintf("%.2f",$amount);   break;
+                }
+
             }
         }
 

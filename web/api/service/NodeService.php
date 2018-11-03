@@ -29,14 +29,14 @@ class NodeService extends \web\common\controller\Service
         //CBC总额节点释放数据
         $total = $this->getNodeUsers(1);
         //可用节点释放数据
-//        $use = $this->getNodeUsers(2);
+        $use = $this->getNodeUsers(2);
         //激活码节点释放数据
-//        $super_node = $this->getNodeUsers(4,8);
+        $super_node = $this->getNodeUsers(4,8);
 
         //插入CBC总额流水记录
-//        $this->insertRecord($total,1);
+        $this->insertRecord($total,1);
         //插入可用流水记录
-//        $this->insertRecord($use,2);
+        $this->insertRecord($use,2);
 
         //更新总额余额
         $this->updateTotalBalance($total);
@@ -145,7 +145,6 @@ class NodeService extends \web\common\controller\Service
         $toal_record_value = rtrim($toal_record_value,';');
         $toal_record_value = explode(';',$toal_record_value);
 
-//        print_r($income_value);exit();
         $income_value = rtrim($income_value, ';');
         $income_value = explode(';',$income_value);
 
@@ -188,7 +187,7 @@ class NodeService extends \web\common\controller\Service
             $has = false;
             foreach ($result as $k => $v) {
                 if($v['balance_id']==$value['balance_id']){
-                    $result[$k]['amount'] = $value['release_num'] + $value['amount'];
+                    $result[$k]['amount'] = $result[$k]['amount'] + $value['release_num'];
                     $has = true;
                     break;
                 }
@@ -210,8 +209,6 @@ class NodeService extends \web\common\controller\Service
 
         $balance_ids = rtrim($balance_ids,',');
         $sql = 'update tp_member_balance set amount = CASE id ' . $amount_sql . ' end where id in(' . $balance_ids . ')';
-
-        print_r($sql);exit();
 
         $balanceM = new Balance();
         $balanceM->execute($sql);
@@ -256,12 +253,27 @@ class NodeService extends \web\common\controller\Service
         $amount_sql = '';
         $before_amount_sql = '';
 
-        foreach ($nodes as $v)
+        $result = [];
+        foreach ($nodes as $key => $value) {
+            $has = false;
+            foreach ($result as $k => $v) {
+                if($v['balance_id']==$value['balance_id']){
+                    $result[$k]['amount'] = $result[$k]['amount'] + bcmul($value['release_num'],0.7,2);
+                    $has = true;
+                    break;
+                }
+            }
+            if(!$has){
+                $tmp = $value;
+                $tmp['amount'] = bcmul($tmp['release_num'],0.7,2) + $tmp['amount'];
+                $result[] = $tmp;
+            }
+        }
+
+        foreach ($result as $v)
         {
             $balance_ids .= $v['balance_id'] . ',';
-            $release_num = bcmul($v['release_num'],0.7,2);
-            $amount = $release_num + $v['amount'];
-            $amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $amount;
+            $amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $v['amount'];
             $before_amount_sql .= ' when ' . $v['balance_id'] . ' then ' . $v['amount'];
         }
 
@@ -447,6 +459,15 @@ class NodeService extends \web\common\controller\Service
             $memberNodeM->rollback();
             return false;
         }
+    }
+
+    public function getDayNodeCount($user_id)
+    {
+        $incomeM = new MemberNodeIncome();
+
+        $amount = $incomeM->where('user_id',$user_id)->whereTime('create_time','today')->sum('amount');
+
+        return $amount;
     }
 }
 
