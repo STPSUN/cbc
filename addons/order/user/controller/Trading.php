@@ -70,6 +70,16 @@ class Trading extends \web\user\controller\AddonUserBase {
                     $balanceM->rollback();
                     $this->failJSON('增加用户挂卖额度失败');
                 }
+
+                $sysM = new \web\common\model\sys\SysParameterModel();
+                $less_total = $sysM->getValByName('less_total');
+                $less_total = $less_total+$amount;
+                $res = $sysM->setValByName('less_total',$less_total);
+                if(!$res){
+                    $balanceM->rollback();
+                    $this->failJSON('增加剩余总量失败');
+                }
+
                 
                 $res = $r->save($info);
                 if($res){
@@ -138,6 +148,16 @@ class Trading extends \web\user\controller\AddonUserBase {
                     $balanceM->rollback();
                     return $this->failData('增加记录失败');
                 }
+
+                $sysM = new \web\common\model\sys\SysParameterModel();
+                $less_total = $sysM->getValByName('less_total');
+                $less_total = $less_total+$info['number'];
+                $res = $sysM->setValByName('less_total',$less_total);
+                if(!$res){
+                    $balanceM->rollback();
+                    $this->failJSON('增加剩余总量失败');
+                }
+                
                 $TransferM = new \addons\member\model\Transfer();
                 $res = $TransferM->updateQuota($user_id,$info['number'],1);
                 if(!$res){

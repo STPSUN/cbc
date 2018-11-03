@@ -712,6 +712,16 @@ class Transfer extends ApiBase
                         $balanceM->rollback();
                         return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
                     }
+
+                    $sysM = new \web\common\model\sys\SysParameterModel();
+                    $less_total = $sysM->getValByName('less_total');
+                    $less_total = $less_total+$amount;
+                    $res = $sysM->setValByName('less_total',$less_total);
+                    if(!$res){
+                        $balanceM->rollback();
+                        $this->failJSON(lang('TRANSFER_TOTAL_FAIL'));
+                    }
+
                     $TransferM = new \addons\member\model\Transfer();
                     $res = $TransferM->updateQuota($user_id,$amount,1);
                     if(!$res){
@@ -788,6 +798,15 @@ class Transfer extends ApiBase
                         return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
                     }
 
+                    $sysM = new \web\common\model\sys\SysParameterModel();
+                    $less_total = $sysM->getValByName('less_total');
+                    $less_total = $less_total+$amount;
+                    $res = $sysM->setValByName('less_total',$less_total);
+                    if(!$res){
+                        $balanceM->rollback();
+                        $this->failJSON(lang('TRANSFER_TOTAL_FAIL'));
+                    }
+                    
                     $TransferM = new \addons\member\model\Transfer();
                     $res = $TransferM->updateQuota($user_id,$amount,1);
                     if(!$res){
