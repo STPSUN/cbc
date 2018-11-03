@@ -18,6 +18,11 @@ use web\api\service\NodeService;
 
 class Test extends ApiBase
 {
+    public function _initialize()
+    {
+        exit();
+    }
+
     public function award()
     {
         $awardS = new AwardService();
