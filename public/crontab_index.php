@@ -19,6 +19,10 @@ if(PHP_SAPI == 'cli'){
 		define('BIND_MODULE','api/Crontab/nodeRelease');
     }elseif($type==3){
 		define('BIND_MODULE','api/Crontab/auto_quota');
+    }elseif($type==4){
+		define('BIND_MODULE','api/Crontab/auto_receive');
+    }elseif($type==5){
+		define('BIND_MODULE','api/Crontab/superNodeAward');
     }
 }else{
 	eixt();
