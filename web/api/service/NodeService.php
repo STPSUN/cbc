@@ -29,14 +29,15 @@ class NodeService extends \web\common\controller\Service
         //CBC总额节点释放数据
         $total = $this->getNodeUsers(1);
         //可用节点释放数据
-        $use = $this->getNodeUsers(2);
+//        $use = $this->getNodeUsers(2);
         //激活码节点释放数据
-        $super_node = $this->getNodeUsers(4,8);
+//        $super_node = $this->getNodeUsers(4,8);
 
         //插入CBC总额流水记录
-        $this->insertRecord($total,1);
+//        $this->insertRecord($total,1);
         //插入可用流水记录
-        $this->insertRecord($use,2);
+//        $this->insertRecord($use,2);
+
         //更新总额余额
         $this->updateTotalBalance($total);
         //更新可用余额
@@ -53,6 +54,7 @@ class NodeService extends \web\common\controller\Service
      */
     private function insertSuperNodeRecord($nodes)
     {
+        $incomeM = new MemberNodeIncome();
         $recordM = new TradingRecord();
         $awardIssueM = new AwardIssue();
         $total_record_sql = '';
@@ -61,6 +63,9 @@ class NodeService extends \web\common\controller\Service
         $award_sql = '';
         $award_value = '';
 
+        $income_sql = '';
+        $income_value = '';
+
         foreach ($nodes as $v)
         {
             $amount = bcmul($v['release_num'],0.7,2);
@@ -68,6 +73,8 @@ class NodeService extends \web\common\controller\Service
 
             $award_amount = bcmul($v['release_num'],0.3,2);
             $award_value .= $award_amount . ',' . $v['user_id'] . ',' . 1 . ',' . "'" . NOW_DATETIME . "'" . ';';
+
+            $income_value .= $v['member_node_id'] . ',' . $v['release_num'] . ',' . $v['type'] . ',' . $v['user_id'] . ',' . "'" . NOW_DATETIME . "'" . ';';
         }
 
         $toal_record_value = rtrim($toal_record_value,';');
@@ -84,14 +91,26 @@ class NodeService extends \web\common\controller\Service
         {
             $award_sql .= '(' . $v . ')' . ',';
         }
+
+        $income_value = rtrim($income_value, ';');
+        $income_value = explode(';',$income_value);
+
+        foreach ($income_value as $v)
+        {
+            $income_sql .= '(' .$v . ')' . ',';
+        }
+
         $total_record_sql = rtrim($total_record_sql,',');
         $record_sql = "insert into tp_trading_record (user_id,to_user_id,asset_type,type,change_type,amount,remark,update_time) values" . $total_record_sql;
 
         $award_sql = rtrim($award_sql,',');
+        $income_sql = rtrim($income_sql,',');
         $sql = "insert into tp_award_issue (amount,user_id,status,create_time) values" . $award_sql;
+        $incomeSql = "insert into tp_member_node_income (member_node_id,amount,type,user_id,create_time) values" . $income_sql;
 
         $recordM->execute($record_sql);
         $awardIssueM->execute($sql);
+        $incomeM->execute($incomeSql);
     }
 
     //CBC总额插入流水记录
@@ -173,6 +192,8 @@ class NodeService extends \web\common\controller\Service
 
         $balance_ids = rtrim($balance_ids,',');
         $sql = 'update tp_member_balance set amount = CASE id ' . $amount_sql . ' end where id in(' . $balance_ids . ')';
+
+        print_r($sql);exit();
 
         $balanceM = new Balance();
         $balanceM->execute($sql);
