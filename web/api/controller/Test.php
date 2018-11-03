@@ -53,6 +53,7 @@ class Test extends ApiBase
 
     public function addtime(){
 
+        set_time_limit(0);
         $list=Db::table('tp_member_node')->select();
         foreach( $list as $v){
             $id=$v['id'];
@@ -84,16 +85,17 @@ class Test extends ApiBase
     }
     public function regtime()
     {
-
+        set_time_limit(0);
         $list = Db::table('tp_member_account')->select();
         foreach ($list as $v) {
             $id = $v['id'];
-            echo $addtime = $v['id_stand'];
+            $addtime = $v['id_stand'];
 
             $pieces = explode(".", $addtime);
             $register_time = $pieces[0];
+            $type_max=Db::table('tp_member_node')->where("user_id=$id")->max('type');
 
-            Db::table('tp_member_account')->where("id='$id'")->update(['register_time' => $register_time]);
+            Db::table('tp_member_account')->where("id='$id'")->update(['register_time' => $register_time,'node_level'=>$type_max]);
 
         }
     }
