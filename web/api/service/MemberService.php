@@ -446,7 +446,7 @@ class MemberService extends \web\common\controller\Service
 
             $team[] = $temp;
 
-            $users = $userM->where('pid',$v['id'])->select();
+            $users = $userM->field('id,phone,real_name')->where('pid',$v['id'])->select();
             if(!empty($users))
             {
                 $this->getTeamId($v['id'],$team);
@@ -476,7 +476,7 @@ class MemberService extends \web\common\controller\Service
 
             $team[] = $temp;
 
-            $users = $userM->where('pid',$v['id'])->select();
+            $users = $userM->field('id,phone,real_name')->where('pid',$v['id'])->select();
             if(!empty($users))
             {
                 $this->getTeam($v['id'],$team,$tier,$num);
