@@ -722,7 +722,7 @@ class User extends ApiBase
         if($param['type'] == 2)
         {
             $verifyM = new \addons\member\model\VericodeModel();
-            $_verify = $verifyM->VerifyCode($param['auth_code'], $user['phone'],7);
+            $_verify = $verifyM->VerifyCode($param['auth_code'], $user['region_code'].$user['phone'],7);
             if(empty($_verify))
             {
                 return $this->failJSON('验证码失效，请重新获取');
