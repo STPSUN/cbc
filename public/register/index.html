@@ -212,6 +212,7 @@
       var log_pay_password =$('#log_pay_password').val() 
       var inviter_id = $('#inviter_id').val() 
       var isxy = $('#getXy').hasClass('show');
+      var region_code =   $('#region_code').val();
       if(!phone) return alert('请输入手机号');
       if(!verify_code) return alert('请输入验证码');
       if(!/[A-Za-z0-9]{8,20}$/.test(password)) return alert('请输入8-20位登陆密码,含数字或字母');
@@ -223,6 +224,7 @@
         verify_code : verify_code,
         password :password ,
         pay_password :log_pay_password,
+        region_code :region_code,
         inviter_id : inviter_id
       }
       $.post("http://test1.ifc003.com/user/register",postVal,function(ret){
