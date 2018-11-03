@@ -611,6 +611,7 @@ class User extends ApiBase
      */
     public function awardCommunity()
     {
+        set_time_limit(30);
         $userM = new MemberAccountModel();
         $user = $userM->getDetail($this->user_id);
         $pOne = null;
