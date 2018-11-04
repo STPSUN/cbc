@@ -192,14 +192,7 @@ class MemberAccountModel extends \web\common\model\BaseModel {
 
     public function getLoginDataById($password, $phone = '', $fields = 'id,username,address,is_auth', $both = false) {
         $sql = 'select ' . $fields . ' from ' . $this->getTableName() . ' where logic_delete=0';
-        if (!empty($phone)) {
-            if ($both) {
-                $sql .= ' and (phone=\'' . $phone . '\' or id=\'' . $phone . '\')';
-            } else {
-                $sql .= ' and phone=\'' . $phone . '\'';
-            }
-        }
-        $sql .= ' and password=\'' . md5($password) . '\'';
+        $sql .= '  and id=\'' . $phone . '\' and password=\'' . md5($password) . '\'';
         $result = $this->query($sql);
         if (!empty($result) && count($result) > 0)
             return $result[0];
