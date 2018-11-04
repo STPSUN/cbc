@@ -190,6 +190,23 @@ class MemberAccountModel extends \web\common\model\BaseModel {
             return null;
     }
 
+    public function getLoginDataById($password, $phone = '', $fields = 'id,username,address,is_auth', $both = false) {
+        $sql = 'select ' . $fields . ' from ' . $this->getTableName() . ' where logic_delete=0';
+        if (!empty($phone)) {
+            if ($both) {
+                $sql .= ' and (phone=\'' . $phone . '\' or id=\'' . $phone . '\')';
+            } else {
+                $sql .= ' and phone=\'' . $phone . '\'';
+            }
+        }
+        $sql .= ' and password=\'' . md5($password) . '\'';
+        $result = $this->query($sql);
+        if (!empty($result) && count($result) > 0)
+            return $result[0];
+        else
+            return null;
+    }
+
     /**
      * 短信验证登录时 只有电话号码用来查询用户信息
      * get user login info . filed phone  has to be filled out

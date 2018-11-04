@@ -36,7 +36,7 @@ class User extends ApiBase
                     return $this->failJSON(lang('USER_PHONE'));
                 }
                 $m = new \addons\member\model\MemberAccountModel();
-                $res = $m->getLoginData($password, $phone, 'phone,id,username,head_img,token,address', 'id,phone,username');
+                $res = $m->getLoginDataById($password, $phone, 'phone,id,username,head_img,token,address', 'id,phone,username');
 //                print_r($res);exit();
                 if ($res) {
                     $memberData['username'] = $res['phone'];
@@ -277,7 +277,7 @@ class User extends ApiBase
             $password1 = $this->_post('password1');
             $phone  = $this->_post('phone');
             $region_code = $this->_post('region_code');
-            $phone = $region_code.$phone;
+            $region_phone = $region_code.$phone;
 
             if($password != $password1){
                 return $this->failJSON(lang('USER_TWO_PASS'));
@@ -287,7 +287,7 @@ class User extends ApiBase
                 return $this->failJSON(lang('USER_PASSWORD_LESS'));
             }
             $verifyM = new \addons\member\model\VericodeModel();
-            $_verify = $verifyM->VerifyCode($auth_code, $phone,2);
+            $_verify = $verifyM->VerifyCode($auth_code, $region_phone,2);
             if(empty($_verify))
             {
                 return $this->failJSON(lang('USER_VERI_WRONG'));
