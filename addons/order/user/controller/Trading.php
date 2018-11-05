@@ -177,6 +177,7 @@ class Trading extends \web\user\controller\AddonUserBase {
                 
         }elseif($info['type']==1){
             $info['type'] = 0;
+            $info['voucher'] = null;
             $info['to_user_id'] = 0;
             $info['update_time'] = NOW_DATETIME;
             $res = $r->save($info);
