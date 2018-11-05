@@ -62,6 +62,7 @@ class User extends ApiBase
                     ]);
                     $e = $this->setGlobalCache($res['id'], $token); //user_id存储到入redis
                     $data['phone'] = $res['phone'];
+                    $data['user_id'] = $res['id'];
                     $data['username'] = $res['username'];
                     $data['head_img'] = $res['head_img'];
                     $data['token'] = $token;
@@ -133,10 +134,10 @@ class User extends ApiBase
                 $inviter_id = $this->_post('inviter_id');
                 if (!empty($inviter_id)) {
                     //获取邀请者id
-//                    $invite_user = $m->getDetail($inviter_id);
-                    $invite_user = $m->getUserByPhone($inviter_id);
+                    $invite_user = $m->getDetail($inviter_id);
+                    // $invite_user = $m->getUserByPhone($inviter_id);
                     if (!empty($invite_user)) {
-                        $data['pid'] = $invite_user; //邀请者id
+                        $data['pid'] = $inviter_id; //邀请者id
                     } else {
                         return $this->failJSON(lang('USER_INVITER'));
                     }
