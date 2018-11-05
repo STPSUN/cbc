@@ -26,6 +26,7 @@ class Node extends ApiBase
     //购买节点
     public function buyNode()
     {
+//        echo 2;exit();
         $param = Request::instance()->post();
 
         $validate = new Validate([
@@ -93,11 +94,6 @@ class Node extends ApiBase
         $memberNodeM->startTrans();
         try
         {
-            // $balance = $balanceM->updateBalance($this->user_id, 5, $node['release_num'],1);
-            // if(!$balance){
-            //     $memberNodeM->rollback();
-            //     $this->failJSON(lang('NODE_ADD'));
-            // }
             $balance = $balanceM->updateBalance($this->user_id, $balance_type, $amount);
             if($balance != false){
                 $type = 3; //购买节点
@@ -108,8 +104,8 @@ class Node extends ApiBase
             $memberNodeM->save($data);
 
             //会员升级
-            $memberS = new MemberService();
-            $memberS->memberLevel($this->user_id);
+//            $memberS = new MemberService();
+//            $memberS->memberLevel($this->user_id);
 
             $node_user = $memberM->getDetail($node_level_user_id);
             if($node_user['node_level'] < $node['type'])
@@ -120,14 +116,14 @@ class Node extends ApiBase
                     'id' => $node_user['id'],
                 ]);
             }
-
-            $memberNodeM->commit();
-            return $this->successJSON();
         }catch (\Exception $e)
         {
             $memberNodeM->rollback();
             return $this->failJSON($e->getMessage());
         }
+
+        $memberNodeM->commit();
+        return $this->successJSON();
 
     }
 
