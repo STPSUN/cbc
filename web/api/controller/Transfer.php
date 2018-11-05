@@ -269,6 +269,8 @@ class Transfer extends ApiBase
     public function purchaseOrder(){
         $user_id = $this->user_id;
         if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        $pay_password = $this->_post('pay_password');
+        $this->checkPwd($user_id,$pay_password);
         $tradingM = new \addons\member\model\Trading();
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
@@ -278,8 +280,6 @@ class Transfer extends ApiBase
         if($trading['type']!=0) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
         if($trading['to_user_id']) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
         if($trading['status']) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
-        $pay_password = $this->_post('pay_password');
-        $this->checkPwd($user_id,$pay_password);
         $data = [
                 'to_user_id' =>$user_id,
                 'type'=>1,
