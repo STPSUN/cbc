@@ -608,7 +608,7 @@ class Transfer extends ApiBase
             $map['p.type'] = 3;
         }
 
-        $order = 'number asc';
+        $order = 'price asc';
         $level_type = $this->_post('level_type');
         if($level_type==1){
             $order = 'credit_level desc';

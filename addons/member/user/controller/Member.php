@@ -169,7 +169,9 @@ class Member extends \web\user\controller\AddonUserBase{
                         $nodeS = new NodeService();
                         $nodeS->sendNode($user_id);
                     }
-                    $data['user_level'] = 1;
+                    if($data['user_level']<2){
+                        $data['user_level'] = 1;
+                    }
                     // $memberSer = new \web\api\service\MemberService();
                     // $res = $memberSer->memberLevel($user_id);
                     // if(!$res) $m->rollback();
