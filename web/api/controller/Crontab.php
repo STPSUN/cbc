@@ -27,11 +27,21 @@ class Crontab extends \web\common\controller\Controller {
         $map['update_time'] = ['lt',date('Y-m-d H:i:s',(time()-30*60))];
         $list = $tradingM->where($map)->select();
         if(!$list) return $this->failJSON('no trading list');
+        $TradingLog = new \addons\member\model\TradingLog();
         foreach ($list as $key => $value) {
             $data = $value;
             $data['to_user_id'] = 0;
             $data['type'] = 0;
             $data['update_time']=NOW_DATETIME;
+
+            $infoLog = [
+                'order_id'=>$value['order_id'],
+                'user_id'=>0,
+                'remark'=>'自动取消',
+                'create_at'=>NOW_DATETIME,
+                'type'=>8,
+            ];
+            $TradingLog->add($infoLog);
             $res = $tradingM->save($data);
         }
         if($res) $this->successJSON('update success');
