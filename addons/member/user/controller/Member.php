@@ -64,7 +64,11 @@ class Member extends \web\user\controller\AddonUserBase{
         $TransferM = new \addons\member\model\Transfer();
         $info = $TransferM->findData($user_id);
         if($info){
-            $info['power'] = 1;
+            if($info['power']){
+                $info['power'] = 0;
+            }else{
+                $info['power'] = 1;
+            }
             $info['update_at'] = NOW_DATETIME;
         }else{
             $info = [
