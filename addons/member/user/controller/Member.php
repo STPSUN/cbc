@@ -161,6 +161,9 @@ class Member extends \web\user\controller\AddonUserBase{
                 {
                     if($data['node_level']<2){
                         $data['node_level'] = 1;
+                        //赠送微信节点
+                        $nodeS = new NodeService();
+                        $nodeS->sendNode($user_id);
                     }
                     $data['user_level'] = 1;
                     // $memberSer = new \web\api\service\MemberService();
@@ -168,10 +171,7 @@ class Member extends \web\user\controller\AddonUserBase{
                     // if(!$res) $m->rollback();
                     $res = $m->save($data);
                     if(!$res) $m->rollback();
-                    //赠送微信节点
-                    $nodeS = new NodeService();
-                    $nodeS->sendNode($user_id);
-
+                        
                     $m->commit();
                     return $this->successData();
                 }catch (\Exception $e)
