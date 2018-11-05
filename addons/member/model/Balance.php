@@ -95,6 +95,7 @@ class Balance extends \web\common\model\BaseModel {
             $data['user_id'] = $user_id;
             $data['before_amount'] = 0;
             $data['amount'] = 0;
+            $data['type'] = $type;
         }
         $data['update_time'] = NOW_DATETIME;
         if ($change) {
