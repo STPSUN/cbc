@@ -228,7 +228,7 @@
         region_code :region_code,
         inviter_id : inviter_id
       }
-      $.post("http://www.excbc.io/index./user/register",postVal,function(ret){
+      $.post("http://www.excbc.io/index.php/user/register",postVal,function(ret){
         ret = JSON.parse(ret)
         if(ret.success){
               alert("注册成功");
