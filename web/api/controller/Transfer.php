@@ -277,6 +277,7 @@ class Transfer extends ApiBase
         if($user_id==$trading['user_id']) return $this->failJSON(lang('TRANSFER_BUY_OWN'));
         if($trading['type']!=0) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
         if($trading['to_user_id']) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
+        if($trading['status']) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
         $pay_password = $this->_post('pay_password');
         $this->checkPwd($user_id,$pay_password);
         $data = [
