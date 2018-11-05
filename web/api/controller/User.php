@@ -37,26 +37,33 @@ class User extends ApiBase
                 }
                 $m = new \addons\member\model\MemberAccountModel();
                 $res = $m->getLoginDataById($password, $phone, 'phone,id,username,head_img,token,address', 'id,phone,username');
-//                print_r($res);exit();
                 if ($res) {
                     $memberData['username'] = $res['phone'];
-//                    $memberData['address'] = $res['address'];
                     $memberData['user_id'] = $res['id'];
                     session('memberData', $memberData);
 
                     $token = md5($res['id'] . $this->apikey . time());
                     $map['token'] = $token;
+                    $rand = $this->getRand(5);
                     if(empty($res['address']))
-                        $map['address'] = md5(md5(time() . 'ABC') . '!@$');
+                    {
+                        $map['address'] = md5(md5(time() . $rand) . '!@$');
+                    }else
+                    {
+                        $count = $m->where('address',$res['address'])->count();
+                        if($count > 1)
+                        {
+                            $map['address'] = md5(md5(time() . $rand) . '!@$');
+                        }
+                    }
+
                     $m->save($map,[
                         'id'    => $res['id'],
                     ]);
                     $e = $this->setGlobalCache($res['id'], $token); //user_id存储到入redis
-//                    var_dump($e);exit();
                     $data['phone'] = $res['phone'];
                     $data['username'] = $res['username'];
                     $data['head_img'] = $res['head_img'];
-//                    $data['address'] = $res['address'];
                     $data['token'] = $token;
                     return $this->successJSON($data);
                 } else {
@@ -748,6 +755,17 @@ class User extends ApiBase
 
             return $this->successJSON();
         }
+    }
+
+    private function getRand($num=6)
+    {
+        $number = '';
+        for($i = 0; $i < $num; $i++)
+        {
+            $number .= rand(1,9);
+        }
+
+        return $number;
     }
 
 }
