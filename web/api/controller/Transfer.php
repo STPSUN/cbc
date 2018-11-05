@@ -263,6 +263,25 @@ class Transfer extends ApiBase
     }
 
     /**
+     * 检查订单是否购买
+     * @param trad_id int
+     */
+    public function checkBuyOrder(){
+        $user_id = $this->user_id;
+        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        $tradingM = new \addons\member\model\Trading();
+        $trad_id = $this->_post('trad_id');
+        if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
+        $trading = $tradingM->findTrad($trad_id);
+        if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
+        if($user_id==$trading['user_id']) return $this->failJSON(lang('TRANSFER_BUY_OWN'));
+        if($trading['type']!=0) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
+        if($trading['to_user_id']) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
+        if($trading['status']) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
+        return $this->successJSON();
+    }
+
+    /**
      * 买入
      * @param trad_id int
      */
@@ -531,7 +550,7 @@ class Transfer extends ApiBase
             $map['p.type'] = 3;
         }
 
-        $order = 'id desc';
+        $order = 'number asc';
         $level_type = $this->_post('level_type');
         if($level_type==1){
             $order = 'credit_level desc';
