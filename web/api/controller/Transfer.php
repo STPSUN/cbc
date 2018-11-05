@@ -750,7 +750,6 @@ class Transfer extends ApiBase
         $trading['username'] = $user['username'];
         $trading['head_img'] = $user['head_img'];
         $trading['is_auth'] = $user['is_auth'];
-        $trading['trans_mode'] = $user['trans_mode'];
         $trading['order_count'] = $count;
         $this->successJSON($trading);
     }
