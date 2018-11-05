@@ -50,7 +50,7 @@ class Wallet extends ApiBase
         if(empty($member))
             return $this->failJSON(lang('WALLET_LOGIN_WRONG'));
         
-        if($member['node_level']<2)  return $this->failJSON(lang('WALLET_NODE'));
+        if($member['node_level']<1)  return $this->failJSON(lang('WALLET_NODE'));
 
         $to_user_id = $memberM->getUserByAddress($address);
         if(empty($to_user_id))
