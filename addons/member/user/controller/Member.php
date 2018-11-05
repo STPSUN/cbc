@@ -152,13 +152,16 @@ class Member extends \web\user\controller\AddonUserBase{
            $user_id = $this->_post('id');
            if($is_auth && $user_id){
                 $m = new \addons\member\model\MemberAccountModel();
-                $data['id'] = $user_id;
+                $data = $m->getDetail($user_id);
+                if(!$data) return $this->failData('失败');
+                // $data['id'] = $user_id;
                 $data['is_auth'] = $is_auth;
-
                 $m->startTrans();
                 try
                 {
-                    $data['node_level'] = 1;
+                    if($data['node_level']<2){
+                        $data['node_level'] = 1;
+                    }
                     $data['user_level'] = 1;
                     // $memberSer = new \web\api\service\MemberService();
                     // $res = $memberSer->memberLevel($user_id);
