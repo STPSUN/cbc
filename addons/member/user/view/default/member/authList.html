@@ -1,0 +1,259 @@
+{extend name="$BASE_LIST" /}
+{block name="body"}
+<style type="text/css">
+.voucher{max-height: 50px;max-width: 50px}
+.right-main table tr{height: 56px!important;}
+</style>
+<div class="right-main">
+    <div class="page_nav" id="js_page_nav"><span class="page_title">认证列表</span></div>
+
+    <div id="js_main_header" class="ui-form main_header">
+        <span class="frm_input_box search append">
+            <a href="javascript:void(0);" id="js_search" class="frm_input_append">
+                <i class="icon wb-search" title="搜索"></i>
+            </a>
+            <input type="text" id="js_keyword" placeholder="请输入手机号" value="" class="frm_input" />
+        </span>
+    </div>
+    <table id="grid-table">
+        <thead frozen="true" >
+        <th data-options="field:'phone',width:150, align:'center'">手机号</th>
+        <th data-options="field:'invite_user_phone',width:150, align:'center'">上级用户</th>
+        <th data-options="field:'node_level',width:100,align:'center', formatter:formatNode">节点等级</th> 
+        <th data-options="field:'user_level',width:100, align:'center', formatter:formatLevel">会员等级</th>
+        <th data-options="field:'credit_level',width:100, align:'center', formatter:formatStatus">信用状态</th>
+        <th data-options="field:'head_img',width:100,height:50, align:'center', formatter:formatImg">用户头像</th>
+        </thead>
+        <thead>
+            <tr>
+                <th data-options="field:'real_name',width:100, align:'center'">真实姓名</th>
+                <th data-options="field:'id_face',width:160, align:'center', formatter:formatImg">身份证正面</th>
+                <th data-options="field:'id_back',width:160, align:'center', formatter:formatImg">身份证反面</th>
+                <th data-options="field:'is_auth',width:140,align:'center', formatter:formatAuth">是否为认证</th>
+                <th data-options="field:'register_time',width:150, align:'center'">注册时间</th>
+                <th data-options="field:'_oper',width:120,halign:'center',formatter: formatOper">操作</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+{/block}
+{block name="script"}
+<script type="text/javascript">
+    
+    function formatOper(value, row, index) {
+        var html = '<span class="grid-operation">';
+        
+        html += '<button type="button" onclick="auth(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>认证</button>';
+            // html += '<button type="button" onclick="del(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon wb-close"></i>删除</button>';
+        html += '</span>';
+        return html;
+    }
+    
+    
+    function formatPower(value,row,index){
+        if(value){
+            text = '<span style="color:green">有权限</span>';
+        }else{
+            text = '<span  style="color:red">无权限</span>';
+        }
+        return text;
+    }
+    function formatImg(value,row,index){
+        if(!value){
+            text = '';
+        }else{
+            text = '<a target="_blank" href="'+value+'"><img class="voucher" src="'+value+'"></a>';
+        }
+        return text;
+    }
+/*节点等级：1 微型 | 2 小型（SS） | 3 小型（S） | 4 中小型 | 5 中大型 | 6 大型 | 7 超大型 | 8 超级',
+  `user_level` tinyint(4) DEFAULT '0' COMMENT '会员等级：1 会员 | 2 盟友 | 3 盟主 | 4 酋长 | 5 联盟大使 | 6 联合创始人',
+*/
+    function formatStatus(value,row,index){
+        var name = '封号';
+        if(value==1){
+            name = '一星';
+        }else if(value==2){
+            name = '二星';
+        }else if(value==3){
+            name = '三星';
+        }
+        var text = '<span style="">'+name+'</span>';
+        if(value==0){
+            text = '<span style="color:red">'+name+'</span>';
+        }
+        return text;
+    }
+    function formatNode(value,row,index){
+        var name = '无';
+        if(value==1){
+            name = '微型';
+        }else if(value==2){
+            name = '小型（SS）';
+        }else if(value==3){
+            name = '小型（S）';
+        }else if(value==4){
+            name = '中小型';
+        }else if(value==5){
+            name = '中大型';
+        }else if(value==6){
+            name = '大型';
+        }else if(value==7){
+            name = '超大型';
+        }else if(value==8){
+            name = '超级';
+        }
+        
+        var text = '<span style="">'+name+'</span>';
+        return text;
+    }
+
+    function formatLevel(value,row,index){
+        var name = '新用户';
+        if(value==1){
+            name = '会员';
+        }else if(value==2){
+            name = '盟友';
+        }else if(value==3){
+            name = '盟主';
+        }else if(value==4){
+            name = '酋长';
+        }else if(value==5){
+            name = '联盟大使';
+        }else if(value==6){
+            name = '联合创始人';
+        }
+        
+        var text = '<span style="">'+name+'</span>';
+        return text;
+    }
+    $("#js_export").click(function () {
+        confirm('确认导出？', function () {
+            window.open(getURL('exportout'));
+        });
+    });
+
+    
+    // function formatStatus(value,row,index){
+    //     var text = '<span style="color:red">否</span>';
+    //     if(value == '1')
+    //         text = '<span style="color:green">是</span>';
+    //     return text;
+    // }
+    
+    $(function () {
+        $('#grid-table').datagrid({
+            url: getURL('loadList')+'?is_auth=2',
+            method: "GET",
+            height: getGridHeight(),
+            rownumbers: true,
+            singleSelect: true,
+            remoteSort: false,
+            multiSort: true,
+            emptyMsg: '<span>无相关数据</span>',
+            pagination: true,
+            pageSize: 20
+        });
+        //设置分页控件 
+        $('#grid-table').datagrid('getPager').pagination({
+            pageSize: 20, //每页显示的记录条数，默认为10 
+            pageList: [20, 30, 50]
+        });
+    });
+    
+    function formatAuth(value,row,index){
+        var text = '<span style="color:red">未认证</span>';
+        if(value == '1'){
+            text = '<span style="color:green">已认证</span>';
+        }else if(value == '2'){
+            text = '<span style="color:#ff9b00">待认证</span>';
+        }else if(value =='-1'){
+            text = '<span style="color:red">不通过</span>';
+        }
+        return text;
+    }
+    
+    function change_frozen(id,status){
+        var title = '确认要解冻此用户吗?';
+        if(status == 1)
+            title = '确认要冻结此用户吗?';
+        confirm(title, function () {
+            var url = getURL('change_frozen');
+            $.getJSON(url, {id: id,status:status}, function (json) {
+                if (json.success)
+                    reload();
+                else
+                    alert(json.message);
+            });
+        });
+    }
+    function view_childs(id){
+        var url = getURL('view_childs', 'id=' + id);
+        openBarWin('网络分布', 1000, 600, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+    function view_balance(id){
+        var url = getURL('view_balance', 'id=' + id);
+        openBarWin('资产', 400, 400, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+    
+    function add_coin_stock(id) {
+        var url = getURL('add_coin_stock', 'id=' + id);
+        openBarWin('拨币', 400, 400, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+
+    function edit(id) {
+        var url = getURL('edit', 'id=' + id);
+        openBarWin('编辑', 1000, 500, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+    function auth(id) {
+        var url = getURL('auth', 'id=' + id);
+        openBarWin('认证用户', 1000, 400, url, function () {
+            reload();
+        }, ['确定','取消']);
+    }
+    
+    function power(id) {
+        confirm("确认要修改此会员吗？", function () {
+            var url = getURL('power');
+            $.getJSON(url, {id: id}, function (json) {
+                if (json.success)
+                    reload();
+                else
+                    alert(json.message);
+            });
+        });
+    }
+
+    function del(id) {
+        confirm("删除后会员数据无法找回。确认要删除此会员吗？", function () {
+            var url = getURL('del');
+            $.getJSON(url, {id: id}, function (json) {
+                if (json.success)
+                    reload();
+                else
+                    alert(json.message);
+            });
+        });
+    }
+
+    $("#js_search").click(function () {
+        reload();
+    });
+    function reload() {
+        var keyword = $("#js_keyword").val();
+        $('#grid-table').datagrid('reload', {keyword: keyword});
+    }
+    $("#type").change(function () {
+        var keyword = $("#js_keyword").val();
+        $('#grid-table').datagrid('reload', {keyword: keyword});
+    });
+</script>
+{/block}

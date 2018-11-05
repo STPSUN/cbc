@@ -16,10 +16,19 @@ class Member extends \web\user\controller\AddonUserBase{
         return $this->fetch();
     }
     
+
+    public function authList(){
+        return $this->fetch();
+
+    }
+
     public function loadList(){
-//        $is_auth = $this->_get('is_auth');
+        $is_auth = $this->_get('is_auth');
         $keyword = $this->_get('keyword');
         $filter = 'logic_delete=0';
+        if($is_auth){
+            $filter .= ' and is_auth = 2 ';
+        }
         if ($keyword != null) {
             $filter .= ' and id like \'%' . $keyword . '%\' or phone like \'%' . $keyword . '%\'';
         }
@@ -55,7 +64,11 @@ class Member extends \web\user\controller\AddonUserBase{
         $TransferM = new \addons\member\model\Transfer();
         $info = $TransferM->findData($user_id);
         if($info){
-            $info['power'] = 1;
+            if($info['power']){
+                $info['power'] = 0;
+            }else{
+                $info['power'] = 1;
+            }
             $info['update_at'] = NOW_DATETIME;
         }else{
             $info = [
@@ -143,23 +156,26 @@ class Member extends \web\user\controller\AddonUserBase{
            $user_id = $this->_post('id');
            if($is_auth && $user_id){
                 $m = new \addons\member\model\MemberAccountModel();
-                $data['id'] = $user_id;
+                $data = $m->getDetail($user_id);
+                if(!$data) return $this->failData('失败');
+                // $data['id'] = $user_id;
                 $data['is_auth'] = $is_auth;
-
                 $m->startTrans();
                 try
                 {
-                    $data['node_level'] = 1;
+                    if($data['node_level']<2){
+                        $data['node_level'] = 1;
+                        //赠送微信节点
+                        $nodeS = new NodeService();
+                        $nodeS->sendNode($user_id);
+                    }
                     $data['user_level'] = 1;
-                    $memberSer = new \web\api\service\MemberService();
-                    $res = $memberSer->memberLevel($user_id);
-                    if(!$res) $m->rollback();
+                    // $memberSer = new \web\api\service\MemberService();
+                    // $res = $memberSer->memberLevel($user_id);
+                    // if(!$res) $m->rollback();
                     $res = $m->save($data);
                     if(!$res) $m->rollback();
-                    //赠送微信节点
-                    $nodeS = new NodeService();
-                    $nodeS->sendNode($user_id);
-
+                        
                     $m->commit();
                     return $this->successData();
                 }catch (\Exception $e)

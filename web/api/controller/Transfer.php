@@ -61,7 +61,7 @@ class Transfer extends ApiBase
         $pay_password = $this->_post('pay_password');
         $user = $this->checkPwd($user_id,$pay_password);
         if($user['is_auth']!=1)  return $this->failJSON(lang('TRANSFER_NOT_AUTH'));
-        if($user['node_level']<2)  return $this->failJSON(lang('TRANSFER_NOT_NODE'));
+        if($user['node_level']<1)  return $this->failJSON(lang('TRANSFER_NOT_NODE'));
         $m = new \addons\config\model\Quotation();
         $data = $m->field('price_now,price_top top,price_low low,create_at')->order('id desc')->find();
         $top = $data['top'];
@@ -275,7 +275,9 @@ class Transfer extends ApiBase
         $trading = $tradingM->findTrad($trad_id);
         if(!$trading) return $this->failJSON(lang('TRANSFER_ORDER_EXISTS'));
         if($user_id==$trading['user_id']) return $this->failJSON(lang('TRANSFER_BUY_OWN'));
-        if($trading['type']==1) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
+        if($trading['type']!=0) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
+        if($trading['to_user_id']) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
+        if($trading['status']) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
         $pay_password = $this->_post('pay_password');
         $this->checkPwd($user_id,$pay_password);
         $data = [
