@@ -50,6 +50,7 @@ class Crontab extends \web\common\controller\Controller {
         $res =  $sysM->setValByName('less_total',$total);
         $page = 0;
         $map['update_at'] = ['lt',date('Y-m-d').' 00:00:00'];
+        $map['today_quota'] = ['neq',0];
         $list = $TransferM->where($map)->limit($page,5000)->select();
         while ($list) {
             $time = date('Y-m-d H:i:s');
