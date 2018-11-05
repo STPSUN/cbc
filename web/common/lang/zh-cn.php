@@ -57,7 +57,7 @@ return array(
     'TRANSFER_RIGHT_ORDER'=>'请选择正确的订单',
     'TRANSFER_ORDER_EXISTS'=>'订单不存在',
     'TRANSFER_BUY_OWN'=>'不能买入自己挂卖的订单',
-    'TRANSFER_ALREADY_BUY'=>'订单已被人买入',
+    'TRANSFER_ALREADY_BUY'=>'订单已被人买入，请购买其他订单',
     'TRANSFER_BUY_SUC'=>'买入成功',
     'TRANSFER_BUY_FAIL'=>'买入失败',
     'TRANSFER_NOT_YOUR'=>'该订单不是您的订单',
