@@ -303,8 +303,8 @@ class User extends ApiBase
 
             $password = md5($password);
             $m = new \addons\member\model\MemberAccountModel();
-            $user_id = $m->getUserByPhone($phone);
-            $m->updatePassByUserID($user_id, $password,2);
+//            $user_id = $m->getUserByPhone($phone);
+            $m->updatePassByUserID($this->user_id, $password,2);
             return $this->successJSON();
         }
     }
