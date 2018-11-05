@@ -511,7 +511,7 @@ class Transfer extends ApiBase
         $info = [
             'order_id'=>$trading['order_id'],
             'user_id'=>$user_id,
-            'remark'=>'用户上传付款凭证',
+            'remark'=>'用户确认收款',
             'create_at'=>NOW_DATETIME,
             'type'=>3,
         ];
