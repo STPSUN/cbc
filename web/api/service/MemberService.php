@@ -22,8 +22,13 @@ class MemberService extends \web\common\controller\Service
         $awardS = new AwardService();
         $userM = new MemberAccountModel();
         $user = $userM->getDetail($user_id);
-        $pusers = $awardS->getParentUser($user['pid']);
 
+        $redis = \think\Cache::connect(\think\Config::get('global_cache'));
+        $pusers = $redis->get('parr'.$user_id);
+        if(!$pusers){
+            $pusers = $awardS->getParentUser($user['pid']);
+            $redis->set('parr'.$user_id, json_encode($pusers));
+        }
         $userM->startTrans();
         try{
             Log::record("会员升级开始");
