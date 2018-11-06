@@ -302,6 +302,7 @@ class Transfer extends ApiBase
         if($info['power']!=1){
             $time = date('Y-m-d');
             $map['update_time'] = ['between',[$time.' 00:00:00',$time.' 23:59:59']];
+            $map['status'] = 0;
             $map['to_user_id'] = $user_id;
             $res = $tradingM->where($map)->count();
             if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
@@ -335,6 +336,7 @@ class Transfer extends ApiBase
             $time = date('Y-m-d');
             $map['update_time'] = ['between',[$time.' 00:00:00',$time.' 23:59:59']];
             $map['to_user_id'] = $user_id;
+            $map['status'] = 0;
             $res = $tradingM->where($map)->count();
             if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
         }
