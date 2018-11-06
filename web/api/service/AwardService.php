@@ -35,7 +35,13 @@ class AwardService extends \web\common\controller\Service
 
         $userM = new MemberAccountModel();
         $user = $userM->getDetail($user_id);
-        $pusers = $this->getParentUser($user['pid']);
+        $redis = \think\Cache::connect(\think\Config::get('global_cache'));
+        $pusers = $redis->get('parr'.$user_id);
+        if(!$pusers){
+            $pusers = $this->getParentUser($user['pid']);
+            $redis->set('parr'.$user_id, json_encode($pusers));
+        }
+
         $this->peer_user_id = $pusers[0]['user_id'];
         $userM->startTrans();
         try
