@@ -72,16 +72,21 @@ class Node extends ApiBase
             );
 
         $node_level_user_id = $this->user_id;
+
         if(!empty($give_username))
         {
             $node_level_user_id = $give_user_id;
             $data['user_id'] = $give_user_id;
             $data['give_user_id'] = $this->user_id;
             $filter = 'user_id = ' . $give_user_id . ' and type = ' . $node['type'];
-            $user_node_num = $memberNodeM->getSum($filter,'node_num');
-            if($user_node_num > $node['node_num'])
-                return $this->failJSON(lang('NODE_BUY_LIMIT'));
+        }else
+        {
+            $filter = 'user_id = ' . $this->user_id . ' and type = ' . $node['type'];
         }
+
+        $user_node_num = $memberNodeM->getSum($filter,'node_num');
+        if($user_node_num >= $node['node_num'])
+            return $this->failJSON(lang('NODE_BUY_LIMIT'));
 
         $balance = $balanceM->verifyStock($this->user_id,$amount,$balance_type);
         if(empty($balance)){
@@ -168,7 +173,7 @@ class Node extends ApiBase
 
         $filter = 'user_id = ' . $this->user_id . ' and type = ' . $node['type'];
         $user_node_num = $memberNodeM->getSum($filter,'node_num');
-        if($user_node_num > $node['node_num'])
+        if($user_node_num >= $node['node_num'])
             return $this->failJSON(lang('NODE_BUY_LIMIT'));
 
         $data = array(
