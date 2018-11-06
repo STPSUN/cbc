@@ -69,7 +69,7 @@ class NodeService extends \web\common\controller\Service
         foreach ($nodes as $v)
         {
             $amount = bcmul($v['release_num'],0.7,2);
-            $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . 4 . ',' . 13 . ',' . 1 . ',' . $amount . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
+            $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . 4 . ',' . 14 . ',' . 1 . ',' . $amount . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
 
             $award_amount = bcmul($v['release_num'],0.3,2);
             $award_value .= $award_amount . ',' . $v['user_id'] . ',' . 1 . ',' . "'" . NOW_DATETIME . "'" . ';';
@@ -127,7 +127,7 @@ class NodeService extends \web\common\controller\Service
         {
             foreach ($nodes as $v)
             {
-                $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . $asset_type . ',' . 13 . ',' . 1 . ',' . $v['release_num'] . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
+                $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . $asset_type . ',' . 14 . ',' . 1 . ',' . $v['release_num'] . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
 
                 $income_value .= $v['member_node_id'] . ',' . $v['release_num'] . ',' . $v['type'] . ',' . $v['user_id'] . ',' . "'" . NOW_DATETIME . "'" . ';';
             }
@@ -136,7 +136,7 @@ class NodeService extends \web\common\controller\Service
             foreach ($nodes as $v)
             {
                 $amount = bcmul($v['release_num'],0.7,2);
-                $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . $asset_type . ',' . 13 . ',' . 1 . ',' . $amount . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
+                $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . $asset_type . ',' . 14 . ',' . 1 . ',' . $amount . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
 
                 $income_value .= $v['member_node_id'] . ',' . $v['release_num'] . ',' . $v['type'] . ',' . $v['user_id'] . ',' . "'" . NOW_DATETIME . "'" . ';';
             }
@@ -311,14 +311,14 @@ class NodeService extends \web\common\controller\Service
                 //总额
                 $total_balance = $balanceM->getBalanceAmountByType($user_id,1);
                 $total_balance_after = bcadd($total_balance,$amount,2);
-                $recordM->addRecord(0,$amount,$total_balance,$total_balance_after,1,13,1,$user_id,$remark);
+                $recordM->addRecord(0,$amount,$total_balance,$total_balance_after,1,14,1,$user_id,$remark);
                 $balanceM->updateBalance($user_id,1,$amount,true);
 
                 //可用余额
                 $use_balance = $balanceM->getBalanceAmountByType($user_id,2);
                 $use_amount = bcmul($amount,0.7,2);
                 $use_balance_after = $use_balance + $use_amount;
-                $recordM->addRecord(0,$use_amount,$use_balance,$use_balance_after,2,13,1,$user_id,$remark);
+                $recordM->addRecord(0,$use_amount,$use_balance,$use_balance_after,2,14,1,$user_id,$remark);
                 $balanceM->updateBalance($user_id,2,$use_amount,true);
 
                 Log::record("普通节点释放成功，user_id:" . $user_id);
@@ -329,7 +329,7 @@ class NodeService extends \web\common\controller\Service
                 $key_balance = $balanceM->getBalanceAmountByType($user_id,4);
                 $key_amount = bcmul($amount,0.7,2);
                 $key_balance_after = $key_balance + $key_amount;
-                $recordM->addRecord(0,$key_amount,$key_balance,$key_balance_after,4,13,1,$user_id,$remark);
+                $recordM->addRecord(0,$key_amount,$key_balance,$key_balance_after,4,14,1,$user_id,$remark);
                 $balanceM->updateBalance($user_id,4,$key_amount,true);
 
                 $awardS = new AwardService();
