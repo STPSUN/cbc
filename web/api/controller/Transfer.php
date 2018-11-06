@@ -83,6 +83,7 @@ class Transfer extends ApiBase
         $number = $this->_post('number');
         if($number<50) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER'));
         if($number%50!=0) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER_50'));
+        if($number>1000) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER_1000'));
         $price = $this->_post('price');
         $code = $this->_post('code');
 
@@ -106,6 +107,7 @@ class Transfer extends ApiBase
         if(!$info) return $this->failJSON(lang('TRANSFER_NOT_BUY'));
         if($info['power']!=1){
             if($number>$info['quota']) return $this->failJSON(lang('TRANSFER_NOT_QUOTA'));
+            if($info['can_sell']==0) return $this->failJSON(lang('TRANSFER_NOT_SELL'));
         }
 
         $balanceM = new \addons\member\model\Balance();
@@ -295,6 +297,11 @@ class Transfer extends ApiBase
         $user_id = $this->user_id;
         if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
+        $time = date('Y-m-d');
+        $map['update_time'] = ['between',[$time.' 00:00:00',$time.' 23:59:59']];
+        $map['to_user_id'] = $user_id;
+        $res = $tradingM->where($map)->count();
+        if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
@@ -316,6 +323,11 @@ class Transfer extends ApiBase
         $pay_password = $this->_post('pay_password');
         $this->checkPwd($user_id,$pay_password);
         $tradingM = new \addons\member\model\Trading();
+        $time = date('Y-m-d');
+        $map['update_time'] = ['between',[$time.' 00:00:00',$time.' 23:59:59']];
+        $map['to_user_id'] = $user_id;
+        $res = $tradingM->where($map)->count();
+        if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
@@ -507,6 +519,14 @@ class Transfer extends ApiBase
             }
         }
 
+        $TransferM = new \addons\member\model\Transfer();
+        $result = $TransferM->findData($user_id);
+        if($result['can_sell']>0) $result['can_sell'] = $result['can_sell']-1;
+        $res = $TransferM->save($result);
+        if(!$res){
+            $balanceM->rollback();
+            return $this->failJSON(lang('TRANSFER_SELL_UPDATE_FAIL'));
+        }
         $TradingLog = new \addons\member\model\TradingLog();
         $info = [
             'order_id'=>$trading['order_id'],

@@ -38,14 +38,13 @@ class Transfer extends \web\common\model\BaseModel{
                 'power'         => 0,
                 'create_at'     => NOW_DATETIME,
                 'update_at'     => '0000-00-00 00:00:00',
-                // 'can_sell'     => 1,
+                'can_sell'     => 1,
             ];
         }else{
             $info['quota_at'] = NOW_DATETIME;
             if(!$type){
                 if(!$info['power']){
                     $info['quota'] = $info['quota']-$amount;
-                    // $info['can_sell'] = $info['can_sell']-1;
                 } 
             }else{
                 $info['quota'] = $info['quota']+$amount;

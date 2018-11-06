@@ -69,6 +69,7 @@ class Crontab extends \web\common\controller\Controller {
                 if($v['today_quota']!=0){
                     $list[$k]['quota'] = $v['today_quota']+$v['quota'];
                     $list[$k]['today_quota'] = 0;
+                    $list[$k]['can_sell'] = $v['can_sell']+1;
                     $list[$k]['today_at'] = $time;
                     $list[$k]['quota_at'] = $time;
                     $list[$k]['update_at'] = $time;

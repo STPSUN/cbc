@@ -27,17 +27,22 @@ return array(
     'TRANSFER_NOT_AUTH'=>'No real name authentication, no sale.',
     'TRANSFER_RIGHT_NUMBER'=>'Please input the correct number of sales.',
     'TRANSFER_RIGHT_NUMBER_50'=>'It must be an integer multiple of 50.',
+    'TRANSFER_RIGHT_NUMBER_1000'=>'The selling quantity must be less than 1000.',
+
     'TRANSFER_VERIGYCODE_WRONG'=>'The verification code is invalid. Please resend it.',
     'TRANSFER_PLUS_TODAY'=>"Price is higher than today's highest price.",
     'TRANSFER_LESS_TODAY'=>"Price is less than today's lowest price.",
     'TRANSFER_RIGHT_AMOUNT'=>'Please enter the correct amount of sale.',
     'TRANSFER_NOT_SET_PAY'=>'No payment is set. Please set up the payment method.',
+    
     'TRANSFER_NOT_BUY'=>"You haven't bought the order yet, you can't sell it.",
+    'TRANSFER_NOT_SELL'=>'You have already exceeded the odd number of the invoice. Please hang it up tomorrow.',
     'TRANSFER_LESS_TOTAL'=>'Today, the total selling limit has been reached, and can not continue to sell.',
     'TRANSFER_NOT_QUOTA'=>'There is no quota for sale today. We can not continue to sell it.',
     'TRANSFER_QUOTA_FAIL'=>'Update sales quota failed',
     'TRANSFER_QUOTA_UPDATE_FAIL'=>'Update failed today',
     'TRANSFER_TOTAL_FAIL'=>"Update today's total quota failure",
+    'TRANSFER_SELL_UPDATE_FAIL'=>'Failed to update volume list',
 
     'TRANSFER_CODE_LESS'=>'Your CBC CODE is less than',
     'TRANSFER_CBC_LESS'=>'Your CBC balance is less than',
@@ -51,6 +56,7 @@ return array(
     'TRANSFER_CBC4_ADD'=>'Failure to increase CBC activation code',
 
     'TRANSFER_SELL_SUC'=>'Success in selling',
+    'TRANSFER_BUT_ALREADY'=>'Buy order today can not be repeated buying',
     'TRANSFER_SELL_FAIL'=>'Failure to sell',
     'TRANSFER_RIGHT_ORDER'=>'Please select the correct order.',
     'TRANSFER_ORDER_EXISTS'=>'Orders do not exist.',

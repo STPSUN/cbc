@@ -27,6 +27,7 @@ return array(
     'TRANSFER_NOT_AUTH'=>'没有实名认证无法挂卖',
     'TRANSFER_RIGHT_NUMBER'=>'请输入正确的挂卖数量',
     'TRANSFER_RIGHT_NUMBER_50'=>'必须为50的整数倍',
+    'TRANSFER_RIGHT_NUMBER_1000'=>'挂卖数量必须小于1000',
 
     'TRANSFER_VERIGYCODE_WRONG'=>'验证码失效,请重新发送',
     'TRANSFER_PLUS_TODAY'=>'价格大于今日最高价',
@@ -35,11 +36,13 @@ return array(
     'TRANSFER_NOT_SET_PAY'=>'没有设置支付方式，请设置',
 
     'TRANSFER_NOT_BUY'=>'您还未买入订单，无法挂卖',
+    'TRANSFER_NOT_SELL'=>'您已经超过挂单单数，请明天挂卖',
     'TRANSFER_LESS_TOTAL'=>'今日挂卖总限额已经达到，无法继续挂卖',
     'TRANSFER_NOT_QUOTA'=>'今日挂卖已无额度，无法继续挂卖',
     'TRANSFER_QUOTA_FAIL'=>'更新挂卖额度失败',
     'TRANSFER_QUOTA_UPDATE_FAIL'=>'更新今日额度失败',
     'TRANSFER_TOTAL_FAIL'=>'更新今日总额度失败',
+    'TRANSFER_SELL_UPDATE_FAIL'=>'挂单量更新失败',
 
     'TRANSFER_CODE_LESS'=>'你的CBC激活码少于',
     'TRANSFER_CBC_LESS'=>'你的CBC余额少于',
@@ -53,6 +56,7 @@ return array(
     'TRANSFER_CBC4_ADD'=>'增加CBC激活码失败',
 
     'TRANSFER_SELL_SUC'=>'挂卖成功',
+    'TRANSFER_BUT_ALREADY'=>'今日已买入订单无法重复买入',
     'TRANSFER_SELL_FAIL'=>'挂卖失败',
     'TRANSFER_RIGHT_ORDER'=>'请选择正确的订单',
     'TRANSFER_ORDER_EXISTS'=>'订单不存在',
