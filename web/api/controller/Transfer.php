@@ -83,6 +83,7 @@ class Transfer extends ApiBase
         $number = $this->_post('number');
         if($number<50) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER'));
         if($number%50!=0) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER_50'));
+        if($number>1000) return $this->failJSON(lang('TRANSFER_RIGHT_NUMBER_1000'));
         $price = $this->_post('price');
         $code = $this->_post('code');
 
@@ -106,6 +107,7 @@ class Transfer extends ApiBase
         if(!$info) return $this->failJSON(lang('TRANSFER_NOT_BUY'));
         if($info['power']!=1){
             if($number>$info['quota']) return $this->failJSON(lang('TRANSFER_NOT_QUOTA'));
+            if($info['can_sell']==0) return $this->failJSON(lang('TRANSFER_NOT_SELL'));
         }
 
         $balanceM = new \addons\member\model\Balance();
@@ -175,9 +177,20 @@ class Transfer extends ApiBase
                     $balanceM->rollback();
                     return $this->failJSON(lang('TRANSFER_QUOTA_FAIL'));
                 }
+                $order_id = $this->createOrderNumber();
+                $TradingLog = new \addons\member\model\TradingLog();
+                $info = [
+                    'order_id'=>$order_id,
+                    'user_id'=>$user_id,
+                    'remark'=>'用户挂卖',
+                    'create_at'=>NOW_DATETIME,
+                    'type'=>0,
+                ];
+                $TradingLog->add($info);
+
                 $data = [
                     'user_id' =>$user_id,
-                    'order_id'=>$this->createOrderNumber(),
+                    'order_id'=>$order_id,
                     'to_user_id'=>0,
                     'type'=>0,
                     'number'=>$number,
@@ -234,9 +247,20 @@ class Transfer extends ApiBase
                     $balanceM->rollback();
                     return $this->failJSON(lang('TRANSFER_QUOTA_FAIL'));
                 }
+                $order_id = $this->createOrderNumber();
+                $TradingLog = new \addons\member\model\TradingLog();
+                $info = [
+                    'order_id'=>$order_id,
+                    'user_id'=>$user_id,
+                    'remark'=>'用户挂卖',
+                    'create_at'=>NOW_DATETIME,
+                    'type'=>0,
+                ];
+                $TradingLog->add($info);
+
                 $data = [
                     'user_id' =>$user_id,
-                    'order_id'=>$this->createOrderNumber(),
+                    'order_id'=>$order_id,
                     'to_user_id'=>0,
                     'type'=>0,
                     'trans_mode'=>1,
@@ -248,6 +272,9 @@ class Transfer extends ApiBase
                     'update_time'=>NOW_DATETIME,
                     'create_at'=>date('Y-m-d H:i:s')
                 ];
+
+
+
                 $res = $tradingM->add($data);
                 if($res){
                     $balanceM->commit();
@@ -270,6 +297,11 @@ class Transfer extends ApiBase
         $user_id = $this->user_id;
         if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
+        $time = date('Y-m-d');
+        $map['update_time'] = ['between',[$time.' 00:00:00',$time.' 23:59:59']];
+        $map['to_user_id'] = $user_id;
+        $res = $tradingM->where($map)->count();
+        if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
@@ -291,6 +323,11 @@ class Transfer extends ApiBase
         $pay_password = $this->_post('pay_password');
         $this->checkPwd($user_id,$pay_password);
         $tradingM = new \addons\member\model\Trading();
+        $time = date('Y-m-d');
+        $map['update_time'] = ['between',[$time.' 00:00:00',$time.' 23:59:59']];
+        $map['to_user_id'] = $user_id;
+        $res = $tradingM->where($map)->count();
+        if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
@@ -299,12 +336,22 @@ class Transfer extends ApiBase
         if($trading['type']!=0) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
         if($trading['to_user_id']) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
         if($trading['status']) return $this->failJSON(lang('TRANSFER_ALREADY_BUY'));
+        $TradingLog = new \addons\member\model\TradingLog();
+        $info = [
+            'order_id'=>$trading['order_id'],
+            'user_id'=>$user_id,
+            'remark'=>'用户买入',
+            'create_at'=>NOW_DATETIME,
+            'type'=>1,
+        ];
+        $TradingLog->add($info);
         $data = [
                 'to_user_id' =>$user_id,
                 'type'=>1,
                 'update_time'=>NOW_DATETIME,
         ];
         $tradingM = new \addons\member\model\Trading();
+
         $res = $tradingM->where(['id'=>$trad_id])->update($data);
         if($res){
             return $this->successJSON(lang('TRANSFER_BUY_SUC'));
@@ -336,6 +383,18 @@ class Transfer extends ApiBase
             $savePath = 'transaction/proof/'.$user_id.'/';
             $data = $this->base_img_upload($qrcode, $user_id, $savePath);
             if(!$data['success']) return $this->failJSON(lang('TRANSFER_UPLOAD_VOUCHER_FAIL'));
+
+            $TradingLog = new \addons\member\model\TradingLog();
+            $info = [
+                'order_id'=>$trading['order_id'],
+                'user_id'=>$user_id,
+                'remark'=>'用户上传付款凭证',
+                'voucher'=>$data['path'],
+                'create_at'=>NOW_DATETIME,
+                'type'=>2,
+            ];
+            $TradingLog->add($info);
+
             $trading['type'] = 2;
             $trading['voucher'] = $data['path'];
             $trading['update_time'] = NOW_DATETIME;
@@ -459,6 +518,25 @@ class Transfer extends ApiBase
                 return $this->failJSON($e->getMessage());
             }
         }
+
+        $TransferM = new \addons\member\model\Transfer();
+        $result = $TransferM->findData($user_id);
+        if($result['can_sell']>0) $result['can_sell'] = $result['can_sell']-1;
+        $res = $TransferM->save($result);
+        if(!$res){
+            $balanceM->rollback();
+            return $this->failJSON(lang('TRANSFER_SELL_UPDATE_FAIL'));
+        }
+        $TradingLog = new \addons\member\model\TradingLog();
+        $info = [
+            'order_id'=>$trading['order_id'],
+            'user_id'=>$user_id,
+            'remark'=>'用户确认收款',
+            'create_at'=>NOW_DATETIME,
+            'type'=>3,
+        ];
+        $TradingLog->add($info);
+
         $TransferM = new \addons\member\model\Transfer();
         $info = $TransferM->findData($trading['to_user_id']);
         if($info){
@@ -550,7 +628,7 @@ class Transfer extends ApiBase
             $map['p.type'] = 3;
         }
 
-        $order = 'number asc';
+        $order = 'price asc';
         $level_type = $this->_post('level_type');
         if($level_type==1){
             $order = 'credit_level desc';
@@ -744,6 +822,16 @@ class Transfer extends ApiBase
                         $this->failJSON(lang('TRANSFER_TOTAL_FAIL'));
                     }
 
+                    $TradingLog = new \addons\member\model\TradingLog();
+                    $info = [
+                        'order_id'=>$trading['order_id'],
+                        'user_id'=>$user_id,
+                        'remark'=>'用户取消',
+                        'create_at'=>NOW_DATETIME,
+                        'type'=>4,
+                    ];
+                    $TradingLog->add($info);
+
                     $TransferM = new \addons\member\model\Transfer();
                     $res = $TransferM->updateQuota($user_id,$amount,1);
                     if(!$res){
@@ -829,6 +917,16 @@ class Transfer extends ApiBase
                         $this->failJSON(lang('TRANSFER_TOTAL_FAIL'));
                     }
                     
+                    $TradingLog = new \addons\member\model\TradingLog();
+                    $info = [
+                        'order_id'=>$trading['order_id'],
+                        'user_id'=>$user_id,
+                        'remark'=>'用户取消',
+                        'create_at'=>NOW_DATETIME,
+                        'type'=>4,
+                    ];
+                    $TradingLog->add($info);
+
                     $TransferM = new \addons\member\model\Transfer();
                     $res = $TransferM->updateQuota($user_id,$amount,1);
                     if(!$res){

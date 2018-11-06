@@ -71,6 +71,16 @@ class Trading extends \web\user\controller\AddonUserBase {
                     $this->failJSON('增加用户挂卖额度失败');
                 }
 
+                $TradingLog = new \addons\member\model\TradingLog();
+                $infoLog = [
+                    'order_id'=>$info['order_id'],
+                    'user_id'=>0,
+                    'remark'=>'后台取消',
+                    'create_at'=>NOW_DATETIME,
+                    'type'=>5,
+                ];
+                $TradingLog->add($infoLog);
+
                 $sysM = new \web\common\model\sys\SysParameterModel();
                 $less_total = $sysM->getValByName('less_total');
                 $less_total = $less_total+$amount;
@@ -149,6 +159,16 @@ class Trading extends \web\user\controller\AddonUserBase {
                     return $this->failData('增加记录失败');
                 }
 
+                $TradingLog = new \addons\member\model\TradingLog();
+                $infoLog = [
+                    'order_id'=>$info['order_id'],
+                    'user_id'=>0,
+                    'remark'=>'后台取消',
+                    'create_at'=>NOW_DATETIME,
+                    'type'=>5,
+                ];
+                $TradingLog->add($infoLog);
+
                 $sysM = new \web\common\model\sys\SysParameterModel();
                 $less_total = $sysM->getValByName('less_total');
                 $less_total = $less_total+$info['number'];
@@ -176,6 +196,16 @@ class Trading extends \web\user\controller\AddonUserBase {
             }
                 
         }elseif($info['type']==1){
+            $TradingLog = new \addons\member\model\TradingLog();
+            $infoLog = [
+                'order_id'=>$info['order_id'],
+                'user_id'=>0,
+                'remark'=>'后台取消',
+                'create_at'=>NOW_DATETIME,
+                'type'=>6,
+            ];
+            $TradingLog->add($infoLog);
+
             $info['type'] = 0;
             $info['voucher'] = null;
             $info['to_user_id'] = 0;
@@ -278,6 +308,16 @@ class Trading extends \web\user\controller\AddonUserBase {
                     return $this->failJSON('奖金发放失败');
                 }
             }
+            $TradingLog = new \addons\member\model\TradingLog();
+            $infoLog = [
+                'order_id'=>$trading['order_id'],
+                'user_id'=>0,
+                'remark'=>'后台确认',
+                'create_at'=>NOW_DATETIME,
+                'type'=>7,
+            ];
+            $TradingLog->add($infoLog);
+
             $TransferM = new \addons\member\model\Transfer();
             $info = $TransferM->findData($trading['to_user_id']);
             if($info){
