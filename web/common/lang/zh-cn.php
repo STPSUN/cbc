@@ -21,7 +21,7 @@ return array(
 
     'TRANSFER_TIME_BAN'=>'当前时间禁止交易',
     'TRANSFER_ALREADY'=>'存在挂卖的订单无法重复挂卖',
-    'TRANSFER_NOT_NODE'=>'没够购买节点，无法挂卖',
+    'TRANSFER_NOT_NODE'=>'没购买节点，无法挂卖',
     'TRANSFER_TODAY'=>'一天只能挂卖一单',
     'TRANSFER_PAYPWD_WRONG'=>'支付密码错误',
     'TRANSFER_NOT_AUTH'=>'没有实名认证无法挂卖',
