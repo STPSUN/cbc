@@ -61,7 +61,7 @@ class Transfer extends ApiBase
         $pay_password = $this->_post('pay_password');
         $user = $this->checkPwd($user_id,$pay_password);
         if($user['is_auth']!=1)  return $this->failJSON(lang('TRANSFER_NOT_AUTH'));
-        if($user['node_level']<1)  return $this->failJSON(lang('TRANSFER_NOT_NODE'));
+        // if($user['node_level']<1)  return $this->failJSON(lang('TRANSFER_NOT_NODE'));
         $m = new \addons\config\model\Quotation();
         $data = $m->field('price_now,price_top top,price_low low,create_at')->order('id desc')->find();
         $top = $data['top'];
@@ -297,11 +297,18 @@ class Transfer extends ApiBase
         $user_id = $this->user_id;
         if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
-        $time = date('Y-m-d');
-        $map['update_time'] = ['between',[$time.' 00:00:00',$time.' 23:59:59']];
-        $map['to_user_id'] = $user_id;
-        $res = $tradingM->where($map)->count();
-        if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
+        $TransferM = new \addons\member\model\Transfer();
+        $info = $TransferM->findData($user_id);
+        if($info['power']!=1){
+            $time = date('Y-m-d');
+            $map['update_time'] = ['between',[$time.' 00:00:00',$time.' 23:59:59']];
+            $map['status'] = 0;
+            $map['to_user_id'] = $user_id;
+            $res = $tradingM->where($map)->count();
+            if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
+        }
+
+            
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
@@ -323,11 +330,16 @@ class Transfer extends ApiBase
         $pay_password = $this->_post('pay_password');
         $this->checkPwd($user_id,$pay_password);
         $tradingM = new \addons\member\model\Trading();
-        $time = date('Y-m-d');
-        $map['update_time'] = ['between',[$time.' 00:00:00',$time.' 23:59:59']];
-        $map['to_user_id'] = $user_id;
-        $res = $tradingM->where($map)->count();
-        if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
+        $TransferM = new \addons\member\model\Transfer();
+        $datas = $TransferM->findData($user_id);
+        if($datas['power']!=1){
+            $time = date('Y-m-d');
+            $map['update_time'] = ['between',[$time.' 00:00:00',$time.' 23:59:59']];
+            $map['to_user_id'] = $user_id;
+            $map['status'] = 0;
+            $res = $tradingM->where($map)->count();
+            if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
+        }
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);

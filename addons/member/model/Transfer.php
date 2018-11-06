@@ -47,7 +47,9 @@ class Transfer extends \web\common\model\BaseModel{
                     $info['quota'] = $info['quota']-$amount;
                 } 
             }else{
-                $info['quota'] = $info['quota']+$amount;
+                if(!$info['power']){
+                    $info['quota'] = $info['quota']+$amount;
+                }
             }
         }
         $res = $this->save($info);
