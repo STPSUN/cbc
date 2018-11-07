@@ -36,7 +36,7 @@ return array(
     'TRANSFER_NOT_SET_PAY'=>'没有设置支付方式，请设置',
 
     'TRANSFER_NOT_BUY'=>'您还未买入订单，无法挂卖',
-    'TRANSFER_NOT_SELL'=>'您已经超过挂单单数，请明天挂卖',
+    'TRANSFER_NOT_SELL'=>'您已经挂单过，请明天挂卖',
     'TRANSFER_LESS_TOTAL'=>'今日挂卖总限额已经达到，无法继续挂卖',
     'TRANSFER_NOT_QUOTA'=>'今日挂卖已无额度，无法继续挂卖',
     'TRANSFER_QUOTA_FAIL'=>'更新挂卖额度失败',
