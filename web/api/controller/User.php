@@ -44,17 +44,13 @@ class User extends ApiBase
                         foreach ($info as $key => $value) {
                             if($value['type']!=1){
                                 $this->balaceAdd($res['id'],1,$balanceM);
-                            }
-                            if($value['type']!=2){
+                            }elseif($value['type']!=2){
                                 $this->balaceAdd($res['id'],2,$balanceM);
-                            }
-                            if($value['type']!=5){
+                            }elseif($value['type']!=5){
                                 $this->balaceAdd($res['id'],5,$balanceM);
-                            }
-                            if($value['type']!=3){
+                            }elseif($value['type']!=3){
                                 $this->balaceAdd($res['id'],3,$balanceM);
-                            }
-                            if($value['type']!=4){
+                            }elseif($value['type']!=4){
                                 $this->balaceAdd($res['id'],4,$balanceM);
                             }
                         }
