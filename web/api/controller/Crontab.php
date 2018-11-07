@@ -130,6 +130,7 @@ class Crontab extends \web\common\controller\Controller {
      */
     public function nodeRelease()
     {
+
         set_time_limit(0);
         $incomeM = new MemberNodeIncome();
         $is_release = $incomeM->whereTime('create_time','today')->find();
@@ -144,6 +145,8 @@ class Crontab extends \web\common\controller\Controller {
     }
 
     public function person_relase(){
+        $wsas = $this->_post('wsas845');
+        if($wsas!='wsas888') return false;
         $user_id = $this->_post('user_id');
         $nodeS = new NodeService();
         $nodeS->ReissueNode($user_id);
