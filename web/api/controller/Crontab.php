@@ -47,7 +47,7 @@ class Crontab extends \web\common\controller\Controller {
         if($res) $this->successJSON('update success');
         else $this->failJSON('update failed');
     }
-    
+
     /**
      * 定时恢复挂卖金额
      * 恢复每日总量
@@ -69,7 +69,7 @@ class Crontab extends \web\common\controller\Controller {
                 if($v['today_quota']!=0){
                     $list[$k]['quota'] = $v['today_quota']+$v['quota'];
                     $list[$k]['today_quota'] = 0;
-                    $list[$k]['can_sell'] = $v['can_sell']+1;
+                    // $list[$k]['can_sell'] = $v['can_sell']+1;
                     $list[$k]['today_at'] = $time;
                     $list[$k]['quota_at'] = $time;
                     $list[$k]['update_at'] = $time;
@@ -140,9 +140,14 @@ class Crontab extends \web\common\controller\Controller {
 
         $nodeS->nodeRelease();
 
-        $nodeS->updateBalanceReleaseNum();
+        // $nodeS->updateBalanceReleaseNum();
     }
 
+    public function person_relase(){
+        $user_id = $this->_post('user_id');
+        $nodeS = new NodeService();
+        $nodeS->ReissueNode($user_id);
+    }
     /**
      * 超级节点释放，奖励发放
      */
