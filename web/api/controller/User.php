@@ -40,21 +40,7 @@ class User extends ApiBase
                 $balanceM = new Balance();
                 if ($res) {
                     $info = $balanceM->where(['user_id'=>$res['id']])->select();
-                    if($info){
-                        foreach ($info as $key => $value) {
-                            if($value['type']!=1){
-                                $this->balaceAdd($res['id'],1,$balanceM);
-                            }elseif($value['type']!=2){
-                                $this->balaceAdd($res['id'],2,$balanceM);
-                            }elseif($value['type']!=5){
-                                $this->balaceAdd($res['id'],5,$balanceM);
-                            }elseif($value['type']!=3){
-                                $this->balaceAdd($res['id'],3,$balanceM);
-                            }elseif($value['type']!=4){
-                                $this->balaceAdd($res['id'],4,$balanceM);
-                            }
-                        }
-                    }else{
+                    if(!$info){
                         for ($i=1; $i <6 ; $i++) { 
                             $balance = array(
                                 'user_id'   => $res['id'],
