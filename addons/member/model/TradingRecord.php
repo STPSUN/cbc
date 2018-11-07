@@ -95,7 +95,7 @@ class TradingRecord extends \web\common\model\BaseModel{
         $c = new \addons\config\model\BalanceConf();
         $userM = new \addons\member\model\MemberAccountModel();
         $sql = 'select a.*,c.name from '.$this->getTableName() . ' a,'.$c->getTableName().' c where a.asset_type=c.id';
-        $sql = 'select s.*,u.username from ('.$sql.') as s left join '.$userM->getTableName().' u on s.user_id=u.id';
+        $sql = 'select * from ('.$sql.') s ';
         if($filter != ''){
             $sql = 'select count(*) c from ('.$sql.') as y where '.$filter;
         }else{
