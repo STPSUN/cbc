@@ -57,6 +57,7 @@ class NodeService extends \web\common\controller\Service
         $BalanceM = new Balance();
         $nodedata = $nodeM->where(['user_id'=>$user_id])->select();
         $AwardIssue = new AwardIssue();
+        $MemberNodeIncome = new MemberNodeIncome();
         $BalanceM->startTrans();
         foreach ($nodedata as $key => $value) {
             if($value['type']!=8){
@@ -82,6 +83,14 @@ class NodeService extends \web\common\controller\Service
                     $BalanceM->rollback();
                     return false;
                 }
+                $data = [
+                    'member_node_id'=>$value['id'],
+                    'create_time'=>NOW_DATETIME,
+                    'amount'=>$release_num,
+                    'type'=>$value['type'],
+                    'user_id'=>$user_id,
+                ];
+                $MemberNodeIncome->add($data);
             }else{
                 $release_num = $value['release_num']*0.7;
                 $amount = $value['release_num']*0.3;
@@ -95,6 +104,15 @@ class NodeService extends \web\common\controller\Service
                     $BalanceM->rollback();
                     return false;
                 }
+                $info = [
+                    'member_node_id'=>$value['id'],
+                    'create_time'=>NOW_DATETIME,
+                    'amount'=>$release_num,
+                    'type'=>$value['type'],
+                    'user_id'=>$user_id,
+                ];
+                $MemberNodeIncome->add($info);
+
                 $data['amount'] = $amount;
                 $data['user_id'] = $user_id;
                 $data['type'] = 1;
