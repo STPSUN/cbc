@@ -39,7 +39,7 @@ class ApiBase extends \web\common\controller\Controller {
         if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
             return true;
         }
-                return $this->failJSON(lang('API_LOGIN'),404);
+                // return $this->failJSON(lang('API_LOGIN'),404);
 
         $this->_setLang();
         $this->is_frozen($this->user_id);
