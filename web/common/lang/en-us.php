@@ -36,7 +36,7 @@ return array(
     'TRANSFER_NOT_SET_PAY'=>'No payment is set. Please set up the payment method.',
     
     'TRANSFER_NOT_BUY'=>"You haven't bought the order yet, you can't sell it.",
-    'TRANSFER_NOT_SELL'=>'You have already exceeded the odd number of the invoice. Please hang it up tomorrow.',
+    'TRANSFER_NOT_SELL'=>'You have already signed the bill, please hang it up tomorrow.',
     'TRANSFER_LESS_TOTAL'=>'Today, the total selling limit has been reached, and can not continue to sell.',
     'TRANSFER_NOT_QUOTA'=>'There is no quota for sale today. We can not continue to sell it.',
     'TRANSFER_QUOTA_FAIL'=>'Update sales quota failed',

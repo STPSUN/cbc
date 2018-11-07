@@ -37,7 +37,19 @@ class User extends ApiBase
                 }
                 $m = new \addons\member\model\MemberAccountModel();
                 $res = $m->getLoginDataById($password, $phone, 'phone,id,username,head_img,token,address', 'id,phone,username');
+                $balanceM = new Balance();
                 if ($res) {
+                    $info = $balanceM->where(['user_id'=>$res['id']])->select();
+                    if(!$info){
+                        for ($i=1; $i <6 ; $i++) { 
+                            $balance = array(
+                                'user_id'   => $res['id'],
+                                'type'  => $i,
+                                'update_time'   => NOW_DATETIME,
+                            );
+                            $balanceM->save($balance);
+                        }
+                    }
                     $memberData['username'] = $res['phone'];
                     $memberData['user_id'] = $res['id'];
                     session('memberData', $memberData);
@@ -78,6 +90,15 @@ class User extends ApiBase
         }
     }
 
+    private function balaceAdd($user_id,$type,$balanceM){        
+        $balance = array(
+            'user_id'   => $user_id,
+            'type'  => $type,
+            'update_time'   => NOW_DATETIME,
+        );
+        $balanceM->save($balance);
+        
+    }
     /**
      * 用户注册
      */
@@ -148,7 +169,7 @@ class User extends ApiBase
                 for($i = 1; $i <= 5; $i++)
                 {
                     $balance = array(
-                        'user_id'   => $user_id,
+                        'user_id'   => $data['phone'],
                         'type'  => $i,
                         'update_time'   => NOW_DATETIME,
                     );
@@ -557,69 +578,75 @@ class User extends ApiBase
         set_time_limit(0);
         $user_id = $this->user_id;
         if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
-        $memberS = new \web\api\service\MemberService();
 
-        $users = $memberS->getTreeTeam($user_id,[],0);
-        $userid = $memberS->getTreeId($user_id,[]);
-        $memberNodeM = new MemberNode();
-        $node_arr = array();
-        foreach ($users as $v)
-        {
-            $user_node = $memberNodeM->where('user_id',$v['user_id'])->column('type');
-            if(empty($user_node))
-                continue;
-            $temp = array(
-                'node' => $user_node,
-                'user' => $v
-            );
-            $node_arr[] = $temp;
-        }
-        $user_node_arr = $memberNodeM->group('type')->column('type');
-        for ($i=1; $i <9 ; $i++) { 
-            $node = 'node'.$i;
-            $$node = [];
-            $arr = 'arr'.$i;
-            $$arr = [];
-        }
-        foreach ($node_arr as $v)
-        {
-            foreach ($v['node'] as $n)
+        $redis = \think\Cache::connect(\think\Config::get('global_cache'));
+        $data = $redis->get('node'.$user_id);
+        if(!$data){
+            $memberS = new \web\api\service\MemberService();
+
+            $users = $memberS->getTreeTeam($user_id,[],0);
+            $userid = $memberS->getTreeId($user_id,[]);
+            $memberNodeM = new MemberNode();
+            $node_arr = array();
+            foreach ($users as $v)
             {
-                switch ($n)
+                $user_node = $memberNodeM->where('user_id',$v['user_id'])->column('type');
+                if(empty($user_node))
+                    continue;
+                $temp = array(
+                    'node' => $user_node,
+                    'user' => $v
+                );
+                $node_arr[] = $temp;
+            }
+            $user_node_arr = $memberNodeM->group('type')->column('type');
+            for ($i=1; $i <9 ; $i++) { 
+                $node = 'node'.$i;
+                $$node = [];
+                $arr = 'arr'.$i;
+                $$arr = [];
+            }
+            foreach ($node_arr as $v)
+            {
+                foreach ($v['node'] as $n)
                 {
-                    case 1:
-                        $arr1[] = $v['user'];  break;
-                    case 2:
-                        $arr2[] = $v['user'];  break;
-                    case 3:
-                        $arr3[] = $v['user'];  break;
-                    case 4:
-                        $arr4[] = $v['user'];  break;
-                    case 5:
-                        $arr5[] = $v['user'];  break;
-                    case 6:
-                        $arr6[] = $v['user'];  break;
-                    case 7:
-                        $arr7[] = $v['user'];  break;
-                    case 8:
-                        $arr8[] = $v['user'];  break;
+                    switch ($n)
+                    {
+                        case 1:
+                            $arr1[] = $v['user'];  break;
+                        case 2:
+                            $arr2[] = $v['user'];  break;
+                        case 3:
+                            $arr3[] = $v['user'];  break;
+                        case 4:
+                            $arr4[] = $v['user'];  break;
+                        case 5:
+                            $arr5[] = $v['user'];  break;
+                        case 6:
+                            $arr6[] = $v['user'];  break;
+                        case 7:
+                            $arr7[] = $v['user'];  break;
+                        case 8:
+                            $arr8[] = $v['user'];  break;
+                    }
                 }
             }
-        }
-        foreach ($user_node_arr as $key => $value) {
-            $map['user_id'] = ['in',$userid];
-            $map['type'] = $value;
-            $node = 'node'.$value;
-            $count = $memberNodeM->where($map)->count();
-            $$node['count'] = $count;
-        }
+            foreach ($user_node_arr as $key => $value) {
+                $map['user_id'] = ['in',$userid];
+                $map['type'] = $value;
+                $node = 'node'.$value;
+                $count = $memberNodeM->where($map)->count();
+                $$node['count'] = $count;
+            }
 
-        for ($i=1; $i <9 ; $i++) { 
-            $node = 'node'.$i;
-            $arr = 'arr'.$i;
-            $$node['list'] = $$arr;
+            for ($i=1; $i <9 ; $i++) { 
+                $node = 'node'.$i;
+                $arr = 'arr'.$i;
+                $$node['list'] = $$arr;
+            }
+            $data = array($node8,$node7,$node6,$node5,$node4,$node3,$node2,$node1);
+            $redis->set('node'.$user_id, json_encode($data),86400);
         }
-        $data = array($node8,$node7,$node6,$node5,$node4,$node3,$node2,$node1);
 
         return $this->successJSON($data);
     }
@@ -629,102 +656,111 @@ class User extends ApiBase
      */
     public function awardCommunity()
     {
-        set_time_limit(30);
-        $userM = new MemberAccountModel();
-        $user = $userM->getDetail($this->user_id);
-        $pOne = null;
-        $pTwo = null;
-        $pThree = null;
-        $one_ids = '';
-        $two_ids = '';
-        $three_ids = '';
 
-        if($user)
-        {
-            $pOne = $userM->where(['pid' => $user['id'], 'is_auth' => 1])->column('id');
-        }
+        set_time_limit(0);
+        $user_id = $this->user_id;
+        if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
+        $redis = \think\Cache::connect(\think\Config::get('global_cache'));
+        $data = $redis->get('award'.$user_id);
+        if(!$data){
 
-        $user2 = array();
-        if($pOne)
-        {
-            foreach ($pOne as $v)
+            $userM = new MemberAccountModel();
+            $user = $userM->getDetail($user_id);
+            $pOne = null;
+            $pTwo = null;
+            $pThree = null;
+            $one_ids = '';
+            $two_ids = '';
+            $three_ids = '';
+
+            if($user)
             {
-                $temp = $userM->where(['pid' => $v, 'is_auth' => 1])->column('id');
-                $pTwo[] = $temp;
-                $one_ids .= $v . ',';
+                $pOne = $userM->where(['pid' => $user['id'], 'is_auth' => 1])->column('id');
             }
 
-            foreach ($pTwo as $p)
-                foreach ($p as $i)
-                    array_push($user2,$i);
-        }
-
-        $user3 = array();
-        if($user2)
-        {
-            foreach ($user2 as $v)
+            $user2 = array();
+            if($pOne)
             {
-                $temp = $userM->where(['pid' => $v, 'is_auth' => 1])->column('id');
-                $pThree[] = $temp;
-                $two_ids .= $v . ',';
+                foreach ($pOne as $v)
+                {
+                    $temp = $userM->where(['pid' => $v, 'is_auth' => 1])->column('id');
+                    $pTwo[] = $temp;
+                    $one_ids .= $v . ',';
+                }
+
+                foreach ($pTwo as $p)
+                    foreach ($p as $i)
+                        array_push($user2,$i);
             }
 
-            foreach ($pThree as $p)
-                foreach ($p as $i)
-                    array_push($user3,$i);
-        }
-
-        if($user3)
-        {
-            foreach ($user3 as $v)
+            $user3 = array();
+            if($user2)
             {
-                $three_ids .= $v . ',';
+                foreach ($user2 as $v)
+                {
+                    $temp = $userM->where(['pid' => $v, 'is_auth' => 1])->column('id');
+                    $pThree[] = $temp;
+                    $two_ids .= $v . ',';
+                }
+
+                foreach ($pThree as $p)
+                    foreach ($p as $i)
+                        array_push($user3,$i);
             }
+
+            if($user3)
+            {
+                foreach ($user3 as $v)
+                {
+                    $three_ids .= $v . ',';
+                }
+            }
+
+            $memberS = new MemberService();
+            $team_users = $memberS->getTeamId($user_id);
+            $team_user_ids = '';
+            foreach ($team_users as $v)
+            {
+                $team_user_ids .= $v['user_id'] . ',';
+            }
+
+            $recordM = new TradingRecord();
+
+            $total_amount = $recordM->where(['user_id' => array('in',$team_user_ids), 'type' => array('in','3,5')])->sum('amount');
+            $one_amount = $recordM->where(['user_id' => array('in',$one_ids), 'type' => 3])->sum('amount');
+            $two_amount = $recordM->where(['user_id' => array('in',$two_ids), 'type' => 3])->sum('amount');
+            $three_amount = $recordM->where(['user_id' => array('in',$three_ids), 'type' => 3])->sum('amount');
+            $total = array(
+                'total' => array(
+                    'total_num' => count($team_users),
+                    'total_amount'  => $total_amount,
+                ),
+                'one'   => array(
+                    'people_num'    => count($pOne),
+                    'amount'        => $one_amount,
+                ),
+                'two'   => array(
+                    'people_num'    => count($user2),
+                    'amount'        => $two_amount,
+                ),
+                'three' => array(
+                    'people_num'    => count($user3),
+                    'amount'        => $three_amount,
+                )
+            );
+
+            $one = $userM->field('real_name,phone')->where('id','in',$one_ids)->select();
+            $two = $userM->field('real_name,phone')->where('id','in',$two_ids)->select();
+            $three = $userM->field('real_name,phone')->where('id','in',$three_ids)->select();
+            $data = array(
+                'total' => $total,
+                '1'   => $one,
+                '2'   => $two,
+                '3'   => $three,
+            );
+            $redis->set('award'.$user_id, json_encode($data),86400);
         }
-
-        $memberS = new MemberService();
-        $team_users = $memberS->getTeamId($this->user_id);
-        $team_user_ids = '';
-        foreach ($team_users as $v)
-        {
-            $team_user_ids .= $v['user_id'] . ',';
-        }
-
-        $recordM = new TradingRecord();
-
-        $total_amount = $recordM->where(['user_id' => array('in',$team_user_ids), 'type' => array('in','3,5')])->sum('amount');
-        $one_amount = $recordM->where(['user_id' => array('in',$one_ids), 'type' => 3])->sum('amount');
-        $two_amount = $recordM->where(['user_id' => array('in',$two_ids), 'type' => 3])->sum('amount');
-        $three_amount = $recordM->where(['user_id' => array('in',$three_ids), 'type' => 3])->sum('amount');
-        $total = array(
-            'total' => array(
-                'total_num' => count($team_users),
-                'total_amount'  => $total_amount,
-            ),
-            'one'   => array(
-                'people_num'    => count($pOne),
-                'amount'        => $one_amount,
-            ),
-            'two'   => array(
-                'people_num'    => count($user2),
-                'amount'        => $two_amount,
-            ),
-            'three' => array(
-                'people_num'    => count($user3),
-                'amount'        => $three_amount,
-            )
-        );
-
-        $one = $userM->field('real_name,phone')->where('id','in',$one_ids)->select();
-        $two = $userM->field('real_name,phone')->where('id','in',$two_ids)->select();
-        $three = $userM->field('real_name,phone')->where('id','in',$three_ids)->select();
-        $data = array(
-            'total' => $total,
-            '1'   => $one,
-            '2'   => $two,
-            '3'   => $three,
-        );
-
+    
         return $this->successJSON($data);
     }
 

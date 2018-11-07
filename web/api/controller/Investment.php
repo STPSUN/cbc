@@ -45,6 +45,7 @@ class Investment extends ApiBase
      * @param amount float 资产
      */
     public function Investment(){
+        set_time_limit(0);
         $user_id = $this->user_id;
         if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
         $financialM = new \web\common\model\sys\FinancialModel();
@@ -52,12 +53,29 @@ class Investment extends ApiBase
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
         $financial_id = $this->_post('financial_id');
-        $style = $this->_post('type')?$this->_post('type'):0;
+        $style = $this->_post('type')?1:0;
         $info = $financialM->getFinancial($financial_id);
         if(!$info) return $this->failJSON(lang('INVESTMENT_FIND'));
         $amount = $this->_post('amount');
         if($amount<$info['amount_limit']) return $this->failJSON(lang('INVESTMENT_LESS').$info['amount_limit']);
         $balanceM->startTrans();
+        $data = [
+                'user_id'       =>$user_id,
+                'amount'        =>$amount,
+                'month_fee'     =>$info['amount_interest'],
+                'belong'        =>$style,
+                'financing_time'=>$info['time_length'],
+                'interset'      =>bcmul(($amount*$info['amount_interest']/100*$info['time_length']/30), 1,4),
+                'start_at'      =>date('Y-m-d H:i:s'),
+                'end_at'        =>date('Y-m-d H:i:s',strtotime('+'.$info['time_length'].' days')),
+                'update_at'     =>date('Y-m-d H:i:s'),
+                'create_at'     =>date('Y-m-d H:i:s'),
+        ];
+        $res = $fina->add($data);
+        if(!$res){
+            $balanceM->rollback();
+            return $this->failJSON(lang('INVESTMENT_ADD_WRONG'));
+        }
         if($style==0){
             $type = 2;
             $userAsset = $balanceM->getBalanceByType($user_id,$type);
@@ -125,23 +143,7 @@ class Investment extends ApiBase
             $balanceM->rollback();
             return $this->failJSON(lang('INVESTMENT_ADD_WRONG'));
         }
-        $data = [
-                'user_id'       =>$user_id,
-                'amount'        =>$amount,
-                'month_fee'     =>$info['amount_interest'],
-                'belong'        =>$style,
-                'financing_time'=>$info['time_length'],
-                'interset'      =>bcmul(($amount*$info['amount_interest']/100*$info['time_length']/30), 1,4),
-                'start_at'      =>date('Y-m-d H:i:s'),
-                'end_at'        =>date('Y-m-d H:i:s',strtotime('+'.$info['time_length'].' days')),
-                'update_at'     =>date('Y-m-d H:i:s'),
-                'create_at'     =>date('Y-m-d H:i:s'),
-        ];
-        $res = $fina->add($data);
-        if(!$res){
-            $balanceM->rollback();
-            return $this->failJSON(lang('INVESTMENT_ADD_WRONG'));
-        }
+        
         $balanceM->commit();
         return $this->successJSON();
     }

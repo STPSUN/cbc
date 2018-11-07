@@ -107,7 +107,13 @@ class Transfer extends ApiBase
         if(!$info) return $this->failJSON(lang('TRANSFER_NOT_BUY'));
         if($info['power']!=1){
             if($number>$info['quota']) return $this->failJSON(lang('TRANSFER_NOT_QUOTA'));
-            if($info['can_sell']==0) return $this->failJSON(lang('TRANSFER_NOT_SELL'));
+            $time = date('Y-m-d');
+            $ma['create_at'] = ['between',[$time.' 00:00:00',$time.' 23:59:59']];
+            $ma['status'] = 0;
+            $ma['user_id'] = $user_id;
+            $r = $tradingM->where($ma)->count();
+            if($r) return $this->failJSON(lang('TRANSFER_NOT_SELL'));
+            // if($info['can_sell']==0) return $this->failJSON(lang('TRANSFER_NOT_SELL'));
         }
 
         $balanceM = new \addons\member\model\Balance();
@@ -531,14 +537,14 @@ class Transfer extends ApiBase
             }
         }
 
-        $TransferM = new \addons\member\model\Transfer();
-        $result = $TransferM->findData($user_id);
-        if($result['can_sell']>0) $result['can_sell'] = $result['can_sell']-1;
-        $res = $TransferM->save($result);
-        if(!$res){
-            $balanceM->rollback();
-            return $this->failJSON(lang('TRANSFER_SELL_UPDATE_FAIL'));
-        }
+        // $TransferM = new \addons\member\model\Transfer();
+        // $result = $TransferM->findData($user_id);
+        // if($result['can_sell']>0) $result['can_sell'] = $result['can_sell']-1;
+        // $res = $TransferM->save($result);
+        // if(!$res){
+        //     $balanceM->rollback();
+        //     return $this->failJSON(lang('TRANSFER_SELL_UPDATE_FAIL'));
+        // }
         $TradingLog = new \addons\member\model\TradingLog();
         $info = [
             'order_id'=>$trading['order_id'],

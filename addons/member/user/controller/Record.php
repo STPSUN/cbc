@@ -34,7 +34,7 @@ class Record extends \web\user\controller\AddonUserBase{
             $filter .= ' and change_type='.$change_type;
         }
         if ($keyword != null) {
-            $filter .= ' and username like \'%' . $keyword . '%\'';
+            $filter .= ' and user_id like \'%' . $keyword . '%\'';
         }
         if ($startDate != null && $endDate != null)
             $filter .= ' and (update_time >= \'' . $startDate . ' 00:00:00\' and update_time <= \'' . $endDate . ' 23:59:59\')';

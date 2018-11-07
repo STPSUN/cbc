@@ -49,6 +49,84 @@ class NodeService extends \web\common\controller\Service
         $this->updateKeyBalance($super_node);
     }
 
+    public function ReissueNode($user_id){
+        echo 'in list';
+        if(!$user_id) return false;
+        $nodeM = new MemberNode();
+        $TradingRecordM = new TradingRecord();
+        $BalanceM = new Balance();
+        $nodedata = $nodeM->where(['user_id'=>$user_id])->select();
+        $AwardIssue = new AwardIssue();
+        $MemberNodeIncome = new MemberNodeIncome();
+        $BalanceM->startTrans();
+        foreach ($nodedata as $key => $value) {
+            if($value['type']!=8){
+                $release_num = $value['release_num'];
+                $userAmount = $BalanceM->updateBalance($user_id,1,$release_num,1);
+                if(!$userAmount){
+                    $BalanceM->rollback();
+                    return false;
+                } 
+                $r_id = $TradingRecordM->addRecord($user_id, $release_num, $userAmount['before_amount'], $userAmount['amount'],1, 14,1, 0,'节点释放');
+                if(!$r_id){
+                    $BalanceM->rollback();
+                    return false;
+                } 
+                $amount = $release_num*0.7;
+                $userAmount = $BalanceM->updateBalance($user_id,2,$amount,1);
+                if(!$userAmount){
+                    $BalanceM->rollback();
+                    return false;
+                } 
+                $r_id = $TradingRecordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],2, 14,1, 0,'节点释放');
+                if(!$r_id){
+                    $BalanceM->rollback();
+                    return false;
+                }
+                $data = [
+                    'member_node_id'=>$value['id'],
+                    'create_time'=>NOW_DATETIME,
+                    'amount'=>$release_num,
+                    'type'=>$value['type'],
+                    'user_id'=>$user_id,
+                ];
+                $MemberNodeIncome->add($data);
+            }else{
+                $release_num = $value['release_num']*0.7;
+                $amount = $value['release_num']*0.3;
+                $userAmount = $BalanceM->updateBalance($user_id,4,$release_num,1);
+                if(!$userAmount){
+                    $BalanceM->rollback();
+                    return false;
+                } 
+                $r_id = $TradingRecordM->addRecord($user_id, $release_num, $userAmount['before_amount'], $userAmount['amount'],4, 14,1, 0,'超级节点释放');
+                if(!$r_id){
+                    $BalanceM->rollback();
+                    return false;
+                }
+                $info = [
+                    'member_node_id'=>$value['id'],
+                    'create_time'=>NOW_DATETIME,
+                    'amount'=>$release_num,
+                    'type'=>$value['type'],
+                    'user_id'=>$user_id,
+                ];
+                $MemberNodeIncome->add($info);
+
+                $data['amount'] = $amount;
+                $data['user_id'] = $user_id;
+                $data['type'] = 1;
+                $data['create_time'] = NOW_DATETIME;
+                $res = $AwardIssue->add($data);
+                if(!$res){
+                    $BalanceM->rollback();
+                    return false;
+                }
+            }
+        }
+        echo ' success';
+        $BalanceM->commit();
+    }
     /**
      * 超级节点释放，插入流水记录
      */
