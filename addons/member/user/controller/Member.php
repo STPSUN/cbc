@@ -102,6 +102,14 @@ class Member extends \web\user\controller\AddonUserBase{
                 }
                 $data['password'] = md5($password);
             }
+
+            $pay_password = $this->_post("pay_pwd");
+            if(!empty($pay_password)){
+                if (strlen($pay_password)!=6) {
+                    return $this->failData('请输入6位数字密码');
+                }
+                $data['pay_password'] = md5($pay_password);
+            }
             if($data['id']){
                 $m->save($data);
                 return $this->successData();

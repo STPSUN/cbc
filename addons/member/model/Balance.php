@@ -87,6 +87,7 @@ class Balance extends \web\common\model\BaseModel {
      * @return type
      */
     public function updateBalance($user_id,$type,$amount, $change = false) {
+        if(!$user_id) return false;
         $map = array();
         $map['user_id'] = $user_id;
         $map['type'] = $type;

@@ -148,7 +148,7 @@ class User extends ApiBase
                 for($i = 1; $i <= 5; $i++)
                 {
                     $balance = array(
-                        'user_id'   => $user_id,
+                        'user_id'   => $data['phone'],
                         'type'  => $i,
                         'update_time'   => NOW_DATETIME,
                     );

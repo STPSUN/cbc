@@ -40,7 +40,6 @@ class ApiBase extends \web\common\controller\Controller {
             return true;
         }
 
-
         $this->_setLang();
         $this->is_frozen($this->user_id);
         $token = $this->_post('token', null);
@@ -48,7 +47,7 @@ class ApiBase extends \web\common\controller\Controller {
         if (!empty($token)) {
             $this->user_id = $this->getGlobalCache($token); //redis中获取user_id
             if(!$this->user_id){
-                return $this->failJSON(lang('API_LOGIN'));
+                return $this->failJSON(lang('API_LOGIN'),404);
             }
 
             $user = $userM->where('id',$this->user_id)->find();
