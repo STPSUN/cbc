@@ -55,6 +55,7 @@ return array(
     'TRANSFER_CBC3_ADD'=>'Increased CBC lock failure',
     'TRANSFER_CBC4_ADD'=>'Failure to increase CBC activation code',
     'TRANSFER_CBC6_ADD'=>'Increase Mall integration failure',
+    'TRANSFER_CBC8_ADD'=>'Failure to increase XCBC',
 
     'TRANSFER_SELL_SUC'=>'Success in selling',
     'TRANSFER_BUT_ALREADY'=>'Buy order today can not be repeated buying',

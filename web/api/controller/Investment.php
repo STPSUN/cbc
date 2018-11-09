@@ -336,7 +336,7 @@ class Investment extends ApiBase
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
             if(!$userAmount){
                 $balanceM->rollback();
-                return $this->failJSON(lang('TRANSFER_CBC6_ADD'));
+                return $this->failJSON(lang('TRANSFER_CBC8_ADD'));
             }
             $change_type = 1; //增加
             $remark = '用户闪兑，增加XCBC';
