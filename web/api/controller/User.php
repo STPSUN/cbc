@@ -387,6 +387,8 @@ class User extends ApiBase
 //                //11为手机号, 匹配13[0-9]后8位 \d数字| 15[0-9]后8位数字 | 188 后8位数字
 //                return $this->failJSON(lang('USER_WRONG_PHONE'));
 //            }
+            $region_code = $m->where('id',$this->user_id)->value('region_code');
+            $phone = $region_code . $phone;
             $verifyM = new \addons\member\model\VericodeModel();
             $_verify = $verifyM->VerifyCode($code, $phone, $type);
             if (!empty($_verify)) {
