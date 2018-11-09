@@ -216,5 +216,138 @@ class Investment extends ApiBase
     }
 
 
-    
+
+    /**
+     * 闪兑
+     * type 1-CBC转商城积分  2-激活码转商城积分 3-商城积分转XCBC-代币
+     * number 价格
+     */
+    public function exchange(){
+        $user_id = $this->user_id;
+        $user_id = '18259336339';
+        if(!$user_id) return $this->failJSON(lang('COMMON_LOGIN'));
+        $type = $this->_post('type');
+        $number = $this->_post('number');
+        $balanceM = new \addons\member\model\Balance();
+        if($type==1||$type==2){
+            $Quotation = new \addons\config\model\Quotation();
+            $info = $Quotation->order('id desc')->find();
+            $amount = bcmul($number, $info['price_now'],2);
+            $balanceM->startTrans();
+            if($type==1){
+                $coin_id = 2;
+                $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount);
+                if(!$userAmount){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_CBC2_LESS'));
+                }
+
+                $type = 18;
+                $change_type = 0; //减少
+                $remark = '用户闪兑，减少可用';
+                $recordM = new \addons\member\model\TradingRecord();
+                $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+                if(!$r_id){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                }
+
+                $total = $amount/0.7;
+                $coin_id = 1;//CBC总额
+                $userAmount = $balanceM->updateBalance($user_id,$coin_id,$total);
+                if(!$userAmount){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_CBC1_LESS'));
+                }
+                $change_type = 0; //减少
+                $remark = '用户闪兑，减少总额';
+                $recordM = new \addons\member\model\TradingRecord();
+                $r_id = $recordM->addRecord($user_id, $total, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+                if(!$r_id){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                }
+
+                $AwardService = new \web\api\service\AwardService();
+                $fee = bcmul($total, 0.3,2);
+                $res = $AwardService->tradingReward($fee,$user_id);
+                //计算奖金
+                if(!$res){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_REWARD_FAIL'));
+                }
+            }else{
+                $coin_id = 4;
+                $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount);
+                if(!$userAmount){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('TRANSFER_CBC2_LESS'));
+                }
+
+                $type = 18;
+                $change_type = 0; //减少
+                $remark = '用户闪兑，减少激活码';
+                $recordM = new \addons\member\model\TradingRecord();
+                $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+                if(!$r_id){
+                    $balanceM->rollback();
+                    return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+                }
+            }
+            $coin_id = 6;
+            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$number,1);
+            if(!$userAmount){
+                $balanceM->rollback();
+                return $this->failJSON(lang('TRANSFER_CBC6_ADD'));
+            }
+            $change_type = 1; //增加
+            $remark = '用户闪兑，增加商城积分';
+            $recordM = new \addons\member\model\TradingRecord();
+            $r_id = $recordM->addRecord($user_id, $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+            if(!$r_id){
+                $balanceM->rollback();
+                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+            }
+
+            $balanceM->commit();
+            return $this->successJSON();
+        }elseif($type==3){
+            $balanceM->startTrans();
+            $sysM = new \web\common\model\sys\SysParameterModel();
+            $rate = $sysM->getValByName('xcbc_intergal');
+            $amount = bcmul($number, 1/$rate,2);
+            $coin_id = 6;
+            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$number);
+            if(!$userAmount){
+                $balanceM->rollback();
+                return $this->failJSON(lang('TRANSFER_CBC6_LESS'));
+            }
+
+            $type = 18;
+            $change_type = 0; //减少
+            $remark = '用户闪兑，减少商城积分';
+            $recordM = new \addons\member\model\TradingRecord();
+            $r_id = $recordM->addRecord($user_id, $number, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+            if(!$r_id){
+                $balanceM->rollback();
+                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+            }
+            $coin_id = 8;
+            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
+            if(!$userAmount){
+                $balanceM->rollback();
+                return $this->failJSON(lang('TRANSFER_CBC6_ADD'));
+            }
+            $change_type = 1; //增加
+            $remark = '用户闪兑，增加XCBC';
+            $recordM = new \addons\member\model\TradingRecord();
+            $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type, 0,$remark);
+            if(!$r_id){
+                $balanceM->rollback();
+                return $this->failJSON(lang('COMMON_UPDATE_FAIL'));
+            }
+            $balanceM->commit();
+            return $this->successJSON();
+        }
+    }
 }

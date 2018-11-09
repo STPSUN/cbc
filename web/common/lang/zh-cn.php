@@ -54,6 +54,7 @@ return array(
     'TRANSFER_CBC2_ADD'=>'增加CBC余额失败',
     'TRANSFER_CBC3_ADD'=>'增加CBC锁仓失败',
     'TRANSFER_CBC4_ADD'=>'增加CBC激活码失败',
+    'TRANSFER_CBC6_ADD'=>'增加商城积分失败',
 
     'TRANSFER_SELL_SUC'=>'挂卖成功',
     'TRANSFER_BUT_ALREADY'=>'今日已买入订单无法重复买入',

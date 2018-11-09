@@ -41,7 +41,7 @@ class User extends ApiBase
                 if ($res) {
                     $info = $balanceM->where(['user_id'=>$res['id']])->select();
                     if(!$info){
-                        for ($i=1; $i <6 ; $i++) { 
+                        for ($i=1; $i <6 ; $i++) {
                             $balance = array(
                                 'user_id'   => $res['id'],
                                 'type'  => $i,
