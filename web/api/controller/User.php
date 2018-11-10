@@ -306,6 +306,7 @@ class User extends ApiBase
             $password1 = $this->_post('password1');
             $phone  = $this->_post('phone');
             $region_code = $this->_post('region_code');
+            $user_id = $this->_post('user_id');
             $region_phone = $region_code.$phone;
 
             if($password != $password1){
@@ -322,10 +323,20 @@ class User extends ApiBase
                 return $this->failJSON(lang('USER_VERI_WRONG'));
             }
 
-            $password = md5($password);
             $m = new \addons\member\model\MemberAccountModel();
+
+            if(empty($user_id))
+                $user_id = $this->user_id;
+
+            $user = $m->getDetail($user_id);
+
+            if(empty($user))
+                return $this->failJSON(lang('USER_EXISTS'));
+
+            $password = md5($password);
+
 //            $user_id = $m->getUserByPhone($phone);
-            $m->updatePassByUserID($this->user_id, $password,2);
+            $m->updatePassByUserID($user_id, $password,2);
             return $this->successJSON();
         }
     }
