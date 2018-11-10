@@ -114,6 +114,7 @@ return array(
     'USER_WRONG_PHONE'=>'Wrong phone number format',
     'USER_UPDATE_FIAL'=>'Reset failure',
     'USER_UPDATE_SUC'=>'Amend the success',
+    'USER_PHONE_FALSE'=>'Please enter the phone number bound to this account',
 
     'WALLET_LOGIN_WRONG'=>'Login information is wrong. Please login again.',
     'WALLET_NODE'=>'Not enough to buy nodes, unable to transfer.',

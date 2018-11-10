@@ -114,6 +114,7 @@ return array(
     'USER_WRONG_PHONE'=>'手机号码格式错误',
     'USER_UPDATE_FIAL'=>'重置失败',
     'USER_UPDATE_SUC'=>'修改成功',
+    'USER_PHONE_FALSE' => '请输入该账户绑定的手机号码',
 
     'WALLET_LOGIN_WRONG'=>'登录信息出错，请重新登录',
     'WALLET_NODE'=>'没有购买节点，无法转账',
