@@ -59,6 +59,7 @@ return array(
 
     'TRANSFER_SELL_SUC'=>'挂卖成功',
     'TRANSFER_BUT_ALREADY'=>'今日已买入订单无法重复买入',
+    'TRANSFER_BUT_ALREADY_100'=>'每日最多限购100单',
     'TRANSFER_SELL_FAIL'=>'挂卖失败',
     'TRANSFER_RIGHT_ORDER'=>'请选择正确的订单',
     'TRANSFER_ORDER_EXISTS'=>'订单不存在',

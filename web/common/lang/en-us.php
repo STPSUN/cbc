@@ -59,6 +59,7 @@ return array(
 
     'TRANSFER_SELL_SUC'=>'Success in selling',
     'TRANSFER_BUT_ALREADY'=>'Buy order today can not be repeated buying',
+    'TRANSFER_BUT_ALREADY_100'=>'Maximum daily purchase of 100 orders',
     'TRANSFER_SELL_FAIL'=>'Failure to sell',
     'TRANSFER_RIGHT_ORDER'=>'Please select the correct order.',
     'TRANSFER_ORDER_EXISTS'=>'Orders do not exist.',

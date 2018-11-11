@@ -311,10 +311,9 @@ class Transfer extends ApiBase
             $map['status'] = 0;
             $map['to_user_id'] = $user_id;
             $res = $tradingM->where($map)->count();
-            if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
+            if($res>100) return $this->failJSON(lang('TRANSFER_BUT_ALREADY_100'));
         }
 
-            
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
         $trading = $tradingM->findTrad($trad_id);
@@ -344,7 +343,7 @@ class Transfer extends ApiBase
             $map['to_user_id'] = $user_id;
             $map['status'] = 0;
             $res = $tradingM->where($map)->count();
-            if($res) return $this->failJSON(lang('TRANSFER_BUT_ALREADY'));
+            if($res>100) return $this->failJSON(lang('TRANSFER_BUT_ALREADY_100'));
         }
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
