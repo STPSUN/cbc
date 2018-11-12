@@ -29,7 +29,7 @@ return array(
     'TRANSFER_RIGHT_NUMBER_50'=>'必须为50的整数倍',
     'TRANSFER_RIGHT_NUMBER_1000'=>'挂卖数量必须小于1000',
 
-    'TRANSFER_VERIGYCODE_WRONG'=>'验证码失效,请重新发送',
+    'TRANSFER_VERIGYCODE_WRONG'=>'验证码失效或错误,请重新发送',
     'TRANSFER_PLUS_TODAY'=>'价格大于今日最高价',
     'TRANSFER_LESS_TODAY'=>'价格小于今日最低价',
     'TRANSFER_RIGHT_AMOUNT'=>'请输入正确的挂卖金额',
@@ -125,4 +125,12 @@ return array(
 
     'UPLOAD_FACE_SUCCESS'=>'身份证正面上传成功',
     'UPLOAD_BACK_SUCCESS'=>'身份证反面上传成功',
+
+    'EXTRACT_NUMBER'=>'提币数量不能为空',
+    'EXTRACT_ADDRESS'=>'提币地址不能为空',
+    'EXTRACT_PASSWORD'=>'支付密码不能为空',
+    'EXTRACT_CODE'=>'短信验证码不能为空',
+    'EXTRACT_SUC'=>'提币成功',
+    'EXTRACT_FAIL'=>'提币失败',
+    'EXTRACT_XCBC_LESS'=>'XCBC金额不足',
 );

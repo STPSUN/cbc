@@ -123,7 +123,14 @@ return array(
     'WALLET_TRUNOUT'=>'Out of wallet address does not exist.',
     'WALLET_PAYPASS'=>'The payment password is wrong. Please re input.',
 
-
     'UPLOAD_FACE_SUCCESS'=>'Successful upload of identity face ',
     'UPLOAD_BACK_SUCCESS'=>'Successful upload of identity back ',
+
+    'EXTRACT_NUMBER'=>'The amount of money can not be empty.',
+    'EXTRACT_ADDRESS'=>'The currency address can not be empty.',
+    'EXTRACT_PASSWORD'=>'Payment password can not be empty.',
+    'EXTRACT_CODE'=>'SMS verification code can not be empty.',
+    'EXTRACT_SUC'=>'Extraction success',
+    'EXTRACT_FAIL'=>'Extraction failure',
+    'EXTRACT_XCBC_LESS'=>'XCBC the amount is insufficient.',
 );
