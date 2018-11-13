@@ -212,5 +212,75 @@ class Crontab extends \web\common\controller\Controller {
         exit;
     }
 
-   
+    /**
+     * 新增balance缺失
+     */
+    public function addBalance(){
+        $sql = 'select user_id from tp_member_balance GROUP BY user_id HAVING count(user_id)<5';
+        $sql = 'select id user_id from tp_member_account WHERE id not in (select user_id from tp_member_balance GROUP BY user_id)';
+        $balanceM = new \addons\member\model\Balance();
+        $list = $balanceM->query($sql);
+        foreach ($list as $key => $value) {
+            $arr = $balanceM->where(['user_id'=>$value['user_id']])->select();
+            $one1 = false;
+            $one2 = false;
+            $one3 = false;
+            $one4 = false;
+            $one5 = false;
+            foreach ($arr as $k => $v) {
+                if($v['type']==1){
+                    $one1 = true;
+                }elseif($v['type']==2){
+                    $one2 = true;
+                }elseif($v['type']==3){
+                    $one3 = true;
+                }elseif($v['type']==4){
+                    $one4 = true;
+                }elseif($v['type']==5){
+                    $one5 = true;
+                }
+            }
+            if(!$one1){
+                $data = [
+                    'user_id'=>$value['user_id'],
+                    'type'=>1,
+                    'update_time'=>NOW_DATETIME,
+                ];
+                $balanceM->add($data);
+            }
+            if(!$one2){
+                $data = [
+                    'user_id'=>$value['user_id'],
+                    'type'=>2,
+                    'update_time'=>NOW_DATETIME,
+                ];
+                $balanceM->add($data);
+            }
+            if(!$one3){
+                $data = [
+                    'user_id'=>$value['user_id'],
+                    'type'=>3,
+                    'update_time'=>NOW_DATETIME,
+                ];
+                $balanceM->add($data);
+            }
+            if(!$one4){
+                $data = [
+                    'user_id'=>$value['user_id'],
+                    'type'=>4,
+                    'update_time'=>NOW_DATETIME,
+                ];
+                $balanceM->add($data);
+            }
+            if(!$one5){
+                $data = [
+                    'user_id'=>$value['user_id'],
+                    'type'=>5,
+                    'update_time'=>NOW_DATETIME,
+                ];
+                $balanceM->add($data);
+            }
+        }
+
+    }
 }
