@@ -57,6 +57,4 @@ class Extract extends \web\user\controller\AddonUserBase {
             return $this->failData($ex->getMessage());
         }
     }
-
-
 }
