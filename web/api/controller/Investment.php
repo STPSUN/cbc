@@ -289,7 +289,7 @@ class Investment extends ApiBase
         if($type==1||$type==2){
             $Quotation = new \addons\config\model\Quotation();
             $info = $Quotation->order('id desc')->find();
-            $amount = bcmul($number, 1/$info['price_now'],2);
+            $amount = bcmul($number, $info['price_now'],2);
             $balanceM->startTrans();
             if($type==1){
                 $coin_id = 2;
