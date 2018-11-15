@@ -254,7 +254,8 @@ class Investment extends ApiBase
 
         $price['cbc']       = $info['price_now'];
         $price['code']      = $info['price_now'];
-        $price['shop_int']  = bcmul($info['price_now'], $info['price_now'],4);
+        //$price['shop_int']  = bcmul($info['price_now'], $info['price_now'],4);
+        $price['shop_int']  = 1;
         $price['xcbc']      =  bcmul($price['shop_int'], $rate,4);
         $this->successJSON([$amount,$lilv,$price]);
     }
