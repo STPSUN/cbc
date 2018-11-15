@@ -3,6 +3,8 @@ return array(
     'COMMON_LOGIN'=>'Please log in',
     'COMMON_UPDATE_FAIL'=>'failure updating record',
     'COMMON_ADD_AMOUNT_WRONG'=>'Increased funding errors',
+    'COMMON_NOT_OPEN'=>'The function is not yet open.',
+    'COMMON_NOT_MONEY'=>'Insufficient amount',
 
     'API_LOGIN'=>'Login is invalid, please login again.',
     'API_BAN'=>'Your account has been sealed, please contact the administrator to remove it.',

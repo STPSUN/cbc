@@ -3,6 +3,8 @@ return array(
     'COMMON_LOGIN'=>'请登录',
     'COMMON_UPDATE_FAIL'=>'更新记录失败',
     'COMMON_ADD_AMOUNT_WRONG'=>'增加资金错误',
+    'COMMON_NOT_OPEN'=>'功能暂未开放',
+    'COMMON_NOT_MONEY'=>'金额不足',
 
     'API_LOGIN'=>'登录失效，请重新登录',
     'API_BAN'=>'您的账户已被封号，请联系管理员解除',
