@@ -43,7 +43,7 @@
     function formatOper(value, row, index) {
         var html = '<span class="grid-operation">';
         
-        html += '<button type="button" onclick="auth(' + row['id'] + ')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>认证</button>';
+        html += '<button type="button" onclick="auth(\'' + row['id'] + '\')" class="btn btn-xs btn-default edit-btn"><i class="icon wb-edit"></i>认证</button>';
             // html += '<button type="button" onclick="del(' + row['id'] + ')" class="btn btn-xs btn-default del-btn"><i class="icon wb-close"></i>删除</button>';
         html += '</span>';
         return html;
