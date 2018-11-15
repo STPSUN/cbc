@@ -133,4 +133,5 @@ return array(
     'EXTRACT_SUC'=>'Extraction success',
     'EXTRACT_FAIL'=>'Extraction failure',
     'EXTRACT_XCBC_LESS'=>'XCBC the amount is insufficient.',
+    'EXTRACT_EXCHANGE'=>'Exchange success',
 );

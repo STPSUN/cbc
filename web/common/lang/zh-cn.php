@@ -133,4 +133,5 @@ return array(
     'EXTRACT_SUC'=>'提币成功',
     'EXTRACT_FAIL'=>'提币失败',
     'EXTRACT_XCBC_LESS'=>'XCBC金额不足',
+    'EXTRACT_EXCHANGE'=>'兑换成功',
 );
