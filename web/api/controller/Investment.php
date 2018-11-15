@@ -452,6 +452,7 @@ class Investment extends ApiBase
             $balanceM->commit();
             return $this->successJSON(lang('EXTRACT_EXCHANGE'));
         }elseif($type==5){
+            return $this->failJSON(lang('COMMON_NOT_OPEN'));
             $balanceM->startTrans();
             $sysM = new \web\common\model\sys\SysParameterModel();
             $rate = $sysM->getValByName('xcbc_intergal');
