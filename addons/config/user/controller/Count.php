@@ -11,6 +11,7 @@ namespace addons\config\user\controller;
 
 use addons\member\model\Balance;
 use addons\member\model\MemberAccountModel;
+use addons\member\model\Trading;
 use addons\member\model\TradingRecord;
 use web\api\model\MemberNode;
 use web\api\model\MemberNodeIncome;
@@ -25,13 +26,15 @@ class Count extends \web\user\controller\AddonUserBase
         $auth_member_num = $memberM->where('is_auth',1)->count();
         $not_auth_member_num = $memberM->where('is_auth',0)->count();
 
+        $tradingM = new Trading();
         $recordM = new TradingRecord();
-        $order_num = $recordM->where('type',6)->count();
-        $order_amount = $recordM->where('type',6)->sum('amount');
-        $deal_order_num = $recordM->where('type',6)->count();
-        $deal_order_amount = $recordM->where('type',7)->sum('amount');
-        $cancel_num = $recordM->where('type',8)->count();
-        $cancel_amount  = $recordM->where('type',8)->sum('amount');
+
+        $order_num = $tradingM->count();
+        $order_amount = $tradingM->sum('number');
+        $deal_order_num = $tradingM->where('type',3)->count();
+        $deal_order_amount = $tradingM->where('type',3)->sum('number');
+        $cancel_num = $tradingM->where('status',1)->count();
+        $cancel_amount = $tradingM->where('status',1)->sum('number');
         $order = array(
             'num' => $order_num,
             'amount'  => $order_amount,
@@ -42,17 +45,17 @@ class Count extends \web\user\controller\AddonUserBase
         );
 
         $yes_deal= array(
-            'num'   => $recordM->where('type',6)->whereTime('update_time','yesterday')->count(),
-            'amount'   => $recordM->where('type',6)->whereTime('update_time','yesterday')->sum('amount'),
-            'success_num'   => $recordM->where('type',7)->whereTime('update_time','yesterday')->count(),
-            'success_amount'   => $recordM->where('type',7)->whereTime('update_time','yesterday')->sum('amount'),
+            'num'   => $tradingM->where('type','<>',0)->whereTime('update_time','yesterday')->count(),
+            'amount'   => $tradingM->where('type','<>',0)->whereTime('update_time','yesterday')->sum('number'),
+            'success_num'   => $tradingM->where('type',3)->whereTime('update_time','yesterday')->count(),
+            'success_amount'   => $tradingM->where('type',3)->whereTime('update_time','yesterday')->sum('number'),
         );
 
         $day_deal= array(
-            'num'   => $recordM->where('type',6)->whereTime('update_time','today')->count(),
-            'amount'   => $recordM->where('type',6)->whereTime('update_time','today')->sum('amount'),
-            'success_num'   => $recordM->where('type',7)->whereTime('update_time','today')->count(),
-            'success_amount'   => $recordM->where('type',7)->whereTime('update_time','today')->sum('amount'),
+            'num'   => $tradingM->where('type','<>',0)->whereTime('update_time','today')->count(),
+            'amount'   => $tradingM->where('type','<>',0)->whereTime('update_time','today')->sum('number'),
+            'success_num'   => $tradingM->where('type',3)->whereTime('update_time','today')->count(),
+            'success_amount'   => $tradingM->where('type',3)->whereTime('update_time','today')->sum('number'),
         );
 
         $balanceM = new Balance();
@@ -104,7 +107,7 @@ class Count extends \web\user\controller\AddonUserBase
             'x' => $memberNodeM->where(['status' => 1, 'type' => 8])->count(),
         );
 
-        $total_deal = $recordM->where('type',7)->sum('amount');
+        $total_deal = $tradingM->where('type',3)->sum('number');
 
         $this->assign('member_num', $member_num);
         $this->assign('today_member_num',$today_member_num);
