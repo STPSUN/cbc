@@ -109,8 +109,8 @@ class Wallet extends ApiBase
                 $change_type = 0; //减少
                 $remark = '用户CBC转出,手续费金额:'.$tax_amount;
                 $remark2 = '用户CBC转出';
-                $recordM->addRecord($this->user_id,$amount,$use_balance['before_amount'],$use_balance['amount'],$use_type,$type,$change_type,$to_user_id,$remark2);
-                $record_id = $recordM->addRecord($this->user_id, $total_amount, $balance['before_amount'], $balance['amount'], $sub_type, $type, $change_type, $to_user_id, $remark);
+                $record_id = $recordM->addRecord($this->user_id,$amount,$use_balance['before_amount'],$use_balance['amount'],$use_type,$type,$change_type,$to_user_id,$remark2);
+                $record_id = $recordM->addRecord($this->user_id, $amount, $balance['before_amount'], $balance['amount'], $sub_type, $type, $change_type, $to_user_id, $remark);
 
                 //收入方
 //                $to_change_type = 1; //增加
