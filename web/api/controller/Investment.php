@@ -412,7 +412,7 @@ class Investment extends ApiBase
             $balanceM->commit();
             return $this->successJSON(lang('EXTRACT_EXCHANGE'));
         }elseif($type==4){
-            return $this->failJSON(lang('COMMON_NOT_OPEN'));
+            // return $this->failJSON(lang('COMMON_NOT_OPEN'));
             $Quotation = new \addons\config\model\Quotation();
             $info = $Quotation->order('id desc')->find();
             $amount = bcmul($number, 1/$info['price_now'],2);
@@ -452,7 +452,7 @@ class Investment extends ApiBase
             $balanceM->commit();
             return $this->successJSON(lang('EXTRACT_EXCHANGE'));
         }elseif($type==5){
-            return $this->failJSON(lang('COMMON_NOT_OPEN'));
+            // return $this->failJSON(lang('COMMON_NOT_OPEN'));
             $balanceM->startTrans();
             $sysM = new \web\common\model\sys\SysParameterModel();
             $rate = $sysM->getValByName('xcbc_intergal');
