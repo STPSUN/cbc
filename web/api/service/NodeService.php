@@ -502,12 +502,15 @@ class NodeService extends \web\common\controller\Service
     }
 
     /**
-     * 赠送微信节点
+     * 赠送微型节点
      */
     public function sendNode($user_id)
     {
         $nodeM = new Node();
         $memberNodeM = new MemberNode();
+        //判断微型节点是否存在
+        $res = $memberNodeM->where(['type'=>1,'user_id'=>$user_id])->find();
+        if($res) return false;
         $balanceM = new \addons\member\model\Balance();
         $node = $nodeM->where('type',1)->find();
         if(empty($node)) return false;
