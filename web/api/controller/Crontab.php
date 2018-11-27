@@ -297,7 +297,7 @@ class Crontab extends \web\common\controller\Controller {
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $page = $redis->get('release_page');
         if($page){
-            $page = $page+500
+            $page = $page+500;
         }else{
             $page = 0;
         }
