@@ -296,7 +296,7 @@ class Crontab extends \web\common\controller\Controller {
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $page = $redis->get('release_page');
-        if($page){
+        if($page==0){
             $page = $page+500;
         }else{
             $page = 0;
