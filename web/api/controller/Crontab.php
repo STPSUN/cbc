@@ -294,6 +294,13 @@ class Crontab extends \web\common\controller\Controller {
         set_time_limit(0);
         $nodeS = new \web\api\model\MemberNode;
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
+        $redis = \think\Cache::connect(\think\Config::get('global_cache'));
+        $page = $redis->get('release_page');
+        if($page){
+            $page = $page+500
+        }else{
+            $page = 0;
+        }
         $map['type'] = ['in','2,3,4,5,6,7'];
         $allnode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where($map)->group('user_id')->limit($page,500)->select();
         $supernode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where(['type'=>8])->group('user_id')->select();
@@ -334,8 +341,9 @@ class Crontab extends \web\common\controller\Controller {
             }
         }
         echo '||success---page:'.$page;
-        $page = $page+500;
-        $this->releaseAllNode($page);
+        $redis->set('release_page',$page);
+        // $page = $page+500;
+        // $this->releaseAllNode($page);
         // print_r($allnode);exit();
     }
 
