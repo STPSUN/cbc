@@ -290,30 +290,36 @@ class Crontab extends \web\common\controller\Controller {
     /**
      * 释放所有节点奖励
      */
-    public function releaseAllNode(){
+    public function releaseAllNode($page=0){
         set_time_limit(0);
-        // $redis = \think\Cache::connect(\think\Config::get('global_cache'));
-        // $page = $redis->get('nodeRelease');
-        // if($page){
-        //     $page = $page+500;
-        // }else{
-        //     $page = 0;
-        // }
-        // $redis->set('nodeRelease',$page);
-
         $nodeS = new \web\api\model\MemberNode;
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
-        $map['type'] = ['in','2,3,4,5,6,7,8'];
-        $allnode = $nodeS->field('id,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where($map)->group('user_id')->select();
+        $map['type'] = ['in','2,3,4,5,6,7'];
+        $allnode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where($map)->group('user_id')->limit($page,500)->select();
+        $supernode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where(['type'=>8])->group('user_id')->select();
+        $superrelease = $nodeIncomeS->where(['type'=>8])->field('user_id,sum(amount) amount')->group('user_id')->select();
+        foreach ($supernode as $k => $v) {
+            $supernode[$k]['can_release'] = $v['total_num']*$v['node_num'];
+            foreach ($superrelease as $key => $value) {
+                if($v['user_id']==$value['user_id']){
+                    $less = $v['total_num']*$v['node_num']-$value['amount'];
+                    $supernode[$k]['can_release'] = $less;
+                }
+            }
+            if($supernode[$k]['can_release']>0){
+                $this->relasenode($v['user_id'],$supernode[$k]['can_release'],$v['id'],$nodeIncomeS,$v['type']);
+            }
+        }
         // print_r($allnode);
-        // if(!$allnode){
-            // exit();
-        // }
+        if(!$allnode){
+            exit();
+        }
         $id = [];
         foreach ($allnode as $key => $value) {
             $id[] = $value['user_id'];
         }
         $where['user_id'] = ['in',$id];
+        $where['type'] = ['in','2,3,4,5,6,7'];
         $allrelease = $nodeIncomeS->where($where)->field('user_id,sum(amount) amount')->group('user_id')->select();
         foreach ($allnode as $k => $v) {
             $allnode[$k]['can_release'] = $v['total_num']*$v['node_num'];
@@ -324,11 +330,12 @@ class Crontab extends \web\common\controller\Controller {
                 }
             }
             if($allnode[$k]['can_release']>0){
-                $this->relasenode($v['user_id'],$allnode[$k]['can_release'],$v['id'],$nodeIncomeS);
+                $this->relasenode($v['user_id'],$allnode[$k]['can_release'],$v['id'],$nodeIncomeS,$v['type']);
             }
         }
-        echo 'success';
-        // $this->releaseAllNode();
+        echo '||success---page:'.$page;
+        $page = $page+500;
+        $this->releaseAllNode($page);
         // print_r($allnode);exit();
     }
 
@@ -336,40 +343,67 @@ class Crontab extends \web\common\controller\Controller {
     /**
      * 单点释放
      */
-    public function relasenode($user_id,$amount,$member_node_id,$nodeIncomeS){
+    public function relasenode($user_id,$amount,$member_node_id,$nodeIncomeS,$type){
         if($amount<0) return false;
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
         $balanceM->startTrans();
-        $type = 14;    
-        $coin_id = 1;
-        $change_type = 1; //增加
-        $remark = '节点释放';
-        $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
-        if(!$userAmount){
-            $balanceM->rollback();
-        }
+        if($type==8){
+            $type = 14;    
+            $coin_id = 4;
+            $change_type = 1; //增加
+            $remark = '超级节点释放';
+            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
+            if(!$userAmount){
+                $balanceM->rollback();
+                return false;
+            }
 
-        $recordM = new \addons\member\model\TradingRecord();
-        $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
-        if(!$r_id){
-            $balanceM->rollback();
-        }
+            $recordM = new \addons\member\model\TradingRecord();
+            $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
+            if(!$r_id){
+                $balanceM->rollback();
+                return false;
+            }
+        }else{
+            $type = 14;    
+            $coin_id = 1;
+            $change_type = 1; //增加
+            $remark = '节点释放';
+            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
+            if(!$userAmount){
+                $balanceM->rollback();
+                return false;
+            }
 
-        $coin_id = 2;
-        $fee = bcmul($amount, 0.7,2);
+            $recordM = new \addons\member\model\TradingRecord();
+            $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
+            if(!$r_id){
+                $balanceM->rollback();
+                return false;
+            }
 
-        $userAmount = $balanceM->updateBalance($user_id,$coin_id,$fee,1);
-        if(!$userAmount){
-            $balanceM->rollback();
-        }
+            $coin_id = 2;
+            $fee = bcmul($amount, 0.7,2);
 
-        $r_id = $recordM->addRecord($user_id, $fee, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
-        if(!$r_id){
-            $balanceM->rollback();
+            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$fee,1);
+            if(!$userAmount){
+                $balanceM->rollback();
+                return false;
+            }
+
+            $r_id = $recordM->addRecord($user_id, $fee, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
+            if(!$r_id){
+                $balanceM->rollback();
+                return false;
+            }
         }
         $data = ['user_id'=>$user_id,'amount'=>$amount,'create_time'=>NOW_DATETIME,'type'=>0,'member_node_id'=>$member_node_id];
-        $nodeIncomeS->add($data);
+        $res = $nodeIncomeS->add($data);
+        if(!$res){
+            $balanceM->rollback();
+            return false;
+        }     
         $balanceM->commit();
 
     }
