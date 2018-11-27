@@ -446,6 +446,7 @@ class Crontab extends \web\common\controller\Controller {
 
 
     public function deleteNode(){
+        $limit = $this->_post('page');
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
@@ -453,7 +454,7 @@ class Crontab extends \web\common\controller\Controller {
         $map['before_amount'] = ['neq',0];
         $map['update_time'] = ['gt','2018-11-18 14:00:00'];
         $map['remark'] = '节点释放';
-        $list = $recordM->where($map)->group('user_id')->select();
+        $list = $recordM->where($map)->group('user_id')->limit($limit,1000)->select();
         foreach ($list as $k => $v) {
             $where['user_id'] = $v['user_id'];
             $where['type'] = 1;
@@ -465,6 +466,7 @@ class Crontab extends \web\common\controller\Controller {
     }
 
     public function deleteNodeT(){
+        $limit = $this->_post('page');
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
@@ -473,7 +475,7 @@ class Crontab extends \web\common\controller\Controller {
         $map['before_amount'] = ['neq',0];
         $map['update_time'] = ['gt','2018-11-18 14:00:00'];
         $map['remark'] = '节点释放';
-        $list = $recordM->where($map)->group('user_id')->select();
+        $list = $recordM->where($map)->group('user_id')->limit($limit,1000)->select();
         foreach ($list as $k => $v) {
             $where['user_id'] = $v['user_id'];
             $where['type'] = 2;
