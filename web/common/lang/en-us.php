@@ -124,6 +124,7 @@ return array(
     'WALLET_NOT_OWN'=>"You can't turn yourself in.",
     'WALLET_TRUNOUT'=>'Out of wallet address does not exist.',
     'WALLET_PAYPASS'=>'The payment password is wrong. Please re input.',
+    'WALLET_SEND_CLOSE'=>'The system has shut down the transfer function',
 
     'UPLOAD_FACE_SUCCESS'=>'Successful upload of identity face ',
     'UPLOAD_BACK_SUCCESS'=>'Successful upload of identity back ',

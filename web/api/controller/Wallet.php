@@ -23,6 +23,10 @@ class Wallet extends ApiBase
      */
     public function sendCBC()
     {
+        $sysM = new \web\common\model\sys\SysParameterModel();
+        if(!$sysM->getValByName('is_transfer')){
+            return $this->failJSON(lang('WALLET_SEND_CLOSE'));
+        }
         $param = Request::instance()->post();
         $validate = new Validate([
             'address'   => 'require',
@@ -165,6 +169,10 @@ class Wallet extends ApiBase
      */
     public function sendKey()
     {
+        $sysM = new \web\common\model\sys\SysParameterModel();
+        if(!$sysM->getValByName('is_transfer')){
+            return $this->failJSON(lang('WALLET_SEND_CLOSE'));
+        }
         $param = Request::instance()->post();
         $validate = new Validate([
             'address'   => 'require',

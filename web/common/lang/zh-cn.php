@@ -124,6 +124,7 @@ return array(
     'WALLET_TRUNOUT'=>'转出钱包地址不存在',
     'WALLET_NOT_OWN'=>'不能转入自己',
     'WALLET_PAYPASS'=>'支付密码错误，请重新输入',
+    'WALLET_SEND_CLOSE'=>'系统已关闭转账功能',
 
     'UPLOAD_FACE_SUCCESS'=>'身份证正面上传成功',
     'UPLOAD_BACK_SUCCESS'=>'身份证反面上传成功',
