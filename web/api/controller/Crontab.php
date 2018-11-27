@@ -290,13 +290,13 @@ class Crontab extends \web\common\controller\Controller {
     /**
      * 释放所有节点奖励
      */
-    public function releaseAllNode($page=0){
+    public function releaseAllNode(){
         set_time_limit(0);
         $nodeS = new \web\api\model\MemberNode;
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $page = $redis->get('release_page');
-        $page = 0;
+        // $page = 0;
         if($page>=0){
             $page = $page+1000;
         }else{
