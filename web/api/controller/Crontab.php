@@ -422,7 +422,7 @@ class Crontab extends \web\common\controller\Controller {
 
 
     public function deleteSuper(){
-        // return false;
+        return false;
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
