@@ -147,12 +147,12 @@ class NodeService extends \web\common\controller\Service
         foreach ($nodes as $v)
         {
             $amount = bcmul($v['release_num'],0.7,2);
-            $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . 4 . ',' . 14 . ',' . 1 . ',' . $amount . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
+            $toal_record_value .= "'" . $v['user_id'] . "'"  . ',' . "'" . $v['user_id'] . "'"  . ',' . 4 . ',' . 14 . ',' . 1 . ',' . $amount . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
 
             $award_amount = bcmul($v['release_num'],0.3,2);
-            $award_value .= $award_amount . ',' . $v['user_id'] . ',' . 1 . ',' . "'" . NOW_DATETIME . "'" . ';';
+            $award_value .= $award_amount . ',' . "'".$v['user_id'] . "'" . ',' . 1 . ',' . "'" . NOW_DATETIME . "'" . ';';
 
-            $income_value .= $v['member_node_id'] . ',' . $v['release_num'] . ',' . $v['type'] . ',' . $v['user_id'] . ',' . "'" . NOW_DATETIME . "'" . ';';
+            $income_value .= $v['member_node_id'] . ',' . $v['release_num'] . ',' . $v['type'] . ',' . "'".$v['user_id'] ."'" . ',' . "'" . NOW_DATETIME . "'" . ';';
         }
 
         $toal_record_value = rtrim($toal_record_value,';');
@@ -205,18 +205,18 @@ class NodeService extends \web\common\controller\Service
         {
             foreach ($nodes as $v)
             {
-                $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . $asset_type . ',' . 14 . ',' . 1 . ',' . $v['release_num'] . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
+                $toal_record_value .= "'" . $v['user_id'] . "'"  . ',' . "'" . $v['user_id'] ."'" . ',' . $asset_type . ',' . 14 . ',' . 1 . ',' . $v['release_num'] . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
 
-                $income_value .= $v['member_node_id'] . ',' . $v['release_num'] . ',' . $v['type'] . ',' . $v['user_id'] . ',' . "'" . NOW_DATETIME . "'" . ';';
+                $income_value .= $v['member_node_id'] . ',' . $v['release_num'] . ',' . $v['type'] . ',' . "'" . $v['user_id'] . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
             }
         }else
         {
             foreach ($nodes as $v)
             {
                 $amount = bcmul($v['release_num'],0.7,2);
-                $toal_record_value .= $v['user_id'] . ',' . $v['user_id'] . ',' . $asset_type . ',' . 14 . ',' . 1 . ',' . $amount . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
+                $toal_record_value .= "'" . $v['user_id'] . "'" . ',' . "'" . $v['user_id'] . "'" . ',' . $asset_type . ',' . 14 . ',' . 1 . ',' . $amount . ',' . "'" . '节点释放' . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
 
-                $income_value .= $v['member_node_id'] . ',' . $v['release_num'] . ',' . $v['type'] . ',' . $v['user_id'] . ',' . "'" . NOW_DATETIME . "'" . ';';
+                $income_value .= $v['member_node_id'] . ',' . $v['release_num'] . ',' . $v['type'] . ',' . "'" . $v['user_id'] . "'" . ',' . "'" . NOW_DATETIME . "'" . ';';
             }
         }
 
@@ -502,12 +502,15 @@ class NodeService extends \web\common\controller\Service
     }
 
     /**
-     * 赠送微信节点
+     * 赠送微型节点
      */
     public function sendNode($user_id)
     {
         $nodeM = new Node();
         $memberNodeM = new MemberNode();
+        //判断微型节点是否存在
+        $res = $memberNodeM->where(['type'=>1,'user_id'=>$user_id])->find();
+        if($res) return false;
         $balanceM = new \addons\member\model\Balance();
         $node = $nodeM->where('type',1)->find();
         if(empty($node)) return false;
