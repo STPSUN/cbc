@@ -307,20 +307,20 @@ class Crontab extends \web\common\controller\Controller {
         $redis->set('release_page',$page);
         $map['type'] = ['in','2,3,4,5,6,7'];
         $allnode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where($map)->group('user_id')->limit($page,1000)->select();
-        $supernode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where(['type'=>8])->group('user_id')->select();
-        $superrelease = $nodeIncomeS->where(['type'=>8])->field('user_id,sum(amount) amount')->group('user_id')->select();
-        foreach ($supernode as $k => $v) {
-            $supernode[$k]['can_release'] = $v['total_num']*$v['node_num'];
-            foreach ($superrelease as $key => $value) {
-                if($v['user_id']==$value['user_id']){
-                    $less = $v['total_num']*$v['node_num']-$value['amount'];
-                    $supernode[$k]['can_release'] = $less;
-                }
-            }
-            if($supernode[$k]['can_release']>0){
-                $this->relasenode($v['user_id'],$supernode[$k]['can_release'],$v['id'],$nodeIncomeS,$v['type']);
-            }
-        }
+        // $supernode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where(['type'=>8])->group('user_id')->select();
+        // $superrelease = $nodeIncomeS->where(['type'=>8])->field('user_id,sum(amount) amount')->group('user_id')->select();
+        // foreach ($supernode as $k => $v) {
+        //     $supernode[$k]['can_release'] = $v['total_num']*$v['node_num'];
+        //     foreach ($superrelease as $key => $value) {
+        //         if($v['user_id']==$value['user_id']){
+        //             $less = $v['total_num']*$v['node_num']-$value['amount'];
+        //             $supernode[$k]['can_release'] = $less;
+        //         }
+        //     }
+        //     if($supernode[$k]['can_release']>0){
+        //         $this->relasenode($v['user_id'],$supernode[$k]['can_release'],$v['id'],$nodeIncomeS,$v['type']);
+        //     }
+        // }
         // print_r($allnode);
         if(!$allnode){
             exit();
@@ -422,6 +422,7 @@ class Crontab extends \web\common\controller\Controller {
 
 
     public function deleteSuper(){
+        // return false;
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
