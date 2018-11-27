@@ -297,14 +297,14 @@ class Crontab extends \web\common\controller\Controller {
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $page = $redis->get('release_page');
         if($page>=0){
-            $page = $page+500;
+            $page = $page+1000;
         }else{
             $page = 0;
         }
         echo '---'.$page.'---';
         $redis->set('release_page',$page);
         $map['type'] = ['in','2,3,4,5,6,7'];
-        $allnode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where($map)->group('user_id')->limit($page,500)->select();
+        $allnode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where($map)->group('user_id')->limit($page,1000)->select();
         // $supernode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where(['type'=>8])->group('user_id')->select();
         // $superrelease = $nodeIncomeS->where(['type'=>8])->field('user_id,sum(amount) amount')->group('user_id')->select();
         // foreach ($supernode as $k => $v) {
