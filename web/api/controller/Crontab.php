@@ -451,6 +451,7 @@ class Crontab extends \web\common\controller\Controller {
         $recordM = new \addons\member\model\TradingRecord();
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
         $map['type'] = 14;
+        $map['asset_type'] = 1;
         $map['before_amount'] = ['neq',0];
         $map['update_time'] = ['gt','2018-11-18 14:00:00'];
         $map['remark'] = '节点释放';
