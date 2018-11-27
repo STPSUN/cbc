@@ -333,10 +333,10 @@ class Crontab extends \web\common\controller\Controller {
         $where['type'] = ['in','2,3,4,5,6,7'];
         $allrelease = $nodeIncomeS->where($where)->field('user_id,sum(amount) amount')->group('user_id')->select();
         foreach ($allnode as $k => $v) {
-            $allnode[$k]['can_release'] = $v['total_num']*$v['node_num'];
+            $allnode[$k]['can_release'] = $v['total_num'];
             foreach ($allrelease as $key => $value) {
                 if($v['user_id']==$value['user_id']){
-                    $less = $v['total_num']*$v['node_num']-$value['amount'];
+                    $less = $v['total_num']-$value['amount'];
                     $allnode[$k]['can_release'] = $less;
                 }
             }
@@ -454,7 +454,7 @@ class Crontab extends \web\common\controller\Controller {
         $map['before_amount'] = ['neq',0];
         $map['update_time'] = ['gt','2018-11-18 14:00:00'];
         $map['remark'] = '节点释放';
-        $list = $recordM->where($map)->group('user_id')->limit($limit,1000)->select();
+        $list = $recordM->where($map)->group('user_id')->limit($limit,1000)->order('id desc')->select();
         foreach ($list as $k => $v) {
             $where['user_id'] = $v['user_id'];
             $where['type'] = 1;
@@ -475,7 +475,7 @@ class Crontab extends \web\common\controller\Controller {
         $map['before_amount'] = ['neq',0];
         $map['update_time'] = ['gt','2018-11-18 14:00:00'];
         $map['remark'] = '节点释放';
-        $list = $recordM->where($map)->group('user_id')->limit($limit,1000)->select();
+        $list = $recordM->where($map)->group('user_id')->limit($limit,1000)->order('id desc')->select();
         foreach ($list as $k => $v) {
             $where['user_id'] = $v['user_id'];
             $where['type'] = 2;
