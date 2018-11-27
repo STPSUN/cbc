@@ -296,7 +296,7 @@ class Crontab extends \web\common\controller\Controller {
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $page = $redis->get('release_page');
-        // $page = 2000;
+        $page = 0;
         if($page>=0){
             $page = $page+1000;
         }else{
@@ -446,6 +446,7 @@ class Crontab extends \web\common\controller\Controller {
 
 
     public function deleteNode(){
+        return false;
         $limit = $this->_post('page');
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
@@ -467,6 +468,7 @@ class Crontab extends \web\common\controller\Controller {
     }
 
     public function deleteNodeT(){
+        return false;
         $limit = $this->_post('page');
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
