@@ -443,5 +443,47 @@ class Crontab extends \web\common\controller\Controller {
             echo $recordM->where($maps)->delete().'|||';
         }
     }
+
+
+    public function deleteNode(){
+        $balanceM = new \addons\member\model\Balance();
+        $recordM = new \addons\member\model\TradingRecord();
+        $nodeIncomeS = new \web\api\model\MemberNodeIncome;
+        $map['type'] = 14;
+        $map['before_amount'] = ['neq',0];
+        $map['update_time'] = ['gt','2018-11-18 14:00:00'];
+        $map['remark'] = '节点释放';
+        $list = $recordM->where($map)->group('user_id')->select();
+        foreach ($list as $k => $v) {
+            $where['user_id'] = $v['user_id'];
+            $where['type'] = 1;
+            $data['amount'] = $v['before_amount'];
+            $balanceM->where($where)->update($data);
+            $maps['id'] = $v['id'];
+            echo $recordM->where($maps)->delete().'|||';
+        }
+    }
+
+    public function deleteNodeT(){
+        $balanceM = new \addons\member\model\Balance();
+        $recordM = new \addons\member\model\TradingRecord();
+        $nodeIncomeS = new \web\api\model\MemberNodeIncome;
+        $map['type'] = 14;
+        $map['asset_type'] = 2;
+        $map['before_amount'] = ['neq',0];
+        $map['update_time'] = ['gt','2018-11-18 14:00:00'];
+        $map['remark'] = '节点释放';
+        $list = $recordM->where($map)->group('user_id')->select();
+        foreach ($list as $k => $v) {
+            $where['user_id'] = $v['user_id'];
+            $where['type'] = 2;
+            $data['amount'] = $v['before_amount'];
+            $balanceM->where($where)->update($data);
+            $maps['id'] = $v['id'];
+            echo $recordM->where($maps)->delete().'|||';
+        }
+    }    
+
+
 }
 
