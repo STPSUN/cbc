@@ -296,11 +296,13 @@ class Crontab extends \web\common\controller\Controller {
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $page = $redis->get('release_page');
+        $page = 2000;
         if($page>=0){
             $page = $page+1000;
         }else{
             $page = 0;
         }
+        
         echo '---'.$page.'---';
         $redis->set('release_page',$page);
         $map['type'] = ['in','2,3,4,5,6,7'];
