@@ -23,6 +23,8 @@ if(PHP_SAPI == 'cli'){
 		define('BIND_MODULE','api/Crontab/auto_receive');
     }elseif($type==5){
 		define('BIND_MODULE','api/Crontab/superNodeAward');
+    }elseif($type==6){
+        define('BIND_MODULE','api/Crontab/releaseAllNode');
     }
 }else{
 	eixt();
