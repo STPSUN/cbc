@@ -28,6 +28,7 @@ class AwardService extends \web\common\controller\Service
      */
     public function tradingReward($amount,$user_id)
     {
+        return true;
         $this->peer_amount = 0;
         $this->trad_data = array();
         $this->share_data = array();

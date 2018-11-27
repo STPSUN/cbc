@@ -56,6 +56,7 @@ class Transfer extends ApiBase
      * @param number float 数量
      */
     public function sellOut(){
+        return $this->failJSON(lang('TRANSFER_LESS_TOTAL'));
         $user_id = $this->user_id;
         if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
         $pay_password = $this->_post('pay_password');
