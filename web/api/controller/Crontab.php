@@ -303,7 +303,7 @@ class Crontab extends \web\common\controller\Controller {
             $page = 0;
         }
         
-        echo '---'.$page.'---';
+        echo '--'.$page.'---';
         $redis->set('release_page',$page);
         $map['type'] = ['in','2,3,4,5,6,7'];
         $allnode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where($map)->group('user_id')->limit($page,1000)->select();
