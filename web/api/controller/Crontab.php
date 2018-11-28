@@ -344,7 +344,7 @@ class Crontab extends \web\common\controller\Controller {
                 $this->relasenode($v['user_id'],$allnode[$k]['can_release'],$v['id'],$nodeIncomeS,$v['type']);
             }
         }
-        echo '|success---page:'.$page;
+        echo '||success---page:'.$page;
         
         // $page = $page+500;
         // $this->releaseAllNode($page);
