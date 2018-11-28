@@ -4,14 +4,17 @@ return [
     // 数据库类型
     'type'            => 'mysql',
     // 服务器地址
-//    'hostname'        => '127.0.0.1',
-    'hostname'        => 'rm-j6cs4ji82z63g63byho.mysql.rds.aliyuncs.com',
+    'hostname'        => '127.0.0.1',
+//    'hostname'        => '47.98.35.18',
+//    'hostname'        => 'rm-j6cs4ji82z63g63byho.mysql.rds.aliyuncs.com',
     // 数据库名
-    'database'        => 'cbc',
+    'database'        => 'cbc_test',
     // 用户名
-    'username'        => 'cbccbc',
+//    'username'        => 'root',
+    'username'        => 'cbc_test',
     // 密码
-    'password'        => 'BtP7aSATyUP0yOu8',
+//    'password'        => 'root',
+    'password'        => 'iepWXa3a5Y',
     // 端口
 //    'hostport'        => '3307',
     'hostport'        => '3306',
