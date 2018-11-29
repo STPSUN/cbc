@@ -492,16 +492,16 @@ class Crontab extends \web\common\controller\Controller {
     {
         set_time_limit(0);
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
-        $page = $redis->get('balance_page1');
+        $page = $redis->get('balance_page2');
         // $page = 0;
         if($page>=0){
-            $page = $page+1000;
+            $page = $page+800;
         }else{
             $page = 0;
         }
 
         echo '---'.$page.'---';
-        $redis->set('balance_page1',$page);
+        $redis->set('balance_page2',$page);
 
         $balanceM = new \addons\member\model\Balance();
         $data = $balanceM->field('id,amount')->where('type',2)->limit($page,800)->select();
