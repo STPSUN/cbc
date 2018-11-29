@@ -492,7 +492,7 @@ class Crontab extends \web\common\controller\Controller {
     {
         set_time_limit(0);
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
-        $page = $redis->get('balance_page3');
+        $page = $redis->get('balance_page4');
         // $page = 0;
         if($page>=0){
             $page = $page+800;
@@ -501,10 +501,10 @@ class Crontab extends \web\common\controller\Controller {
         }
 
         echo '---'.$page.'---';
-        $redis->set('balance_page3',$page);
+        $redis->set('balance_page4',$page);
 
         $balanceM = new \addons\member\model\Balance();
-        $data = $balanceM->field('user_id,type,amount')->where('type',2)->limit(0,8)->select();
+        $data = $balanceM->field('user_id,type,amount')->where('type',2)->limit($page,800)->select();
         if(empty($data))
         {
             echo '*****结束*****';
