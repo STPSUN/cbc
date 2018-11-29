@@ -293,7 +293,7 @@ class Crontab extends \web\common\controller\Controller {
         $nodeS = new \web\api\model\MemberNode;
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
-        $page = $redis->get('release_page1');
+        $page = $redis->get('release_page2');
         // $page = 0;
         if($page>=0){
             $page = $page+1000;
@@ -302,7 +302,7 @@ class Crontab extends \web\common\controller\Controller {
         }
         
         echo '---'.$page.'---';
-        $redis->set('release_page1',$page);
+        $redis->set('release_page2',$page);
         $map['type'] = ['in','2,3,4,5,6,7'];
         $allnode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num, sum(release_yet) as total_release')->where($map)->group('user_id')->limit($page,1000)->select();
         // $supernode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where(['type'=>8])->group('user_id')->select();
@@ -364,6 +364,7 @@ class Crontab extends \web\common\controller\Controller {
             $coin_id = 4;
             $change_type = 1; //增加
             $remark = '超级节点释放';
+            $amount = bcmul($amount,0.7,2);
             $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
             if(!$userAmount){
                 $balanceM->rollback();
@@ -522,6 +523,39 @@ class Crontab extends \web\common\controller\Controller {
         }
 
         echo '||success---page:'.$page;
+    }
+
+    public function releaseNode(){
+        set_time_limit(0);
+        $nodeS = new \web\api\model\MemberNode;
+        $nodeIncomeS = new \web\api\model\MemberNodeIncome;
+
+        $allnode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num, sum(release_yet) as total_release')->where('type',8)->group('user_id')->select();
+
+        if(!$allnode){
+            echo '*****释放结束*****';
+            exit();
+        }
+        $id = [];
+        foreach ($allnode as $key => $value) {
+            $id[] = $value['user_id'];
+        }
+        $where['user_id'] = ['in',$id];
+        $where['type'] = ['in','8'];
+        $allrelease = $nodeIncomeS->where($where)->field('user_id,sum(amount) amount')->group('user_id')->select();
+        foreach ($allnode as $k => $v) {
+            $allnode[$k]['can_release'] = $v['total_num'];
+            foreach ($allrelease as $key => $value) {
+                if($v['user_id']==$value['user_id']){
+                    $less = $v['total_num']-$value['amount'] - $v['total_release'];
+                    $allnode[$k]['can_release'] = $less;
+                }
+            }
+            if($allnode[$k]['can_release']>0){
+//                echo $v['user_id'] . '/' . $allnode[$k]['can_release'] . '/' . $v['type'] . '*****************';
+                $this->relasenode($v['user_id'],$allnode[$k]['can_release'],$v['id'],$nodeIncomeS,$v['type']);
+            }
+        }
     }
 
 }
