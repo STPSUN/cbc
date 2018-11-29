@@ -306,7 +306,7 @@ class Crontab extends \web\common\controller\Controller {
         echo '---'.$page.'---';
         $redis->set('release_page',$page);
         $map['type'] = ['in','2,3,4,5,6,7'];
-        $allnode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where($map)->group('user_id')->limit($page,1000)->select();
+        $allnode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num, sum(release_yet) as total_release')->where($map)->group('user_id')->limit($page,1000)->select();
         // $supernode = $nodeS->field('id,type,user_id,sum(node_num) as node_num,sum(total_num) as total_num')->where(['type'=>8])->group('user_id')->select();
         // $superrelease = $nodeIncomeS->where(['type'=>8])->field('user_id,sum(amount) amount')->group('user_id')->select();
         // foreach ($supernode as $k => $v) {
@@ -323,6 +323,7 @@ class Crontab extends \web\common\controller\Controller {
         // }
         // print_r($allnode);
         if(!$allnode){
+            echo '*****释放结束*****';
             exit();
         }
         $id = [];
@@ -336,7 +337,7 @@ class Crontab extends \web\common\controller\Controller {
             $allnode[$k]['can_release'] = $v['total_num'];
             foreach ($allrelease as $key => $value) {
                 if($v['user_id']==$value['user_id']){
-                    $less = $v['total_num']-$value['amount'];
+                    $less = $v['total_num']-$value['amount'] - $v['total_release'];
                     $allnode[$k]['can_release'] = $less;
                 }
             }
@@ -487,8 +488,33 @@ class Crontab extends \web\common\controller\Controller {
             $maps['id'] = $v['id'];
             echo $recordM->where($maps)->delete().'|||';
         }
-    }    
-
+    }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
