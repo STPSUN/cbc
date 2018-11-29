@@ -285,8 +285,6 @@ class Crontab extends \web\common\controller\Controller {
 
     }
 
-
-
     /**
      * 释放所有节点奖励
      */
@@ -488,6 +486,42 @@ class Crontab extends \web\common\controller\Controller {
             $maps['id'] = $v['id'];
             echo $recordM->where($maps)->delete().'|||';
         }
+    }
+
+    public function rollBalance()
+    {
+        set_time_limit(0);
+        $redis = \think\Cache::connect(\think\Config::get('global_cache'));
+        $page = $redis->get('balance_page');
+        // $page = 0;
+        if($page>=0){
+            $page = $page+1000;
+        }else{
+            $page = 0;
+        }
+
+        echo '---'.$page.'---';
+        $redis->set('balance_page',$page);
+
+        $page = 0;
+        $balanceM = new \addons\member\model\Balance();
+        $data = $balanceM->field('id,amount')->where('type',2)->limit($page,800)->select();
+        if(empty($data))
+        {
+            echo '*****结束*****';
+            exit();
+        }
+        foreach ($data as $v)
+        {
+            $amount = ($v['amount'] > 0) ? (bcdiv($v['amount'],0.7,2)) : 0;
+            $balanceM->save([
+                'amount' => $amount,
+            ],[
+                'id' => $v['id']
+            ]);
+        }
+
+        echo '||success---page:'.$page;
     }
 
 }
