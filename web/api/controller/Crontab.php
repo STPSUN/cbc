@@ -503,7 +503,6 @@ class Crontab extends \web\common\controller\Controller {
         echo '---'.$page.'---';
         $redis->set('balance_page',$page);
 
-        $page = 0;
         $balanceM = new \addons\member\model\Balance();
         $data = $balanceM->field('id,amount')->where('type',2)->limit($page,800)->select();
         if(empty($data))
