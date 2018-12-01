@@ -237,9 +237,10 @@ class Test extends ApiBase
         ->setCellValue('A1', '用户')
         ->setCellValue('B1', '总释放量')
         ->setCellValue('C1', '本次释放')
-        ->setCellValue('D1', '老系统释放')
-        ->setCellValue('E1', '新系统释放')
-        ->setCellValue('F1', '新老释放');
+        ->setCellValue('D1', '本次释放扣除30%')
+        ->setCellValue('E1', '老系统释放')
+        ->setCellValue('F1', '新系统释放')
+        ->setCellValue('G1', '新老释放');
 
         $nodeS = new \web\api\model\MemberNode;
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
@@ -268,9 +269,10 @@ class Test extends ApiBase
                 ->setCellValue('A'.$num,$v['user_id'])
                 ->setCellValue('B'.$num,$v['total_num'])
                 ->setCellValue('C'.$num,$allnode[$k]['can_release'])
-                ->setCellValue('D'.$num,$v['release_yet'])
-                ->setCellValue('E'.$num,$allnode[$k]['less']-$v['release_yet'])
-                ->setCellValue('F'.$num,$allnode[$k]['less']);
+                ->setCellValue('D'.$num,bcmul($allnode[$k]['can_release'], 0.7,2))
+                ->setCellValue('E'.$num,$v['release_yet'])
+                ->setCellValue('F'.$num,$allnode[$k]['less']-$v['release_yet'])
+                ->setCellValue('G'.$num,$allnode[$k]['less']);
                         
         }
 
