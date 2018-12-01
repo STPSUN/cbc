@@ -341,18 +341,19 @@ class Crontab extends \web\common\controller\Controller {
         $recordM = new \addons\member\model\TradingRecord();
         $balanceM->startTrans();
         if($a_type==8){
-            $type = 14;    
+            $type = 14;
             $coin_id = 4;
             $change_type = 1; //增加
             $remark = '超级节点释放';
-            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$amount,1);
+            $super = bcmul($amount, 0.7,2);
+            $userAmount = $balanceM->updateBalance($user_id,$coin_id,$super,1);
             if(!$userAmount){
                 $balanceM->rollback();
                 return false;
             }
 
             $recordM = new \addons\member\model\TradingRecord();
-            $r_id = $recordM->addRecord($user_id, $amount, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
+            $r_id = $recordM->addRecord($user_id, $super, $userAmount['before_amount'], $userAmount['amount'],$coin_id, $type,$change_type,$user_id ,$remark);
             if(!$r_id){
                 $balanceM->rollback();
                 return false;
