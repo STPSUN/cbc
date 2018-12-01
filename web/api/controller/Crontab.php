@@ -285,12 +285,18 @@ class Crontab extends \web\common\controller\Controller {
 
     }
 
+    public function timetest(){
+        sleep(66);
+        echo 66;exit();
+    }
+
 
 
     /**
      * 释放所有节点奖励
      */
     public function releaseAllNode(){
+        
         set_time_limit(0);
         $nodeS = new \web\api\model\MemberNode;
         $nodeIncomeS = new \web\api\model\MemberNodeIncome;
@@ -331,6 +337,7 @@ class Crontab extends \web\common\controller\Controller {
         }
         $where['user_id'] = ['in',$id];
         $where['type'] = ['in','2,3,4,5,6,7'];
+
         $allrelease = $nodeIncomeS->where($where)->field('user_id,sum(amount) amount')->group('user_id')->select();
         foreach ($allnode as $k => $v) {
             $allnode[$k]['can_release'] = $v['total_num'];
@@ -410,7 +417,7 @@ class Crontab extends \web\common\controller\Controller {
                 return false;
             }
         }
-        $data = ['user_id'=>$user_id,'amount'=>$amount,'create_time'=>NOW_DATETIME,'type'=>0,'member_node_id'=>$member_node_id];
+        $data = ['user_id'=>$user_id,'amount'=>$amount,'create_time'=>NOW_DATETIME,'type'=>$type,'member_node_id'=>$member_node_id];
         $res = $nodeIncomeS->add($data);
         if(!$res){
             $balanceM->rollback();
@@ -487,8 +494,6 @@ class Crontab extends \web\common\controller\Controller {
             $maps['id'] = $v['id'];
             echo $recordM->where($maps)->delete().'|||';
         }
-    }    
-
-
+    }
 }
 
