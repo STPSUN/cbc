@@ -320,7 +320,7 @@ class Crontab extends \web\common\controller\Controller {
                     }
                 }
                 if($allnode[$k]['can_release']>0){
-                    $this->relasenode($v['user_id'],$allnode[$k]['can_release'],$v['id'],$nodeIncomeS,$v['type']);
+                    $this->relasenode($v['user_id'],$allnode[$k]['can_release'],$v['id'],$nodeIncomeS,$type);
                 }
             }
             echo '|success---type:'.$type;
@@ -335,7 +335,7 @@ class Crontab extends \web\common\controller\Controller {
     /**
      * 单点释放
      */
-    public function relasenode($user_id,$amount,$member_node_id,$nodeIncomeS,$type){
+    public function relasenode($user_id,$amount,$member_node_id,$nodeIncomeS,$a_type){
         if($amount<0) return false;
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
@@ -390,7 +390,7 @@ class Crontab extends \web\common\controller\Controller {
                 return false;
             }
         }
-        $data = ['user_id'=>$user_id,'amount'=>$amount,'create_time'=>NOW_DATETIME,'type'=>$type,'member_node_id'=>$member_node_id];
+        $data = ['user_id'=>$user_id,'amount'=>$amount,'create_time'=>NOW_DATETIME,'type'=>$a_type,'member_node_id'=>$member_node_id];
         $res = $nodeIncomeS->add($data);
         if(!$res){
             $balanceM->rollback();
