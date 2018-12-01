@@ -20,13 +20,13 @@ class Test extends ApiBase
 {
     public function _initialize()
     {
-        exit();
+        // exit();
     }
 
     public function award()
     {
         $awardS = new AwardService();
-        $res = $awardS->tradingReward(300,93);
+        $res = $awardS->tradingReward(300,13962426665);
         if($res)
             echo 1;
         else
@@ -48,7 +48,7 @@ class Test extends ApiBase
     public function level()
     {
         $memberS = new MemberService();
-        $res = $memberS->memberLevel(87);
+        $res = $memberS->memberLevel(18657968098);
         if($res)
             echo 1;
         else
@@ -151,6 +151,143 @@ class Test extends ApiBase
         return empty($amount) ? 0 : $amount;
     }
 
+    public function createExcel(){
+        vendor('PHPExcel.PHPExcel');
+        $objPHPExcel = new \PHPExcel();
+        // import("Vendor.PHPExcel.PHPExcel.Writer.Excel5", '', '.php');
+        // import("Vendor.PHPExcel.PHPExcel.IOFactory", '', '.php');
+        // $objPHPExcel = new \PHPExcel();
+        // 设置文档信息，这个文档信息windows系统可以右键文件属性查看
+        $objPHPExcel->getProperties()->setCreator("gca")
+            ->setLastModifiedBy("gca")
+            ->setTitle("gca point")
+            ->setSubject("gca point")
+            ->setDescription("gca Capital flow");
+        //根据excel坐标，添加数据
+        $objPHPExcel->setActiveSheetIndex(0)
+        ->setCellValue('A1', '用户')
+        ->setCellValue('B1', '总释放量')
+        ->setCellValue('C1', '本次释放')
+        ->setCellValue('D1', '老系统释放')
+        ->setCellValue('E1', '新系统释放')
+        ->setCellValue('F1', '新老释放');
+
+        $nodeS = new \web\api\model\MemberNode;
+        $nodeIncomeS = new \web\api\model\MemberNodeIncome;
+
+        $map['type'] = ['in','2,3,4,5,6,7'];
+        $allnode = $nodeS->field('id,type,user_id,sum(release_yet) as release_yet,sum(total_num) as total_num')->where($map)->group('user_id')->select();
+        $id = [];
+        foreach ($allnode as $key => $value) {
+            $id[] = $value['user_id'];
+        }
+        $where['user_id'] = ['in',$id];
+        $where['type'] = ['in','2,3,4,5,6,7'];
+        $where['create_time'] = ['lt','2018-11-28'];
+        $allrelease = $nodeIncomeS->where($where)->field('user_id,sum(amount) amount')->group('user_id')->select();
+        foreach ($allnode as $k => $v) {
+            $allnode[$k]['can_release'] = $v['total_num'];
+            foreach ($allrelease as $key => $value) {
+                if($v['user_id']==$value['user_id']){
+                    $less = $v['total_num']-$value['amount'];
+                    $allnode[$k]['can_release'] = $less;
+                    $allnode[$k]['less'] = $value['amount'];
+                }
+            }
+            $num = $k+2;
+            $objPHPExcel->getActiveSheet()
+                ->setCellValue('A'.$num,$v['user_id'])
+                ->setCellValue('B'.$num,$v['total_num'])
+                ->setCellValue('C'.$num,$allnode[$k]['can_release'])
+                ->setCellValue('D'.$num,$v['release_yet'])
+                ->setCellValue('E'.$num,$allnode[$k]['less']-$v['release_yet'])
+                ->setCellValue('F'.$num,$allnode[$k]['less']);
+                        
+        }
+
+        // 设置第一个sheet为工作的sheet
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $filename = date('Y-m-d').'.xlsx';
+        // 保存Excel 2007格式文件，保存路径为当前路径，名字为export.xlsx
+        ob_end_clean();     //清除缓冲区,避免乱码
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/octet-stream");
+        header("Content-Type: application/download");
+        header('Content-Disposition:inline;filename="'.$filename.'"');
+        header("Content-Transfer-Encoding: binary");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Pragma: no-cache");
+        $objWriter->save('php://output');
+    }
+
+    public function createExcelSuper(){
+        vendor('PHPExcel.PHPExcel');
+        $objPHPExcel = new \PHPExcel();
+        // import("Vendor.PHPExcel.PHPExcel.Writer.Excel5", '', '.php');
+        // import("Vendor.PHPExcel.PHPExcel.IOFactory", '', '.php');
+        // $objPHPExcel = new \PHPExcel();
+        // 设置文档信息，这个文档信息windows系统可以右键文件属性查看
+        $objPHPExcel->getProperties()->setCreator("gca")
+            ->setLastModifiedBy("gca")
+            ->setTitle("gca point")
+            ->setSubject("gca point")
+            ->setDescription("gca Capital flow");
+        //根据excel坐标，添加数据
+        $objPHPExcel->setActiveSheetIndex(0)
+        ->setCellValue('A1', '用户')
+        ->setCellValue('B1', '总释放量')
+        ->setCellValue('C1', '本次释放')
+        ->setCellValue('D1', '老系统释放')
+        ->setCellValue('E1', '新系统释放')
+        ->setCellValue('F1', '新老释放');
+
+        $nodeS = new \web\api\model\MemberNode;
+        $nodeIncomeS = new \web\api\model\MemberNodeIncome;
+
+        $map['type'] = 8;
+        $allnode = $nodeS->field('id,type,user_id,sum(release_yet) as release_yet,sum(total_num) as total_num')->where($map)->group('user_id')->select();
+        $id = [];
+        foreach ($allnode as $key => $value) {
+            $id[] = $value['user_id'];
+        }
+        $where['user_id'] = ['in',$id];
+        $where['type'] = 8;
+        $where['create_time'] = ['lt','2018-11-28'];
+        $allrelease = $nodeIncomeS->where($where)->field('user_id,sum(amount) amount')->group('user_id')->select();
+        foreach ($allnode as $k => $v) {
+            $allnode[$k]['can_release'] = $v['total_num'];
+            foreach ($allrelease as $key => $value) {
+                if($v['user_id']==$value['user_id']){
+                    $less = $v['total_num']-$value['amount'];
+                    $allnode[$k]['can_release'] = $less;
+                    $allnode[$k]['less'] = $value['amount'];
+                }
+            }
+            $num = $k+2;
+            $objPHPExcel->getActiveSheet()
+                ->setCellValue('A'.$num,$v['user_id'])
+                ->setCellValue('B'.$num,$v['total_num'])
+                ->setCellValue('C'.$num,$allnode[$k]['can_release'])
+                ->setCellValue('D'.$num,$v['release_yet'])
+                ->setCellValue('E'.$num,$allnode[$k]['less']-$v['release_yet'])
+                ->setCellValue('F'.$num,$allnode[$k]['less']);
+                        
+        }
+
+        // 设置第一个sheet为工作的sheet
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $filename = date('Y-m-d').'.xlsx';
+        // 保存Excel 2007格式文件，保存路径为当前路径，名字为export.xlsx
+        ob_end_clean();     //清除缓冲区,避免乱码
+        header("Content-Type: application/force-download");
+        header("Content-Type: application/octet-stream");
+        header("Content-Type: application/download");
+        header('Content-Disposition:inline;filename="'.$filename.'"');
+        header("Content-Transfer-Encoding: binary");
+        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+        header("Pragma: no-cache");
+        $objWriter->save('php://output');
+    }
 }
 
 
