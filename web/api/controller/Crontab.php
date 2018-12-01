@@ -340,7 +340,7 @@ class Crontab extends \web\common\controller\Controller {
         $balanceM = new \addons\member\model\Balance();
         $recordM = new \addons\member\model\TradingRecord();
         $balanceM->startTrans();
-        if($type==8){
+        if($a_type==8){
             $type = 14;    
             $coin_id = 4;
             $change_type = 1; //增加
