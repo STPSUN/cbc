@@ -38,7 +38,7 @@ class Transfer extends ApiBase
      */
     public function getToday(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $m = new \addons\config\model\Quotation();
         $data = $m->field('price_now,price_top top,price_low low,create_at')->order('id desc')->find();
         return $this->successJSON($data);
@@ -58,7 +58,7 @@ class Transfer extends ApiBase
     public function sellOut(){
         return $this->failJSON(lang('TRANSFER_LESS_TOTAL'));
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $pay_password = $this->_post('pay_password');
         $user = $this->checkPwd($user_id,$pay_password);
         if($user['is_auth']!=1)  return $this->failJSON(lang('TRANSFER_NOT_AUTH'));
@@ -302,7 +302,7 @@ class Transfer extends ApiBase
      */
     public function checkBuyOrder(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $TransferM = new \addons\member\model\Transfer();
         $info = $TransferM->findData($user_id);
@@ -332,7 +332,7 @@ class Transfer extends ApiBase
      */
     public function purchaseOrder(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $pay_password = $this->_post('pay_password');
         $this->checkPwd($user_id,$pay_password);
         $tradingM = new \addons\member\model\Trading();
@@ -385,7 +385,7 @@ class Transfer extends ApiBase
      */
     public function referOrder(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         try{
             $trad_id = $this->_post('trad_id');
@@ -432,7 +432,7 @@ class Transfer extends ApiBase
      */
     public function ConfirmOrder(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $pay_password = $this->_post('pay_password');
@@ -589,7 +589,7 @@ class Transfer extends ApiBase
      */
     public function orderList(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $row = $this->_post('row')?$this->_post('row'):20;
         $page = $this->_post('page')?$this->_post('page')*$row:0;
@@ -626,7 +626,7 @@ class Transfer extends ApiBase
      */
     public function TradingHall(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $map['user_id'] = ['neq',$user_id];
         $sort = $this->_post('sort_type');
         if($sort==1){
@@ -679,7 +679,7 @@ class Transfer extends ApiBase
      */
     public function getCoinInfo(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $payM = new \addons\member\model\PayConfig();
         $redis = \think\Cache::connect(\think\Config::get('global_cache'));
         $arr = $redis->get('hotapi_price');
@@ -730,7 +730,7 @@ class Transfer extends ApiBase
      */
     public function orderDetail(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
@@ -775,7 +775,7 @@ class Transfer extends ApiBase
      */
     public function getSellInfo(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $trad_id = $this->_post('trad_id');
@@ -800,7 +800,7 @@ class Transfer extends ApiBase
      */
     public function cancleTrading(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $user = $userM->where(['id'=>$user_id])->find();
@@ -1075,7 +1075,7 @@ class Transfer extends ApiBase
      */
     public function sendSellMessage(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $trad_id = $this->_post('trad_id');
@@ -1105,7 +1105,7 @@ class Transfer extends ApiBase
      */
     public function UserComplaint(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $trad_id = $this->_post('trad_id');
@@ -1131,7 +1131,7 @@ class Transfer extends ApiBase
      */
     public function UserComplaintList(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $TradingComplaint = new \addons\member\model\TradingComplaint();
         $filter = 'user_id = '.$user_id;
         $page = $this->_post('page')?$this->_post('page'):0;
