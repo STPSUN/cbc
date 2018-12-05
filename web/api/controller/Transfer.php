@@ -38,7 +38,7 @@ class Transfer extends ApiBase
      */
     public function getToday(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $m = new \addons\config\model\Quotation();
         $data = $m->field('price_now,price_top top,price_low low,create_at')->order('id desc')->find();
         return $this->successJSON($data);
@@ -58,7 +58,7 @@ class Transfer extends ApiBase
     public function sellOut(){
         return $this->failJSON(lang('TRANSFER_LESS_TOTAL'));
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $pay_password = $this->_post('pay_password');
         $user = $this->checkPwd($user_id,$pay_password);
         if($user['is_auth']!=1)  return $this->failJSON(lang('TRANSFER_NOT_AUTH'));
@@ -302,7 +302,7 @@ class Transfer extends ApiBase
      */
     public function checkBuyOrder(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $TransferM = new \addons\member\model\Transfer();
         $info = $TransferM->findData($user_id);
@@ -332,7 +332,7 @@ class Transfer extends ApiBase
      */
     public function purchaseOrder(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $pay_password = $this->_post('pay_password');
         $this->checkPwd($user_id,$pay_password);
         $tradingM = new \addons\member\model\Trading();
@@ -385,7 +385,7 @@ class Transfer extends ApiBase
      */
     public function referOrder(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         try{
             $trad_id = $this->_post('trad_id');
@@ -432,7 +432,7 @@ class Transfer extends ApiBase
      */
     public function ConfirmOrder(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $pay_password = $this->_post('pay_password');
@@ -589,7 +589,7 @@ class Transfer extends ApiBase
      */
     public function orderList(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $row = $this->_post('row')?$this->_post('row'):20;
         $page = $this->_post('page')?$this->_post('page')*$row:0;
@@ -626,52 +626,57 @@ class Transfer extends ApiBase
      */
     public function TradingHall(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
-        $map['user_id'] = ['neq',$user_id];
-        $sort = $this->_post('sort_type');
-        if($sort==1){
-            $map['amount'] = ['lt',100];
-        }elseif($sort==2){
-            $map['amount'] = ['between',[100,1000]];
-        }elseif($sort==3){
-            $map['amount'] = ['gt',1000];
-        }
-
-        $pay_type = $this->_post('pay_type');
-        if($pay_type==1){
-            $map['p.type'] = 1;
-        }elseif($pay_type==2){
-            $map['p.type'] = 2;
-        }elseif($pay_type==3){
-            $map['p.type'] = 3;
-        }
-
-        $order = 'price asc';
-        $level_type = $this->_post('level_type');
-        if($level_type==1){
-            $order = 'credit_level desc';
-        }elseif($level_type==2){
-            $order = 'credit_level asc';
-        }
-        $map['type'] = 0;
-        $type = $this->_post('type')?$this->_post('type'):15;
-        $tradingM = new \addons\member\model\Trading();
-        $row = $this->_post('row')?$this->_post('row'):15;
-        $page = $this->_post('page')?$this->_post('page')*$row:0;
-        if($this->_post('page')>=3){
-            return $this->successJSON();
-        }
-        $list = $tradingM->getOrderList($map,$page,$row,$order);
-        foreach ($list as $key => $value) {
-            if($value['user_id']==$user_id){
-                $list[$key]['pay_type'] = 1;
-            }else{
-                $list[$key]['pay_type'] = 0;
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
+        try{
+            $map['user_id'] = ['neq',$user_id];
+            $sort = $this->_post('sort_type');
+            if($sort==1){
+                $map['amount'] = ['lt',100];
+            }elseif($sort==2){
+                $map['amount'] = ['between',[100,1000]];
+            }elseif($sort==3){
+                $map['amount'] = ['gt',1000];
             }
-            $count = $tradingM->where(['user_id'=>$value['user_id'],'status'=>0])->count();
-            $list[$key]['count'] = $count;
+
+            $pay_type = $this->_post('pay_type');
+            if($pay_type==1){
+                $map['p.type'] = 1;
+            }elseif($pay_type==2){
+                $map['p.type'] = 2;
+            }elseif($pay_type==3){
+                $map['p.type'] = 3;
+            }
+
+            $order = 'price asc';
+            $level_type = $this->_post('level_type');
+            if($level_type==1){
+                $order = 'credit_level desc';
+            }elseif($level_type==2){
+                $order = 'credit_level asc';
+            }
+            $map['type'] = 0;
+            $type = $this->_post('type')?$this->_post('type'):15;
+            $tradingM = new \addons\member\model\Trading();
+            $row = $this->_post('row')?$this->_post('row'):15;
+            $page = $this->_post('page')?$this->_post('page')*$row:0;
+            if($this->_post('page')>=3){
+                return $this->successJSON();
+            }
+            $list = $tradingM->getOrderList($map,$page,$row,$order);
+            foreach ($list as $key => $value) {
+                if($value['user_id']==$user_id){
+                    $list[$key]['pay_type'] = 1;
+                }else{
+                    $list[$key]['pay_type'] = 0;
+                }
+                $count = $tradingM->where(['user_id'=>$value['user_id'],'status'=>0])->count();
+                $list[$key]['count'] = $count;
+            }
+            $this->successJSON($list);
+        }catch(\Exception $e){
+            $this->failJSON($e->getMessage());
         }
-        $this->successJSON($list);
+            
     }
 
     /**
@@ -679,49 +684,54 @@ class Transfer extends ApiBase
      */
     public function getCoinInfo(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
-        $payM = new \addons\member\model\PayConfig();
-        $redis = \think\Cache::connect(\think\Config::get('global_cache'));
-        $arr = $redis->get('hotapi_price');
-        if(!$arr){
-            $sysM = new \web\common\model\sys\SysParameterModel();
-            $price = $sysM->getValByName('usdt_price');
-            $type = $this->_post('type');
-            $HotApi = new \web\common\utils\HotApi();
-            $list = ['btcusdt','ethusdt','xrpusdt','neousdt','eosusdt'];
-            $arr = [];
-            foreach ($list as $key => $value) {
-                $info = $HotApi->get_detail_merged($value);
-                if($info['success']&&$info['data']['status']=='ok'){
-                    $tmp['price'] = bcmul($price, $info['data']['tick']['close'],2);
-                    $tmp['difference'] = bcmul($price, ($info['data']['tick']['close']-$info['data']['tick']['open']),2);
-                    if($info['data']['tick']['close']-$info['data']['tick']['open']>0){
-                        $tmp['type'] = 1;
-                    }else{
-                        $tmp['type'] = 0;
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
+        try{
+            $payM = new \addons\member\model\PayConfig();
+            $redis = \think\Cache::connect(\think\Config::get('global_cache'));
+            $arr = $redis->get('hotapi_price');
+            if(!$arr){
+                $sysM = new \web\common\model\sys\SysParameterModel();
+                $price = $sysM->getValByName('usdt_price');
+                $type = $this->_post('type');
+                $HotApi = new \web\common\utils\HotApi();
+                $list = ['btcusdt','ethusdt','xrpusdt','neousdt','eosusdt'];
+                $arr = [];
+                foreach ($list as $key => $value) {
+                    $info = $HotApi->get_detail_merged($value);
+                    if($info['success']&&$info['data']['status']=='ok'){
+                        $tmp['price'] = bcmul($price, $info['data']['tick']['close'],2);
+                        $tmp['difference'] = bcmul($price, ($info['data']['tick']['close']-$info['data']['tick']['open']),2);
+                        if($info['data']['tick']['close']-$info['data']['tick']['open']>0){
+                            $tmp['type'] = 1;
+                        }else{
+                            $tmp['type'] = 0;
+                        }
+                        if($value=='btcusdt'){
+                            $tmp['name'] = 'BTC';
+                        }elseif($value=='ethusdt'){
+                            $tmp['name'] = 'ETH';
+                        }elseif($value=='xrpusdt'){
+                            $tmp['name'] = 'XRP';
+                        }elseif($value=='neousdt'){
+                            $tmp['name'] = 'NEO';
+                        }elseif($value=='eosusdt'){
+                            $tmp['name'] = 'EOS';
+                        }
+                        $arr[] = $tmp;
                     }
-                    if($value=='btcusdt'){
-                        $tmp['name'] = 'BTC';
-                    }elseif($value=='ethusdt'){
-                        $tmp['name'] = 'ETH';
-                    }elseif($value=='xrpusdt'){
-                        $tmp['name'] = 'XRP';
-                    }elseif($value=='neousdt'){
-                        $tmp['name'] = 'NEO';
-                    }elseif($value=='eosusdt'){
-                        $tmp['name'] = 'EOS';
-                    }
-                    $arr[] = $tmp;
                 }
+                $tmp['type'] = 1;
+                $tmp['price'] = $price;
+                $tmp['difference'] = 0;
+                $tmp['name'] = 'USDT';
+                $arr[] = $tmp;
+                $redis->set('hotapi_price', json_encode($arr), 60);
             }
-            $tmp['type'] = 1;
-            $tmp['price'] = $price;
-            $tmp['difference'] = 0;
-            $tmp['name'] = 'USDT';
-            $arr[] = $tmp;
-            $redis->set('hotapi_price', json_encode($arr), 60);
+            $this->successJSON($arr);
+        }catch(\Exception $ex) {
+            $this->failJSON($ex->getMessage());
         }
-        $this->successJSON($arr);
+            
     }
     /**
      * 订单详情
@@ -730,7 +740,7 @@ class Transfer extends ApiBase
      */
     public function orderDetail(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $trad_id = $this->_post('trad_id');
         if($trad_id<=0) return $this->failJSON(lang('TRANSFER_RIGHT_ORDER'));
@@ -775,7 +785,7 @@ class Transfer extends ApiBase
      */
     public function getSellInfo(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $trad_id = $this->_post('trad_id');
@@ -800,7 +810,7 @@ class Transfer extends ApiBase
      */
     public function cancleTrading(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $user = $userM->where(['id'=>$user_id])->find();
@@ -1075,7 +1085,7 @@ class Transfer extends ApiBase
      */
     public function sendSellMessage(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $trad_id = $this->_post('trad_id');
@@ -1105,7 +1115,7 @@ class Transfer extends ApiBase
      */
     public function UserComplaint(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $tradingM = new \addons\member\model\Trading();
         $userM = new \addons\member\model\MemberAccountModel();
         $trad_id = $this->_post('trad_id');
@@ -1131,7 +1141,7 @@ class Transfer extends ApiBase
      */
     public function UserComplaintList(){
         $user_id = $this->user_id;
-        if($user_id <= 0) return $this->failData(lang('COMMON_LOGIN'));
+        if(!$user_id) return $this->failData(lang('COMMON_LOGIN'));
         $TradingComplaint = new \addons\member\model\TradingComplaint();
         $filter = 'user_id = '.$user_id;
         $page = $this->_post('page')?$this->_post('page'):0;
