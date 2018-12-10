@@ -77,11 +77,13 @@ class Wallet extends ApiBase
         // $tax_rate = $paramM->getValByName('deal_tax'); //手续费比率
         $tax_amount = $amount/7*3;
         $total_amount = $amount + $tax_amount;
-        $balance = $balanceM->verifyStock($this->user_id,$total_amount,$sub_type);
-        if(empty($balance)){
-            return $this->failJSON(lang('NODE_LESS_AMOUNT'));
-        }
-        if($total_amount > $balance['amount']){
+//        $balance = $balanceM->verifyStock($this->user_id,$total_amount,$sub_type);
+//        if(empty($balance)){
+//            return $this->failJSON(lang('NODE_LESS_AMOUNT'));
+//        }
+
+        $use_balance = $balanceM->getBalanceByType($this->user_id,$use_type);
+        if($amount > $use_balance['amount']){
             return $this->failJSON(lang('NODE_LESS_AMOUNT'));
         }
 
@@ -100,6 +102,17 @@ class Wallet extends ApiBase
             {
                 $balanceM->rollback();
                 return $this->failJSON();
+            }
+
+            $balance_total = $balanceM->getBalanceByType($this->user_id,$sub_type);
+            if($balance_total['amount'] <= 0)
+            {
+                $balance_use = $balanceM->getBalanceByType($this->user_id,$use_type);
+                if($balance_use['amount'] > 0)
+                {
+                    $amount_total = bcdiv($balance_use['amount'],0.7,2);
+                    $balanceM->updateBalance($this->user_id,$sub_type,$amount_total,true);
+                }
             }
 
             //收入方
