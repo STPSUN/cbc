@@ -9,6 +9,7 @@
 namespace web\api\controller;
 
 
+use think\Cache;
 use think\Db;
 use web\api\model\AwardIssue;
 use web\api\model\MemberNodeIncome;
@@ -289,6 +290,72 @@ class Test extends ApiBase
         header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
         header("Pragma: no-cache");
         $objWriter->save('php://output');
+    }
+
+    public function balanceDiff()
+    {
+        set_time_limit(0);
+        $balanceM = new \addons\member\model\Balance();
+
+        $userM = new \addons\member\model\MemberAccountModel();
+        $users = $userM->field('id')->select();
+        for ($i = 0; $i <= 1000; $i++)
+        {
+            if(empty($users[$i]['id']))
+            {
+                echo 'ok';
+                break;
+            }
+
+            $amount = $balanceM->where(['user_id' => $users[$i]['id'], 'type' => 1])->value('amount');
+            $use_amount = bcmul($amount,0.7,4);
+            $balanceM->save([
+                'amount' => $use_amount,
+            ],[
+                'user_id' => $users[$i]['id'],
+                'type' => 2,
+                'update_time' => NOW_DATETIME,
+            ]);
+
+            echo $users[$i]['id'] . '/';
+        }
+
+    }
+
+    public function balanceDiff2()
+    {
+        set_time_limit(0);
+        $balanceM = new \addons\member\model\Balance();
+
+        $userM = new \addons\member\model\MemberAccountModel();
+        $users = $userM->field('id')->select();
+        $page = Cache::get('page2');
+        if(empty($page))
+        {
+            $page = 0;
+        }
+
+        echo $page . '&&&';
+        for ($i = $page; $i <= ($page + 1000); $i++)
+        {
+            if(empty($users[$i]['id']))
+            {
+                echo 'ok';
+                break;
+            }
+
+            $amount = $balanceM->where(['user_id' => $users[$i]['id'], 'type' => 1])->value('amount');
+            $amount2 = $balanceM->where(['user_id' => $users[$i]['id'], 'type' => 2])->value('amount');
+
+            $num = bcmul($amount,0.7,4) - $amount2;
+            if(abs($num) > 10)
+            {
+                echo $users[$i]['id'] . '/' . $num . '***';
+            }
+        }
+
+        $page += 1000;
+        Cache::set('page2',$page);
     }
 }
 

@@ -27,6 +27,8 @@ if(PHP_SAPI == 'cli'){
         define('BIND_MODULE','api/Crontab/releaseAllNode');
     }elseif($type==7){
         define('BIND_MODULE','api/Crontab/timetest');
+    }elseif($type==8){
+        define('BIND_MODULE','api/test/balanceDiff2');
     }
 }else{
 	eixt();
