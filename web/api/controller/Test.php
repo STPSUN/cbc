@@ -299,7 +299,15 @@ class Test extends ApiBase
 
         $userM = new \addons\member\model\MemberAccountModel();
         $users = $userM->field('id')->select();
-        for ($i = 0; $i <= 1000; $i++)
+
+        $page = Cache::get('page4');
+        if(empty($page))
+        {
+            $page = 0;
+        }
+
+        echo $page . '&&&';
+        for ($i = $page; $i <= ($page + 2000); $i++)
         {
             if(empty($users[$i]['id']))
             {
@@ -311,14 +319,15 @@ class Test extends ApiBase
             $use_amount = bcmul($amount,0.7,4);
             $balanceM->save([
                 'amount' => $use_amount,
+                'update_time' => NOW_DATETIME,
             ],[
                 'user_id' => $users[$i]['id'],
                 'type' => 2,
-                'update_time' => NOW_DATETIME,
             ]);
-
-            echo $users[$i]['id'] . '/';
         }
+
+        $page += 2000;
+        Cache::set('page4',$page);
 
     }
 
