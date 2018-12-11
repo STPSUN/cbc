@@ -300,14 +300,14 @@ class Test extends ApiBase
         $userM = new \addons\member\model\MemberAccountModel();
         $users = $userM->field('id')->select();
 
-        $page = Cache::get('page4');
+        $page = Cache::get('page5');
         if(empty($page))
         {
             $page = 0;
         }
 
         echo $page . '&&&';
-        for ($i = $page; $i <= ($page + 2000); $i++)
+        for ($i = $page; $i <= ($page + 1000); $i++)
         {
             if(empty($users[$i]['id']))
             {
@@ -326,8 +326,8 @@ class Test extends ApiBase
             ]);
         }
 
-        $page += 2000;
-        Cache::set('page4',$page);
+        $page += 1000;
+        Cache::set('page5',$page);
 
     }
 
