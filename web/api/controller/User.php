@@ -267,17 +267,18 @@ class User extends ApiBase
             switch ($v['type'])
             {
                 case 1:
-                    $balance['total_amount'] = sprintf("%.2f",$v['amount']);    break;
+//                    $balance['total_amount'] = sprintf("%.2f",$v['amount']);    break;
+                    $balance['total_amount'] = floor($v['amount']*100)/100;    break;
                 case 2:
-                    $balance['use_amount'] = sprintf("%.2f",$v['amount']); break;
+                    $balance['use_amount'] = floor($v['amount']*100)/100;    break;
                 case 3:
-                    $balance['lock_amount'] = sprintf("%.2f",$v['amount']);    break;
+                    $balance['lock_amount'] = floor($v['amount']*100)/100;     break;
                 case 4:
-                    $balance['key_amount'] = sprintf("%.2f",$v['amount']);     break;
+                    $balance['key_amount'] = floor($v['amount']*100)/100;      break;
                 case 5:
                 {
                     $amount = $nodeS->getDayNodeCount($this->user_id);
-                    $balance['today_amount'] = sprintf("%.2f",$amount);   break;
+                    $balance['today_amount'] = floor($amount*100)/100;   break;
                 }
 
             }
