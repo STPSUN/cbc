@@ -7,10 +7,13 @@ return [
 //    'hostname'        => '127.0.0.1',
     'hostname'        => 'rm-j6cs4ji82z63g63byho.mysql.rds.aliyuncs.com',
     // 数据库名
+//    'database'        => 'cbc',
     'database'        => 'cbc',
     // 用户名
+//    'username'        => 'root',
     'username'        => 'cbccbc',
     // 密码
+//    'password'        => 'root',
     'password'        => 'BtP7aSATyUP0yOu8',
     // 端口
 //    'hostport'        => '3307',
