@@ -35,7 +35,7 @@ class Member extends \web\user\controller\AddonUserBase{
         $m = new \addons\member\model\MemberAccountModel();
         $Balance = new \addons\member\model\Balance();
         $total = $m->getTotal($filter);
-        $rows = $m->getList($this->getPageIndex(), $this->getPageSize(), $filter);
+        $rows = $m->getList2($this->getPageIndex(), $this->getPageSize(), $filter);
         foreach ($rows as $key => $value) {
             $info = $Balance->where(['user_id'=>$value['id']])->select();
             foreach ($info as $k => $v) {

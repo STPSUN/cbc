@@ -147,6 +147,14 @@ class MemberAccountModel extends \web\common\model\BaseModel {
         return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
     }
 
+    public function getList2($pageIndex = -1, $pageSize = -1, $filter = '', $order = 'id asc') {
+//        $TransferM = new \addons\member\model\Transfer();
+        $sql = 'select tab.*,c.phone as invite_user_phone from ' . $this->getTableName() . ' as tab left join ' . $this->getTableName() . ' c on tab.pid=c.id';
+        if (!empty($filter))
+            $sql = 'select * from (' . $sql . ') t where ' . $filter;
+        return $this->getDataListBySQL($sql, $pageIndex, $pageSize, $order);
+    }
+
     public function getPids($id, $pids = '') {
         $pid = $this->getPID($id);
         if (!empty($pid)) {
